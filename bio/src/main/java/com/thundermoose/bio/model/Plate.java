@@ -3,20 +3,37 @@ package com.thundermoose.bio.model;
 import java.util.Date;
 
 public class Plate {
-	private String	id;
+	private long		id;
+	private String	plateId;
 	private float		negativeControl;
 	private float		positiveControl;
+	private int			timeMarker;
 	private Date		createDate;
 
 	public Plate() {
 	}
 
-	public String getId() {
+	public Plate(String plateId, int timeMarker, float negativeControl, float positiveControl) {
+		this.plateId = plateId;
+		this.negativeControl = negativeControl;
+		this.positiveControl = positiveControl;
+		this.timeMarker = timeMarker;
+	}
+
+	public long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getPlateId() {
+		return plateId;
+	}
+
+	public void setPlateId(String plateId) {
+		this.plateId = plateId;
 	}
 
 	public float getNegativeControl() {
@@ -43,10 +60,12 @@ public class Plate {
 		this.createDate = createDate;
 	}
 
-	public Plate(String id, float negativeControl, float positiveControl) {
-		this.id = id;
-		this.negativeControl = negativeControl;
-		this.positiveControl = positiveControl;
+	public int getTimeMarker() {
+		return timeMarker;
+	}
+
+	public void setTimeMarker(int timeMarker) {
+		this.timeMarker = timeMarker;
 	}
 
 }

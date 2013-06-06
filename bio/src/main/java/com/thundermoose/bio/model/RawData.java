@@ -62,4 +62,12 @@ public class RawData {
 		this.createDate = createDate;
 	}
 
+	public float getData() {
+		return data;
+	}
+
+	public void setData(float data) {
+		this.data = data;
+	}
+
 }

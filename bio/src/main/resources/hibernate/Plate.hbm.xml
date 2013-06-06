@@ -3,9 +3,16 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
   <class name="com.thundermoose.bio.model.Plate" table="plates" catalog="hts">
-    <id name="id" type="string">
+    <id name="id" type="long">
       <column name="ID" />
+      <generator class="identity" />
     </id>
+    <property name="plateId" type="string">
+      <column name="PLATE_ID" />
+    </property>
+    <property name="timeMarker" type="int">
+      <column name="TIME_MARKER" />
+    </property>
     <property name="negativeControl" type="float">
       <column name="NEGATIVE_CONTROL" />
     </property>

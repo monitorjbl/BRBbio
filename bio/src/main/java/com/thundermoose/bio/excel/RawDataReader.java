@@ -58,27 +58,29 @@ public class RawDataReader {
 				continue;
 			}
 			String plateId = row.getCell(head.get(PLATE_ID)).getStringCellValue();
-			if (!plates.containsKey(plateId)) {
-				plates.put(plateId, new Plate(plateId, 0, 0));
-			}
-			Plate plate = plates.get(plateId);
-
-			String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
 			int time;
 			if (row.getCell(head.get(TIME_MARKER)).getCellType() == Cell.CELL_TYPE_STRING) {
 				time = Integer.parseInt(row.getCell(head.get(TIME_MARKER)).getStringCellValue());
 			} else {
 				time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
 			}
+			
+			String key = plateId+"_"+time;
+			if (!plates.containsKey(key)) {
+				plates.put(key, new Plate(plateId, time, 0, 0));
+			}
+			Plate plate = plates.get(key);
+
+			String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
 			float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
 
 			// track neg/pos
 			if (neg.equals(ident)) {
 				plate.setNegativeControl(plate.getNegativeControl() + data);
-				negCount.put(plateId, (negCount.containsKey(plateId) ? negCount.get(plateId) : 0) + 1);
+				negCount.put(key, (negCount.containsKey(key) ? negCount.get(key) : 0) + 1);
 			} else if (pos.equals(ident)) {
 				plate.setPositiveControl(plate.getPositiveControl() + data);
-				posCount.put(plateId, (posCount.containsKey(plateId) ? posCount.get(plateId) : 0) + 1);
+				posCount.put(key, (posCount.containsKey(key) ? posCount.get(key) : 0) + 1);
 			} else {
 				session.save(new RawData(plateId, ident, time, data));
 			}
