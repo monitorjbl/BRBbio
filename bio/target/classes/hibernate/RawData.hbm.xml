@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="com.thundermoose.bio.model.RawData" table="raw_data" catalog="hts">
+    <id name="id" type="long">
+      <column name="ID" />
+      <generator class="identity" />
+    </id>
+    <property name="plateId" type="string">
+      <column name="PLATE_ID" />
+    </property>
+    <property name="identifier" type="string">
+      <column name="IDENTIFIER" />
+    </property>
+    <property name="timeMarker" type="int">
+      <column name="TIME_MARKER" />
+    </property>
+    <property name="createDate" type="timestamp">
+      <column name="CREATE_DATE" />
+    </property>
+  </class>
+</hibernate-mapping>

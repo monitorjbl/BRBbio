@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="com.thundermoose.bio.model.Plate" table="plates" catalog="hts">
+    <id name="id" type="string">
+      <column name="ID" />
+    </id>
+    <property name="negativeControl" type="float">
+      <column name="NEGATIVE_CONTROL" />
+    </property>
+    <property name="positiveControl" type="float">
+      <column name="POSITIVE_CONTROL" />
+    </property>
+    <property name="createDate" type="timestamp">
+      <column name="CREATE_DATE" />
+    </property>
+  </class>
+</hibernate-mapping>
