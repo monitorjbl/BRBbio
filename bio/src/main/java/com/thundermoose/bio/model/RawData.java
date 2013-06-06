@@ -1,4 +1,4 @@
-package com.thudermoose.bio.model;
+package com.thundermoose.bio.model;
 
 import java.util.Date;
 

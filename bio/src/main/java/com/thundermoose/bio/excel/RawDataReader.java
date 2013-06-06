@@ -1,5 +1,8 @@
-package com.thudermoose.bio.excel;
+package com.thundermoose.bio.excel;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -10,9 +13,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.Session;
+import org.hibernate.cfg.Configuration;
 
-import com.thudermoose.bio.model.Plate;
-import com.thudermoose.bio.model.RawData;
+import com.thundermoose.bio.model.Plate;
+import com.thundermoose.bio.model.RawData;
 
 public class RawDataReader {
 
@@ -37,7 +42,12 @@ public class RawDataReader {
 		for (Cell cell : sheet.getRow(0)) {
 			head.put(cell.getStringCellValue(), cell.getColumnIndex());
 		}
-		// check for proper heads
+		if(!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(IDENTIFIER) || !head.containsKey(TIME_MARKER)){
+			throw new RuntimeException("Missing required column");
+		}
+
+		Session session = new Configuration().configure().buildSessionFactory().openSession();
+		session.beginTransaction();
 
 		Map<String, Plate> plates = new HashMap<String, Plate>();
 		Map<String, Integer> negCount = new HashMap<String, Integer>();
@@ -70,12 +80,22 @@ public class RawDataReader {
 				plate.setPositiveControl(plate.getPositiveControl() + data);
 				posCount.put(plateId, (posCount.containsKey(plateId) ? posCount.get(plateId) : 0) + 1);
 			} else {
-				new RawData(plateId, ident, time, data);
+				session.save(new RawData(plateId, ident, time, data));
 			}
 		}
-		
-		for(String key : plates.keySet()){
-			
+
+		for (String key : plates.keySet()) {
+			Plate plate = plates.get(key);
+			plate.setNegativeControl(plate.getNegativeControl() / negCount.get(key));
+			plate.setPositiveControl(plate.getPositiveControl() / posCount.get(key));
+			session.save(plate);
 		}
+
+		session.getTransaction().commit();
+		session.close();
+	}
+
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		new RawDataReader("negativecontrol", "Copb1_indi").readExcel(new FileInputStream(new File("src/test/resources/test_data.xlsx")));
 	}
 }
