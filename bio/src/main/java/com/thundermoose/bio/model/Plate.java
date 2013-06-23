@@ -1,23 +1,22 @@
 package com.thundermoose.bio.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Plate {
-	private long		id;
-	private String	plateId;
-	private float		negativeControl;
-	private float		positiveControl;
-	private int			timeMarker;
-	private Date		createDate;
+	private long					id;
+	private long					runId;
+	private String				plateName;
+	private Date					createDate;
+	private List<Control>	controls	= new ArrayList<Control>();
 
 	public Plate() {
 	}
 
-	public Plate(String plateId, int timeMarker, float negativeControl, float positiveControl) {
-		this.plateId = plateId;
-		this.negativeControl = negativeControl;
-		this.positiveControl = positiveControl;
-		this.timeMarker = timeMarker;
+	public Plate(long runId, String plateName) {
+		this.runId = runId;
+		this.plateName = plateName;
 	}
 
 	public long getId() {
@@ -28,28 +27,20 @@ public class Plate {
 		this.id = id;
 	}
 
-	public String getPlateId() {
-		return plateId;
+	public long getRunId() {
+		return runId;
 	}
 
-	public void setPlateId(String plateId) {
-		this.plateId = plateId;
+	public void setRunId(long runId) {
+		this.runId = runId;
 	}
 
-	public float getNegativeControl() {
-		return negativeControl;
+	public String getPlateName() {
+		return plateName;
 	}
 
-	public void setNegativeControl(float negativeControl) {
-		this.negativeControl = negativeControl;
-	}
-
-	public float getPositiveControl() {
-		return positiveControl;
-	}
-
-	public void setPositiveControl(float positiveControl) {
-		this.positiveControl = positiveControl;
+	public void setPlateName(String plateName) {
+		this.plateName = plateName;
 	}
 
 	public Date getCreateDate() {
@@ -60,12 +51,12 @@ public class Plate {
 		this.createDate = createDate;
 	}
 
-	public int getTimeMarker() {
-		return timeMarker;
+	public List<Control> getControls() {
+		return controls;
 	}
 
-	public void setTimeMarker(int timeMarker) {
-		this.timeMarker = timeMarker;
+	public void setControls(List<Control> controls) {
+		this.controls = controls;
 	}
 
 }

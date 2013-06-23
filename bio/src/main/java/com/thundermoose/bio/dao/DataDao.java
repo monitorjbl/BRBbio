@@ -9,6 +9,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.thundermoose.bio.excel.RawDataReader;
+import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.RawData;
 
 public class DataDao {
@@ -23,12 +24,27 @@ public class DataDao {
 		query.setParameter("id", plateId);
 		return query.list();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Plate> getPlates() {
+		Session session = sessionFactory.openSession();
+		Query query = session.createQuery("from Plate");
+		return query.list();
+	}
 
-	public void loadExcel(InputStream is){
+	public void loadExcel(String runName, InputStream is){
 		try {
-			new RawDataReader("negativecontrol", "Copb1_indi", sessionFactory.openSession()).readExcel(is);
+			new RawDataReader("negativecontrol", "Copb1_indi", sessionFactory.openSession()).readExcel(runName,is);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} 
+	}
+	
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 }

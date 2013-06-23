@@ -5,7 +5,7 @@ import java.util.Date;
 public class RawData {
 
 	private long		id;
-	private String	plateId;
+	private long		plateId;
 	private String	identifier;
 	private int			timeMarker;
 	private float		data;
@@ -15,7 +15,7 @@ public class RawData {
 
 	}
 
-	public RawData(String plateId, String identifier, int timeMarker, float data) {
+	public RawData(long plateId, String identifier, int timeMarker, float data) {
 		this.plateId = plateId;
 		this.identifier = identifier;
 		this.timeMarker = timeMarker;
@@ -30,11 +30,11 @@ public class RawData {
 		this.id = id;
 	}
 
-	public String getPlateId() {
+	public long getPlateId() {
 		return plateId;
 	}
 
-	public void setPlateId(String plateId) {
+	public void setPlateId(long plateId) {
 		this.plateId = plateId;
 	}
 

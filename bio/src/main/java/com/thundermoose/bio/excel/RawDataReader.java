@@ -18,8 +18,10 @@ import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 
 import com.thundermoose.bio.exceptions.DatabaseException;
+import com.thundermoose.bio.model.Control;
 import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.RawData;
+import com.thundermoose.bio.model.Run;
 
 public class RawDataReader {
 
@@ -44,7 +46,7 @@ public class RawDataReader {
 		this.session = session;
 	}
 
-	public void readExcel(InputStream file) throws IOException {
+	public void readExcel(String runName, InputStream file) throws IOException {
 		Workbook wb;
 		try {
 			wb = WorkbookFactory.create(file);
@@ -63,8 +65,14 @@ public class RawDataReader {
 		}
 
 		session.beginTransaction();
+		
+		//create new run
+		long runId = (Long) session.save(new Run(runName));
 
-		Map<String, Plate> plates = new HashMap<String, Plate>();
+		//map external to internal id
+		Map<String, Long> plates = new HashMap<String, Long>();
+		
+		Map<String, Control> controls = new HashMap<String, Control>();
 		Map<String, Integer> dupCheck = new HashMap<String, Integer>();
 		Map<String, Integer> negCount = new HashMap<String, Integer>();
 		Map<String, Integer> posCount = new HashMap<String, Integer>();
@@ -73,7 +81,7 @@ public class RawDataReader {
 			if (row.getRowNum() == 0) {
 				continue;
 			}
-			String plateId = row.getCell(head.get(PLATE_ID)).getStringCellValue();
+			String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
 			int time;
 			if (row.getCell(head.get(TIME_MARKER)).getCellType() == Cell.CELL_TYPE_STRING) {
 				time = Integer.parseInt(row.getCell(head.get(TIME_MARKER)).getStringCellValue());
@@ -81,22 +89,29 @@ public class RawDataReader {
 				time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
 			}
 
-			String key = plateId + "_" + time;
-			if (!plates.containsKey(key)) {
-				plates.put(key, new Plate(plateId, time, 0, 0));
+			//get plate, or create if necessary
+			if (!plates.containsKey(plateName)) {
+				plates.put(plateName, (Long)session.save(new Plate(runId, plateName)));
 			}
-			Plate plate = plates.get(key);
+			long plateId = plates.get(plateName);
 
+			//get control, or create if necessary
+			String controlKey = plateName+time;
+			if(!controls.containsKey(controlKey)){
+				controls.put(controlKey, new Control(plateId, time, 0,0));
+			}
+			Control ctrl = controls.get(controlKey);
+			
 			String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
 			float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
 
 			// track neg/pos
 			if (neg.equals(ident)) {
-				plate.setNegativeControl(plate.getNegativeControl() + data);
-				negCount.put(key, (negCount.containsKey(key) ? negCount.get(key) : 0) + 1);
+				ctrl.setNegativeControl(ctrl.getNegativeControl() + data);
+				negCount.put(controlKey, (negCount.containsKey(controlKey) ? negCount.get(controlKey) : 0) + 1);
 			} else if (pos.equals(ident)) {
-				plate.setPositiveControl(plate.getPositiveControl() + data);
-				posCount.put(key, (posCount.containsKey(key) ? posCount.get(key) : 0) + 1);
+				ctrl.setPositiveControl(ctrl.getPositiveControl() + data);
+				posCount.put(controlKey, (posCount.containsKey(controlKey) ? posCount.get(controlKey) : 0) + 1);
 			} else if (ignored.containsKey(ident)) {
 				// do nothing
 			} else {
@@ -112,11 +127,11 @@ public class RawDataReader {
 			}
 		}
 
-		for (String key : plates.keySet()) {
-			Plate plate = plates.get(key);
-			plate.setNegativeControl(plate.getNegativeControl() / negCount.get(key));
-			plate.setPositiveControl(plate.getPositiveControl() / posCount.get(key));
-			session.save(plate);
+		for (String key : controls.keySet()) {
+			Control ctrl = controls.get(key);
+			ctrl.setNegativeControl(ctrl.getNegativeControl() / negCount.get(key));
+			ctrl.setPositiveControl(ctrl.getPositiveControl() / posCount.get(key));
+			session.save(ctrl);
 		}
 
 		session.getTransaction().commit();

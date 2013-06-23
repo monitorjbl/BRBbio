@@ -49,6 +49,8 @@ public class ExcelUpload {
 	@RequestMapping(value = "doLoad")
 	public @ResponseBody
 	Upload load(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String runName = request.getParameter("runName");
+		
 		Item item = new Item();
 		Upload upload = new Upload();
 		upload.getFiles().add(item);
@@ -74,7 +76,7 @@ public class ExcelUpload {
 		item.setSize(it.getSize());
 		it.write(it.getStoreLocation());
 
-		dao.loadExcel(new FileInputStream(it.getStoreLocation()));
+		dao.loadExcel(runName, new FileInputStream(it.getStoreLocation()));
 
 		return upload;
 	}
