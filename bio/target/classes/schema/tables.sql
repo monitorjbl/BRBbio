@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS `plates` (
   `negative_control` float DEFAULT NULL,
   `time_marker` int(11) DEFAULT NULL,
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  CONSTRAINT uc_plates UNIQUE (plate_id,time_marker)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `raw_data` (
@@ -15,5 +16,6 @@ CREATE TABLE IF NOT EXISTS `raw_data` (
   `time_marker` int(11) DEFAULT NULL,
   `data` float DEFAULT NULL,
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  CONSTRAINT uc_rawdata UNIQUE (plate_id,identifier,time_marker)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;

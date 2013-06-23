@@ -1,5 +1,9 @@
 package com.thundermoose.bio.dao;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,11 @@ public class TestHibernate {
 	
 	@Test
 	public void test(){
-		System.out.println(dao.getData("HTB1582"));
+		System.out.println(dao.getDataByPlate("HTB1582"));
+	}
+	
+	@Test
+	public void testFile() throws FileNotFoundException{
+		dao.loadExcel(new FileInputStream(new File("src/test/resources/test_data.xlsx")));
 	}
 }
