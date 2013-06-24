@@ -19,7 +19,7 @@
     <property name="data" type="float">
       <column name="DATA" />
     </property>
-    <property name="createDate" type="timestamp">
+    <property name="createDate" type="timestamp" generated="insert">
       <column name="CREATE_DATE" />
     </property>
   </class>

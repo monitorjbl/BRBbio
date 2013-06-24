@@ -7,7 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -16,6 +18,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 import org.hsqldb.jdbc.JDBCDataSource;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +27,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -32,6 +36,9 @@ import org.springframework.test.jdbc.SimpleJdbcTestUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.thundermoose.bio.model.Control;
+import com.thundermoose.bio.model.Plate;
+import com.thundermoose.bio.model.RawData;
 
 //@RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration("/application-context.xml")
@@ -41,12 +48,16 @@ public class TestHibernate {
 
 	@Test
 	public void test() {
-		// System.out.println(dao.getDataByPlate("HTB1582"));
-	}
-
-	@Test
-	public void testFile() throws FileNotFoundException {
-		dao.loadExcel("test", new FileInputStream(new File("src/test/resources/test_data.xlsx")));
+		List<Plate> plates = dao.getDataByPlate(1);
+		for(Plate plate : plates){
+			System.out.println(plate.getPlateName());
+			for(Control c : plate.getControls()){
+				System.out.println("\t"+c.getNegativeControl());
+			}
+			for(RawData rd : plate.getRawData()){
+				System.out.println("\t"+rd.getIdentifier());
+			}
+		}
 	}
 
 	@BeforeClass
@@ -81,5 +92,17 @@ public class TestHibernate {
 		// create test hibernate factory
 		dao = new DataDao();
 		dao.setSessionFactory(sessionFactory);
+		
+		try{
+		dao.loadExcel("test", new FileInputStream(new File("src/test/resources/test_data.xlsx")));
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
+
+	@AfterClass
+	public static void shutdownDao() throws SQLException {
+		DriverManager.getConnection("jdbc:hsqldb:file:target/hts;shutdown=true", "sa", "");
 	}
 }

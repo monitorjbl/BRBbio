@@ -82,12 +82,6 @@ public class RawDataReader {
 				continue;
 			}
 			String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
-			int time;
-			if (row.getCell(head.get(TIME_MARKER)).getCellType() == Cell.CELL_TYPE_STRING) {
-				time = Integer.parseInt(row.getCell(head.get(TIME_MARKER)).getStringCellValue());
-			} else {
-				time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
-			}
 
 			//get plate, or create if necessary
 			if (!plates.containsKey(plateName)) {
@@ -95,6 +89,13 @@ public class RawDataReader {
 			}
 			long plateId = plates.get(plateName);
 
+			int time;
+			if (row.getCell(head.get(TIME_MARKER)).getCellType() == Cell.CELL_TYPE_STRING) {
+				time = Integer.parseInt(row.getCell(head.get(TIME_MARKER)).getStringCellValue());
+			} else {
+				time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
+			}
+			
 			//get control, or create if necessary
 			String controlKey = plateName+time;
 			if(!controls.containsKey(controlKey)){
@@ -115,7 +116,7 @@ public class RawDataReader {
 			} else if (ignored.containsKey(ident)) {
 				// do nothing
 			} else {
-				String d = plateId + "_" + ident;
+				String d = plateId + "_" + ident+"_"+time;
 				if (!dupCheck.containsKey(d)) {
 					dupCheck.put(d, 1);
 					try {

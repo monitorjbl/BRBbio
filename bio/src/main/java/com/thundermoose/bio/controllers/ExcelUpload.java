@@ -50,6 +50,9 @@ public class ExcelUpload {
 	public @ResponseBody
 	Upload load(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String runName = request.getParameter("runName");
+		if(runName == null || "".equals(runName)){
+			throw new DatabaseException("Run name is required");
+		}
 		
 		Item item = new Item();
 		Upload upload = new Upload();

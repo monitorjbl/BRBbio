@@ -1,6 +1,7 @@
 package com.thundermoose.bio.dao;
 
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Query;
@@ -18,9 +19,9 @@ public class DataDao {
 	private SessionFactory	sessionFactory;
 
 	@SuppressWarnings("unchecked")
-	public List<RawData> getDataByPlate(String plateId) {
+	public List<Plate> getDataByPlate(long plateId) {
 		Session session = sessionFactory.openSession();
-		Query query = session.createQuery("from RawData where plateId = :id ");
+		Query query = session.createQuery("from Plate WHERE id = :id ");
 		query.setParameter("id", plateId);
 		return query.list();
 	}

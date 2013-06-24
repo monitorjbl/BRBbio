@@ -13,7 +13,7 @@
     <property name="plateName" type="string">
       <column name="PLATE_NAME" />
     </property>
-    <property name="createDate" type="timestamp">
+    <property name="createDate" type="timestamp" generated="insert">
       <column name="CREATE_DATE" />
     </property>
     <list name="controls" cascade="all">
@@ -22,7 +22,7 @@
       <one-to-many class="com.thundermoose.bio.model.Control" />
     </list>
   </class>
-  <class name="com.thundermoose.bio.model.Control" table="controls" catalog="hts">
+  <class name="com.thundermoose.bio.model.Control" table="controls">
     <id name="id" type="long">
       <column name="ID" />
       <generator class="identity" />
@@ -39,7 +39,7 @@
     <property name="positiveControl" type="float">
       <column name="POSITIVE_CONTROL" />
     </property>
-    <property name="createDate" type="timestamp">
+    <property name="createDate" type="timestamp" generated="insert">
       <column name="CREATE_DATE" />
     </property>
   </class>

@@ -16,12 +16,12 @@ $(document).ready(function(){
     
     
     $('#fileupload').fileupload({
-        url: 'doLoad',
         dataType: 'json',
         maxNumberOfFiles: 1,
-        formData: {name: 'test', value:'boobs'},
         submit: function (e, data) {
-        	console.log(data);
+        	$('#fileupload').fileupload( 'option',
+        		    'url',
+        		    'doLoad?runName='+escape($('#runName').val()));
         	$('#files').html('');
             $('#progress').show();
         },
@@ -61,7 +61,8 @@ $(document).ready(function(){
   <!-- The container for the uploaded files -->
   <div id="files" class="files">No files uploaded</div>
   <!-- The fileinput-button span is used to style the file input field as button -->
-  <input type="text" />
+  Run name: <input type="text" id="runName" />
+  File: <input type="text" />
   <span class="btn btn-success fileinput-button"> <i class="icon-plus icon-white"></i> <span>Upload</span> <!-- The file input field used as target for the file upload widget --> <input id="fileupload"
     type="file" name="files[]" multiple>
   </span>
