@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="com.thundermoose.bio.model.Run" table="runs">
+    <id name="id" type="long">
+      <column name="ID" />
+      <generator class="identity" />
+    </id>
+    <property name="runName" type="string">
+      <column name="RUN_NAME" />
+    </property>
+    <property name="createDate" type="timestamp" generated="insert">
+      <column name="CREATE_DATE" />
+    </property>
+  </class>
+</hibernate-mapping>
