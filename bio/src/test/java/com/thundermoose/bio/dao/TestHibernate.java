@@ -3,15 +3,10 @@ package com.thundermoose.bio.dao;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
-import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -21,21 +16,11 @@ import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
-import org.springframework.test.jdbc.SimpleJdbcTestUtils;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.thundermoose.bio.model.Control;
 import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.RawData;
@@ -47,8 +32,9 @@ public class TestHibernate {
 	private static DataDao	dao;
 
 	@Test
-	public void test() {
-		List<Plate> plates = dao.getDataByPlate(1);
+	public void test() throws IOException {
+		dao.getProcessedDataByRunId(0);
+		/*List<Plate> plates = dao.getPlates();
 		for(Plate plate : plates){
 			System.out.println(plate.getPlateName());
 			for(Control c : plate.getControls()){
@@ -57,7 +43,7 @@ public class TestHibernate {
 			for(RawData rd : plate.getRawData()){
 				System.out.println("\t"+rd.getIdentifier());
 			}
-		}
+		}*/
 	}
 
 	@BeforeClass
@@ -92,6 +78,7 @@ public class TestHibernate {
 		// create test hibernate factory
 		dao = new DataDao();
 		dao.setSessionFactory(sessionFactory);
+		dao.setJdbc(db);
 		
 		try{
 		dao.loadExcel("test", new FileInputStream(new File("src/test/resources/test_data.xlsx")));

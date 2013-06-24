@@ -15,6 +15,8 @@ CREATE TABLE plates (
   PRIMARY KEY (id)
 );
 
+ALTER TABLE plates ADD FOREIGN KEY (run_id) REFERENCES runs(id);
+
 ALTER TABLE plates ADD CONSTRAINT plates_uc_1 UNIQUE (run_id,plate_name);
 
 CREATE TABLE controls (
@@ -27,6 +29,8 @@ CREATE TABLE controls (
   PRIMARY KEY (id)
 );
 
+ALTER TABLE controls ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
+
 ALTER TABLE controls ADD CONSTRAINT controls_uc_1 UNIQUE (plate_id,time_marker);
 
 CREATE TABLE raw_data (
@@ -38,5 +42,7 @@ CREATE TABLE raw_data (
   create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
   PRIMARY KEY (id)
 );
+
+ALTER TABLE raw_data ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
 
 ALTER TABLE raw_data ADD CONSTRAINT raw_data_uc_1 UNIQUE (plate_id,identifier,time_marker);

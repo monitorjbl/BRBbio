@@ -3,23 +3,16 @@ package com.thundermoose.bio.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -98,6 +91,7 @@ public class ExcelUpload {
 		private String	exception;
 		private String	message;
 
+		@SuppressWarnings("unused")
 		public String getException() {
 			return exception;
 		}
@@ -106,6 +100,7 @@ public class ExcelUpload {
 			this.exception = exception;
 		}
 
+		@SuppressWarnings("unused")
 		public String getMessage() {
 			return message;
 		}

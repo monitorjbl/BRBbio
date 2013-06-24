@@ -1,19 +1,16 @@
 package com.thundermoose.bio.excel;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -30,6 +27,7 @@ public class RawDataReader {
 	private static final String								IDENTIFIER	= "Identifier";
 	private static final String								TIME_MARKER	= "TimeMarker";
 
+	@SuppressWarnings("serial")
 	private static final Map<String, String>	ignored			= new HashMap<String, String>() {
 																													{
 																														put("Rab2_indi", "");
