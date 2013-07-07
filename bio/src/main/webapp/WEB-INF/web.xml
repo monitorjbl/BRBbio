@@ -31,6 +31,6 @@
   </listener>
 
   <welcome-file-list>
-    <welcome-file>/static/welcome.html</welcome-file>
+    <welcome-file>/WEB-INF/jsp/welcome.jsp</welcome-file>
   </welcome-file-list>
 </web-app>

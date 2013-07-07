@@ -38,6 +38,7 @@ table.gridtable td {
 </style>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script src="http://blueimp.github.com/cdn/js/bootstrap.min.js"></script>
 <script>
 
 function displayProcessedData(data, runId){
@@ -93,9 +94,11 @@ $(document).ready(function(){
 </script>
 </head>
 <body>
+<jsp:include page="headers.jsp" />
 
+  <div class="container">
 <div id="selectBox">
-<h3>View Data</h3>
+<h3>View Normalized Data</h3>
 
 Run: 
 <select id="run">
@@ -108,6 +111,6 @@ Run:
 <br/>
 <div id="processed">
 </div>
-
+</div>
 </body>
 </html>
