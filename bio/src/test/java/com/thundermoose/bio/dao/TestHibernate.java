@@ -58,6 +58,7 @@ public class TestHibernate {
 		JdbcTemplate db = new JdbcTemplate(ds);
 		db.execute("SET DATABASE SQL SYNTAX MYS TRUE");
 		JdbcTestUtils.executeSqlScript(db, new FileSystemResource("src/main/resources/schema/tables.sql"), false);
+		JdbcTestUtils.executeSqlScript(db, new FileSystemResource("src/main/resources/schema/views.sql"), false);
 
 		// create test hibernate factory
 		dao = new DataDao();
@@ -69,6 +70,7 @@ public class TestHibernate {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
 		
 	}
 

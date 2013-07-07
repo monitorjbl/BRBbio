@@ -2,6 +2,7 @@ package com.thundermoose.bio.excel;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,25 +23,29 @@ import com.thundermoose.bio.model.Run;
 
 public class RawDataReader {
 
-	private static final String								PLATE_ID		= "AssayPlate";
-	private static final String								DATA				= "Data";
-	private static final String								IDENTIFIER	= "Identifier";
-	private static final String								TIME_MARKER	= "TimeMarker";
+	private static final String PLATE_ID = "AssayPlate";
+	private static final String DATA = "Data";
+	private static final String IDENTIFIER = "Identifier";
+	private static final String TIME_MARKER = "TimeMarker";
 
 	@SuppressWarnings("serial")
-	private static final Map<String, String>	ignored			= new HashMap<String, String>() {
-																													{
-																														put("Rab2_indi", "");
-																													}
-																												};
+	private static final Map<String, String> controls = new HashMap<String, String>() {
+		{
+			put("negativecontrol", "negative_control");
+			put("Copb1_indi", "positive_control");
+			put("Rab2_indi", "Rab2_indi");
+		}
+	};
+	
+	@SuppressWarnings("serial")
+	private static final Map<String, String> ignored = new HashMap<String, String>() {
+		{
+		}
+	};
 
-	private String														neg;
-	private String														pos;
-	private DataDao														dao;
+	private DataDao dao;
 
-	public RawDataReader(String neg, String pos, DataDao dao) {
-		this.neg = neg;
-		this.pos = pos;
+	public RawDataReader(DataDao dao) {
 		this.dao = dao;
 	}
 
@@ -68,11 +73,7 @@ public class RawDataReader {
 
 		// map external to internal id
 		Map<String, Long> plates = new HashMap<String, Long>();
-
-		Map<String, Control> controls = new HashMap<String, Control>();
 		Map<String, Integer> dupCheck = new HashMap<String, Integer>();
-		Map<String, Integer> negCount = new HashMap<String, Integer>();
-		Map<String, Integer> posCount = new HashMap<String, Integer>();
 
 		for (Row row : sheet) {
 			if (row.getRowNum() == 0) {
@@ -93,23 +94,12 @@ public class RawDataReader {
 				time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
 			}
 
-			// get control, or create if necessary
-			String controlKey = plateName + time;
-			if (!controls.containsKey(controlKey)) {
-				controls.put(controlKey, new Control(plateId, time, 0, 0));
-			}
-			Control ctrl = controls.get(controlKey);
-
 			String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
 			float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
 
 			// track neg/pos
-			if (neg.equals(ident)) {
-				ctrl.setNegativeControl(ctrl.getNegativeControl() + data);
-				negCount.put(controlKey, (negCount.containsKey(controlKey) ? negCount.get(controlKey) : 0) + 1);
-			} else if (pos.equals(ident)) {
-				ctrl.setPositiveControl(ctrl.getPositiveControl() + data);
-				posCount.put(controlKey, (posCount.containsKey(controlKey) ? posCount.get(controlKey) : 0) + 1);
+			if (controls.containsKey(ident)) {
+				dao.addControl(new Control(-1, plateId, controls.get(ident), time, data, new Date()));
 			} else if (ignored.containsKey(ident)) {
 				// do nothing
 			} else {
@@ -123,13 +113,6 @@ public class RawDataReader {
 					}
 				}
 			}
-		}
-
-		for (String key : controls.keySet()) {
-			Control ctrl = controls.get(key);
-			ctrl.setNegativeControl(ctrl.getNegativeControl() / negCount.get(key));
-			ctrl.setPositiveControl(ctrl.getPositiveControl() / posCount.get(key));
-			dao.addControl(ctrl);
 		}
 
 	}

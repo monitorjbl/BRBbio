@@ -32,7 +32,7 @@ public class DataDao {
 	private static final String	REPORT_SQL			= "sql/report.sql";
 	private static final String	INSERT_RUN			= "INSERT INTO runs (run_name) VALUES(?)";
 	private static final String	INSERT_PLATE		= "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
-	private static final String	INSERT_CONTROL	= "INSERT INTO controls (plate_id,time_marker,positive_control,negative_control) VALUES(?,?,?,?)";
+	private static final String	INSERT_CONTROL	= "INSERT INTO controls (plate_id,control_type,time_marker,data) VALUES(?,?,?,?)";
 	private static final String	INSERT_RAW_DATA	= "INSERT INTO raw_data (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
 
 	@Autowired
@@ -94,9 +94,9 @@ public class DataDao {
 			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 				PreparedStatement ps = conn.prepareStatement(INSERT_CONTROL, Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, control.getPlateId());
-				ps.setInt(2, control.getTimeMarker());
-				ps.setFloat(3, control.getPositiveControl());
-				ps.setFloat(4, control.getNegativeControl());
+				ps.setString(2, control.getControlType());
+				ps.setInt(3, control.getTimeMarker());
+				ps.setFloat(4, control.getData());
 				return ps;
 			}
 
@@ -121,7 +121,7 @@ public class DataDao {
 
 	public void loadExcel(String runName, InputStream is) {
 		try {
-			new RawDataReader("negativecontrol", "Copb1_indi", this).readExcel(runName, is);
+			new RawDataReader(this).readExcel(runName, is);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

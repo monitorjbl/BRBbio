@@ -22,16 +22,14 @@ ALTER TABLE plates ADD CONSTRAINT plates_uc_1 UNIQUE (run_id,plate_name);
 CREATE TABLE controls (
   id bigint AUTO_INCREMENT NOT NULL,
   plate_id bigint NOT NULL,
-  positive_control float  NOT NULL,
-  negative_control float  NOT NULL,
+  control_type varchar(64)  NOT NULL,
   time_marker int  NOT NULL,
+  data float  NOT NULL,
   create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
   PRIMARY KEY (id)
 );
 
 ALTER TABLE controls ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
-
-ALTER TABLE controls ADD CONSTRAINT controls_uc_1 UNIQUE (plate_id,time_marker);
 
 CREATE TABLE raw_data (
   id bigint AUTO_INCREMENT NOT NULL,
