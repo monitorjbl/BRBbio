@@ -6,6 +6,9 @@
 <link rel="stylesheet" href="static/css/style.css">
 <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css">
 <style type="text/css">
+#selectBox{
+  margin-left:10px;
+}
 table.gridtable {
 	font-family: verdana,arial,sans-serif;
 	font-size:11px;
@@ -69,9 +72,15 @@ function displayProcessedData(data){
 	}
 }
 
+function displayLoader(){
+	$('#processed').children().remove();
+	$('#processed').append('<img src="static/img/loader.gif"/>');
+}
+
 $(document).ready(function(){
 	$('#run').change(function(){
 		$.get('getProcessedData?runId='+$(this).val(), function(data){
+			displayLoader();
 			displayProcessedData(data);
 		})
 	})
@@ -81,16 +90,17 @@ $(document).ready(function(){
 </head>
 <body>
 
+<div id="selectBox">
 <h3>View Data</h3>
 
 Run: 
 <select id="run">
-  <option value=""><option>
+  <option value="">[-Select-]</option>
   <c:forEach var="run" items="${runs}">
    <option value="<c:out value="${run.getId()}"/>"><c:out value="${run.getRunName()}"/></option>
   </c:forEach>
 </select>
-
+</div>
 <br/>
 <div id="processed">
 </div>

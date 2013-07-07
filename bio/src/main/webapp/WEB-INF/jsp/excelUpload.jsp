@@ -62,7 +62,6 @@ $(document).ready(function(){
   <div id="files" class="files">No files uploaded</div>
   <!-- The fileinput-button span is used to style the file input field as button -->
   Run name: <input type="text" id="runName" />
-  File: <input type="text" />
   <span class="btn btn-success fileinput-button"> <i class="icon-plus icon-white"></i> <span>Upload</span> <!-- The file input field used as target for the file upload widget --> <input id="fileupload"
     type="file" name="files[]" multiple>
   </span>
