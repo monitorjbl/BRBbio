@@ -1,17 +1,17 @@
 package com.thundermoose.bio.model;
 
-public class ProcessedData {
+public class NormalizedData {
 
 	private String	plateName;
 	private int			timeMarker;
 	private String	geneId;
 	private float		normalized;
 
-	public ProcessedData() {
+	public NormalizedData() {
 
 	}
 
-	public ProcessedData(String plateName, String geneId, int timeMarker, float normalized) {
+	public NormalizedData(String plateName, String geneId, int timeMarker, float normalized) {
 		this.plateName = plateName;
 		this.geneId = geneId;
 		this.timeMarker = timeMarker;

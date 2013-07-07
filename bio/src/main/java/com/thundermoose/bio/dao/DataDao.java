@@ -16,27 +16,34 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.io.Resources;
 import com.thundermoose.bio.excel.RawDataReader;
 import com.thundermoose.bio.model.Control;
 import com.thundermoose.bio.model.Plate;
-import com.thundermoose.bio.model.ProcessedData;
+import com.thundermoose.bio.model.NormalizedData;
 import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
 
 public class DataDao {
 
-	private static final String	RUN_SQL					= "sql/run.sql";
-	private static final String	PLATE_SQL				= "sql/plate.sql";
-	private static final String	REPORT_SQL			= "sql/report.sql";
-	private static final String	INSERT_RUN			= "INSERT INTO runs (run_name) VALUES(?)";
-	private static final String	INSERT_PLATE		= "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
-	private static final String	INSERT_CONTROL	= "INSERT INTO controls (plate_id,control_type,time_marker,data) VALUES(?,?,?,?)";
-	private static final String	INSERT_RAW_DATA	= "INSERT INTO raw_data (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
+	private static final String RUN_SQL = "sql/run.sql";
+	private static final String PLATE_SQL = "sql/plate.sql";
+	private static final String NORMALIZE_SQL = "sql/normalize.sql";
+	
+	private static final String INSERT_RUN = "INSERT INTO runs (run_name) VALUES(?)";
+	private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
+	private static final String INSERT_CONTROL = "INSERT INTO controls (plate_id,control_type,time_marker,data) VALUES(?,?,?,?)";
+	private static final String INSERT_RAW_DATA = "INSERT INTO raw_data (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
+	
+	private static final String DELETE_RAW_DATA = "DELETE FROM raw_data WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
+	private static final String DELETE_CONTROLS = "DELETE FROM controls WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
+	private static final String DELETE_PLATES = "DELETE FROM plates WHERE run_id = ?";
+	private static final String DELETE_RUN = "DELETE FROM runs WHERE id = ?";
 
 	@Autowired
-	private JdbcTemplate				jdbc;
+	private JdbcTemplate jdbc;
 
 	public List<Plate> getPlates() {
 		return jdbc.query(read(PLATE_SQL), new PlateRowMapper());
@@ -54,8 +61,16 @@ public class DataDao {
 		return jdbc.queryForObject(read(RUN_SQL), new RunRowMapper());
 	}
 
-	public List<ProcessedData> getProcessedDataByRunId(long runId) {
-		return jdbc.query(read(REPORT_SQL), new Object[] { runId }, new ProcessedDataRowMapper());
+	public List<NormalizedData> getProcessedDataByRunId(long runId) {
+		return jdbc.query(read(NORMALIZE_SQL), new Object[] { runId }, new ProcessedDataRowMapper());
+	}
+
+	@Transactional
+	public void deleteRun(long runId) {
+		jdbc.update(DELETE_RAW_DATA, new Object[] { runId });
+		jdbc.update(DELETE_CONTROLS, new Object[] { runId });
+		jdbc.update(DELETE_PLATES, new Object[] { runId });
+		jdbc.update(DELETE_RUN, new Object[] { runId });
 	}
 
 	public long addRun(final Run run) {
@@ -68,7 +83,7 @@ public class DataDao {
 				return ps;
 			}
 
-		},keyHolder);
+		}, keyHolder);
 		return keyHolder.getKey().longValue();
 	}
 
@@ -83,7 +98,7 @@ public class DataDao {
 				return ps;
 			}
 
-		},keyHolder);
+		}, keyHolder);
 		return keyHolder.getKey().longValue();
 	}
 
@@ -100,7 +115,7 @@ public class DataDao {
 				return ps;
 			}
 
-		},keyHolder);
+		}, keyHolder);
 		return keyHolder.getKey().longValue();
 	}
 
@@ -143,10 +158,10 @@ public class DataDao {
 		}
 	}
 
-	private class ProcessedDataRowMapper implements RowMapper<ProcessedData> {
+	private class ProcessedDataRowMapper implements RowMapper<NormalizedData> {
 
-		public ProcessedData mapRow(ResultSet rs, int rownum) throws SQLException {
-			return new ProcessedData(rs.getString("plate_name"), rs.getString("identifier"), rs.getInt("time_marker"), rs.getFloat("norm"));
+		public NormalizedData mapRow(ResultSet rs, int rownum) throws SQLException {
+			return new NormalizedData(rs.getString("plate_name"), rs.getString("identifier"), rs.getInt("time_marker"), rs.getFloat("norm"));
 		}
 
 	}
@@ -167,12 +182,15 @@ public class DataDao {
 
 	}
 
-	/*private class RawDataRowMapper implements RowMapper<RawData> {
-
-		public RawData mapRow(ResultSet rs, int rownum) throws SQLException {
-			return new RawData(rs.getLong("id"), rs.getLong("plate_id"), rs.getString("identifier"), rs.getInt("time_marker"), rs.getFloat("data"), rs.getDate("create_date"));
-		}
-
-	}*/
+	/*
+	 * private class RawDataRowMapper implements RowMapper<RawData> {
+	 * 
+	 * public RawData mapRow(ResultSet rs, int rownum) throws SQLException {
+	 * return new RawData(rs.getLong("id"), rs.getLong("plate_id"),
+	 * rs.getString("identifier"), rs.getInt("time_marker"), rs.getFloat("data"),
+	 * rs.getDate("create_date")); }
+	 * 
+	 * }
+	 */
 
 }

@@ -9,6 +9,9 @@
 #selectBox{
   margin-left:10px;
 }
+#excel{
+  position:absolute;
+}
 table.gridtable {
 	font-family: verdana,arial,sans-serif;
 	font-size:11px;
@@ -16,7 +19,7 @@ table.gridtable {
 	border-width: 1px;
 	border-color: #666666;
 	border-collapse: collapse;
-    margin-left:15px;
+    margin-left: 75px;
 }
 table.gridtable th {
 	border-width: 1px;
@@ -37,9 +40,9 @@ table.gridtable td {
 <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script>
 
-function displayProcessedData(data){
+function displayProcessedData(data, runId){
 	$('#processed').children().remove();
-	$('#processed').append('<table class="gridtable"><thead><tr><th>Plate ID</th><th>Gene</th></tr></thead><tbody></tbody></table>');
+	$('#processed').append('<a id="excel" href="getNormalizedDataExcel?runId='+runId+'"><img src="static/img/excel.png"/></a><table class="gridtable"><thead><tr><th>Plate ID</th><th>Gene</th></tr></thead><tbody></tbody></table>');
 	
 	var time = {};
 	var tableRows = {};
@@ -79,10 +82,11 @@ function displayLoader(){
 
 $(document).ready(function(){
 	$('#run').change(function(){
-		$.get('getProcessedData?runId='+$(this).val(), function(data){
+		var id = $(this).val();
+		$.get('getNormalizedData?runId='+id, function(data){
 			displayLoader();
-			displayProcessedData(data);
-		})
+			displayProcessedData(data, id);
+		});
 	})
 });
 
