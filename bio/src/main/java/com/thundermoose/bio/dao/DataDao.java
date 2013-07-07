@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.io.Resources;
@@ -65,7 +66,7 @@ public class DataDao {
 		return jdbc.query(read(NORMALIZE_SQL), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
 
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void deleteRun(long runId) {
 		jdbc.update(DELETE_RAW_DATA, new Object[] { runId });
 		jdbc.update(DELETE_CONTROLS, new Object[] { runId });
@@ -73,6 +74,7 @@ public class DataDao {
 		jdbc.update(DELETE_RUN, new Object[] { runId });
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public long addRun(final Run run) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbc.update(new PreparedStatementCreator() {
@@ -87,6 +89,7 @@ public class DataDao {
 		return keyHolder.getKey().longValue();
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public long addPlate(final Plate plate) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbc.update(new PreparedStatementCreator() {
@@ -102,6 +105,7 @@ public class DataDao {
 		return keyHolder.getKey().longValue();
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public long addControl(final Control control) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbc.update(new PreparedStatementCreator() {
@@ -119,6 +123,7 @@ public class DataDao {
 		return keyHolder.getKey().longValue();
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public long addRawData(final RawData rawData) {
 		return jdbc.update(new PreparedStatementCreator() {
 
@@ -134,6 +139,7 @@ public class DataDao {
 		});
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void loadExcel(String runName, InputStream is) {
 		try {
 			new RawDataReader(this).readExcel(runName, is);

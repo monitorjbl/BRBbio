@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.thundermoose.bio.dao.DataDao;
@@ -36,7 +37,7 @@ public class RawDataReader {
 			put("Rab2_indi", "Rab2_indi");
 		}
 	};
-	
+
 	@SuppressWarnings("serial")
 	private static final Map<String, String> ignored = new HashMap<String, String>() {
 		{
@@ -49,7 +50,7 @@ public class RawDataReader {
 		this.dao = dao;
 	}
 
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void readExcel(String runName, InputStream file) throws IOException {
 		Workbook wb;
 		try {

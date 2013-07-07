@@ -17,7 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 
-public class TestHibernate {
+public class TestNormalize {
 
 	private static DataDao	dao;
 

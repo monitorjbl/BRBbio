@@ -9,11 +9,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.thundermoose.bio.dao.DataDao;
-import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.NormalizedData;
 import com.thundermoose.bio.model.Run;
 
@@ -66,6 +63,7 @@ public class ViewData {
 	public void getNormalizedDataExcel(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		long runId = Long.parseLong(request.getParameter("runId"));
 		List<NormalizedData> ex =  dao.getProcessedDataByRunId(runId);
+		@SuppressWarnings("serial")
 		List<String> headers = new ArrayList<String>(){{
 			add("Plate Name");
 			add("GeneID");
