@@ -23,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.thundermoose.bio.dao.DataDao;
 import com.thundermoose.bio.model.NormalizedData;
 import com.thundermoose.bio.model.Run;
+import com.thundermoose.bio.model.ZFactor;
 
 @Controller
 public class ViewData {
@@ -33,6 +34,13 @@ public class ViewData {
 	@RequestMapping(value = "viewNormalizedData")
 	public ModelAndView normalizedDataUi() {
 		ModelAndView mv = new ModelAndView("viewNormalizedData");
+		mv.addObject("runs", getRuns());
+		return mv;
+	}
+	
+	@RequestMapping(value = "viewZFactor")
+	public ModelAndView zFactorUi() {
+		ModelAndView mv = new ModelAndView("viewZFactor");
 		mv.addObject("runs", getRuns());
 		return mv;
 	}
@@ -56,13 +64,18 @@ public class ViewData {
 	
 	@RequestMapping(value="getNormalizedData")
 	public @ResponseBody List<NormalizedData> getNormalizedData(@RequestParam long runId){
-		return dao.getProcessedDataByRunId(runId);
+		return dao.getNormalizedDataByRunId(runId);
+	}
+	
+	@RequestMapping(value="getZFactorData")
+	public @ResponseBody List<ZFactor> getZFactors(@RequestParam long runId){
+		return dao.getZFactorsByRunId(runId);
 	}
 	
 	@RequestMapping(value="getNormalizedDataExcel")
 	public void getNormalizedDataExcel(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		long runId = Long.parseLong(request.getParameter("runId"));
-		List<NormalizedData> ex =  dao.getProcessedDataByRunId(runId);
+		List<NormalizedData> ex =  dao.getNormalizedDataByRunId(runId);
 		@SuppressWarnings("serial")
 		List<String> headers = new ArrayList<String>(){{
 			add("Plate Name");
@@ -96,6 +109,44 @@ public class ViewData {
 		}
 		
 		response.setHeader("Content-Disposition", "attachment; filename=\""+dao.getRunById(runId).getRunName()+"_normalized.xlsx\"");
+		wb.write(response.getOutputStream());
+	}
+	
+	@RequestMapping(value="getZFactorExcel")
+	public void getZFactorExcel(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		long runId = Long.parseLong(request.getParameter("runId"));
+		List<ZFactor> ex =  dao.getZFactorsByRunId(runId);
+		@SuppressWarnings("serial")
+		List<String> headers = new ArrayList<String>(){{
+			add("Plate Name");
+		}};
+		Map<String, Row> rowmap = new HashMap<String, Row>();
+		
+		Workbook wb = new XSSFWorkbook();
+		Sheet sheet = wb.createSheet();
+		Row headerRow = sheet.createRow(0);
+		
+		for(ZFactor dt : ex){
+			if(!headers.contains(dt.getTimeMarker()+"hr")){
+				headers.add(dt.getTimeMarker()+"hr");
+			}
+			
+			String key = dt.getPlateName();
+			if(!rowmap.containsKey(key)){
+				Row row = sheet.createRow(sheet.getLastRowNum()+1);
+				row.createCell(0).setCellValue(dt.getPlateName());
+				rowmap.put(key, row);
+			}
+			Row row = rowmap.get(key);
+			row.createCell(row.getLastCellNum()).setCellValue(dt.getzFactor());
+		}
+		
+		for(String h : headers){
+			int in = headerRow.getLastCellNum();
+			headerRow.createCell(in >= 0 ? in : 0).setCellValue(h);
+		}
+		
+		response.setHeader("Content-Disposition", "attachment; filename=\""+dao.getRunById(runId).getRunName()+"_zfactor.xlsx\"");
 		wb.write(response.getOutputStream());
 	}
 }

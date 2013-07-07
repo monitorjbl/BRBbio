@@ -26,12 +26,14 @@ import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.NormalizedData;
 import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
+import com.thundermoose.bio.model.ZFactor;
 
 public class DataDao {
 
 	private static final String RUN_SQL = "sql/run.sql";
 	private static final String PLATE_SQL = "sql/plate.sql";
 	private static final String NORMALIZE_SQL = "sql/normalize.sql";
+	private static final String ZFACTOR_SQL = "sql/zfactor.sql";
 	
 	private static final String INSERT_RUN = "INSERT INTO runs (run_name) VALUES(?)";
 	private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
@@ -62,8 +64,12 @@ public class DataDao {
 		return jdbc.queryForObject(read(RUN_SQL), new RunRowMapper());
 	}
 
-	public List<NormalizedData> getProcessedDataByRunId(long runId) {
+	public List<NormalizedData> getNormalizedDataByRunId(long runId) {
 		return jdbc.query(read(NORMALIZE_SQL), new Object[] { runId }, new ProcessedDataRowMapper());
+	}
+	
+	public List<ZFactor> getZFactorsByRunId(long runId) {
+		return jdbc.query(read(ZFACTOR_SQL), new Object[] { runId }, new ZFactorRowMapper());
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -186,6 +192,14 @@ public class DataDao {
 			return new Plate(rs.getLong("id"), rs.getLong("run_id"), rs.getString("plate_name"), rs.getDate("create_date"));
 		}
 
+	}
+	
+	private class ZFactorRowMapper implements RowMapper<ZFactor>{
+
+		public ZFactor mapRow(ResultSet rs, int rownum) throws SQLException {
+			return new ZFactor(rs.getString("plate_name"), rs.getInt("time_marker"), rs.getFloat("z_factor"));
+		}
+		
 	}
 
 	/*

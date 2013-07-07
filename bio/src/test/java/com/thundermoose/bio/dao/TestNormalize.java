@@ -23,7 +23,7 @@ public class TestNormalize {
 
 	@Test
 	public void test() throws IOException {
-		dao.getProcessedDataByRunId(0);
+		dao.getNormalizedDataByRunId(0);
 		/*List<Plate> plates = dao.getPlates();
 		for(Plate plate : plates){
 			System.out.println(plate.getPlateName());
