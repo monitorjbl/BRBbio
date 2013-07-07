@@ -2,30 +2,20 @@ package com.thundermoose.bio.model;
 
 public class ProcessedData {
 
-	private long		id;
 	private String	plateName;
 	private int			timeMarker;
-	private float		positiveControl;
-	private float		negativeControl;
+	private String	geneId;
+	private float		normalized;
 
 	public ProcessedData() {
 
 	}
 
-	public ProcessedData(long id, String plateName, int timeMarker, float positiveControl, float negativeControl) {
-		this.id = id;
+	public ProcessedData(String plateName, String geneId, int timeMarker, float normalized) {
 		this.plateName = plateName;
+		this.geneId = geneId;
 		this.timeMarker = timeMarker;
-		this.positiveControl = positiveControl;
-		this.negativeControl = negativeControl;
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
+		this.normalized = normalized;
 	}
 
 	public String getPlateName() {
@@ -44,20 +34,20 @@ public class ProcessedData {
 		this.timeMarker = timeMarker;
 	}
 
-	public float getPositiveControl() {
-		return positiveControl;
+	public String getGeneId() {
+		return geneId;
 	}
 
-	public void setPositiveControl(float positiveControl) {
-		this.positiveControl = positiveControl;
+	public void setGeneId(String geneId) {
+		this.geneId = geneId;
 	}
 
-	public float getNegativeControl() {
-		return negativeControl;
+	public float getNormalized() {
+		return normalized;
 	}
 
-	public void setNegativeControl(float negativeControl) {
-		this.negativeControl = negativeControl;
+	public void setNormalized(float normalized) {
+		this.normalized = normalized;
 	}
 
 }

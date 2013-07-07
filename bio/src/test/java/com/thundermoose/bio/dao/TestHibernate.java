@@ -6,12 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.service.ServiceRegistryBuilder;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -21,12 +16,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
-import com.thundermoose.bio.model.Control;
-import com.thundermoose.bio.model.Plate;
-import com.thundermoose.bio.model.RawData;
 
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration("/application-context.xml")
 public class TestHibernate {
 
 	private static DataDao	dao;
@@ -69,19 +59,13 @@ public class TestHibernate {
 		db.execute("SET DATABASE SQL SYNTAX MYS TRUE");
 		JdbcTestUtils.executeSqlScript(db, new FileSystemResource("src/main/resources/schema/tables.sql"), false);
 
-		// configure hibernate
-		Configuration configuration = new Configuration();
-		configuration.configure("test_hibernate.cfg.xml");
-		ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
-		SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-
 		// create test hibernate factory
 		dao = new DataDao();
-		dao.setSessionFactory(sessionFactory);
 		dao.setJdbc(db);
 		
 		try{
-		dao.loadExcel("test", new FileInputStream(new File("src/test/resources/test_data.xlsx")));
+			dao.loadExcel("test", new FileInputStream(new File("src/test/resources/test_data.xlsx")));
+			System.out.println("data loaded");
 		}catch(Exception e){
 			e.printStackTrace();
 		}

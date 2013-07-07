@@ -3,7 +3,7 @@
 "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
  
-<hibernate-configuration>
+<!-- hibernate-configuration>
 <session-factory>
     <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
     <property name="hibernate.connection.url">jdbc:mysql://192.168.202.130:3306/hts</property>
@@ -17,4 +17,4 @@
     <mapping class="com.thundermoose.bio.model.Control" />
     <mapping class="com.thundermoose.bio.model.RawData" />
 </session-factory>
-</hibernate-configuration>
+</hibernate-configuration-->

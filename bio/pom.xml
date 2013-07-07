@@ -78,11 +78,11 @@
       <artifactId>commons-dbcp</artifactId>
       <version>1.4</version>
     </dependency>
-    <dependency>
+    <!-- dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <version>${hibernate-version}</version>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>javassist</groupId>
       <artifactId>javassist</artifactId>

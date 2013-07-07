@@ -11,9 +11,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.thundermoose.bio.dao.DataDao;
 import com.thundermoose.bio.exceptions.DatabaseException;
 import com.thundermoose.bio.model.Control;
 import com.thundermoose.bio.model.Plate;
@@ -36,14 +36,15 @@ public class RawDataReader {
 
 	private String														neg;
 	private String														pos;
-	private Session														session;
+	private DataDao														dao;
 
-	public RawDataReader(String neg, String pos, Session session) {
+	public RawDataReader(String neg, String pos, DataDao dao) {
 		this.neg = neg;
 		this.pos = pos;
-		this.session = session;
+		this.dao = dao;
 	}
 
+	@Transactional
 	public void readExcel(String runName, InputStream file) throws IOException {
 		Workbook wb;
 		try {
@@ -62,14 +63,12 @@ public class RawDataReader {
 			throw new RuntimeException("Missing required column");
 		}
 
-		session.beginTransaction();
-		
-		//create new run
-		long runId = (Long) session.save(new Run(runName));
+		// create new run
+		long runId = dao.addRun(new Run(runName));
 
-		//map external to internal id
+		// map external to internal id
 		Map<String, Long> plates = new HashMap<String, Long>();
-		
+
 		Map<String, Control> controls = new HashMap<String, Control>();
 		Map<String, Integer> dupCheck = new HashMap<String, Integer>();
 		Map<String, Integer> negCount = new HashMap<String, Integer>();
@@ -81,9 +80,9 @@ public class RawDataReader {
 			}
 			String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
 
-			//get plate, or create if necessary
+			// get plate, or create if necessary
 			if (!plates.containsKey(plateName)) {
-				plates.put(plateName, (Long)session.save(new Plate(runId, plateName)));
+				plates.put(plateName, dao.addPlate(new Plate(runId, plateName)));
 			}
 			long plateId = plates.get(plateName);
 
@@ -93,14 +92,14 @@ public class RawDataReader {
 			} else {
 				time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
 			}
-			
-			//get control, or create if necessary
-			String controlKey = plateName+time;
-			if(!controls.containsKey(controlKey)){
-				controls.put(controlKey, new Control(plateId, time, 0,0));
+
+			// get control, or create if necessary
+			String controlKey = plateName + time;
+			if (!controls.containsKey(controlKey)) {
+				controls.put(controlKey, new Control(plateId, time, 0, 0));
 			}
 			Control ctrl = controls.get(controlKey);
-			
+
 			String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
 			float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
 
@@ -114,12 +113,12 @@ public class RawDataReader {
 			} else if (ignored.containsKey(ident)) {
 				// do nothing
 			} else {
-				String d = plateId + "_" + ident+"_"+time;
+				String d = plateId + "_" + ident + "_" + time;
 				if (!dupCheck.containsKey(d)) {
 					dupCheck.put(d, 1);
 					try {
-						session.save(new RawData(plateId, ident, time, data));
-					} catch (ConstraintViolationException e) {
+						dao.addRawData(new RawData(plateId, ident, time, data));
+					} catch (Exception e) {
 						throw new DatabaseException("Duplicate data found");
 					}
 				}
@@ -130,11 +129,9 @@ public class RawDataReader {
 			Control ctrl = controls.get(key);
 			ctrl.setNegativeControl(ctrl.getNegativeControl() / negCount.get(key));
 			ctrl.setPositiveControl(ctrl.getPositiveControl() / posCount.get(key));
-			session.save(ctrl);
+			dao.addControl(ctrl);
 		}
 
-		session.getTransaction().commit();
-		session.close();
 	}
 
 }

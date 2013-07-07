@@ -2,38 +2,27 @@ package com.thundermoose.bio.model;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-
-@Entity
-@Table(name="raw_data")
 public class RawData {
 
-	@Id
-	@Generated(GenerationTime.INSERT)
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="id")
+
 	private long		id;
-	@Column(name="plate_id")
 	private long		plateId;
-	@Column(name="identifier")
 	private String	identifier;
-	@Column(name="time_marker")
 	private int			timeMarker;
 	private float		data;
-	@Generated(GenerationTime.INSERT)
-	@Column(name="create_date")
 	private Date		createDate;
 
 	public RawData() {
 
+	}
+
+	public RawData(long id, long plateId, String identifier, int timeMarker, float data, Date createDate) {
+		this.id = id;
+		this.plateId = plateId;
+		this.identifier = identifier;
+		this.timeMarker = timeMarker;
+		this.data = data;
+		this.createDate = createDate;
 	}
 
 	public RawData(long plateId, String identifier, int timeMarker, float data) {

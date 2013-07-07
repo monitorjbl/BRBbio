@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.thundermoose.bio.dao.DataDao;
 import com.thundermoose.bio.model.Plate;
+import com.thundermoose.bio.model.ProcessedData;
 import com.thundermoose.bio.model.Run;
 
 @Controller
@@ -22,13 +23,18 @@ public class ViewData {
 	@RequestMapping(value = "viewData")
 	public ModelAndView ui() {
 		ModelAndView mv = new ModelAndView("viewData");
-		mv.addObject("plates", getPlates());
+		mv.addObject("runs", getRuns());
 		return mv;
 	}
 	
 	@RequestMapping(value="getPlates")
 	public @ResponseBody List<Plate> getPlates(){
 		return dao.getPlates();
+	}
+	
+	@RequestMapping(value="getRuns")
+	public @ResponseBody List<Run> getRuns(){
+		return dao.getRuns();
 	}
 	
 	@RequestMapping(value="getPlateData")
@@ -40,4 +46,9 @@ public class ViewData {
 	public @ResponseBody Run getRunData(@RequestParam long runId){
 		return dao.getRunById(runId);
 	}	
+	
+	@RequestMapping(value="getProcessedData")
+	public @ResponseBody List<ProcessedData> getProcessedData(@RequestParam long runId){
+		return dao.getProcessedDataByRunId(runId);
+	}
 }
