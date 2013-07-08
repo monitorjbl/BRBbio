@@ -3,6 +3,7 @@
 <head>
 <title>View Data</title>
 <link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap.min.css">
+<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-responsive.css">
 <link rel="stylesheet" href="static/css/style.css">
 <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css">
 <style type="text/css">

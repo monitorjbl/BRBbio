@@ -2,8 +2,19 @@
 <head>
 <title>Upload Excel Data</title>
 <link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap.min.css">
+<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-responsive.css">
+
 <link rel="stylesheet" href="static/css/style.css">
 <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css">
+<style type="text/css">
+#progress {
+  width: 100px;
+}
+
+#files {
+  margin-bottom: 10px;
+}
+</style>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script src="http://blueimp.github.com/cdn/js/bootstrap.min.js"></script>
@@ -16,53 +27,31 @@
 			function() {
 				'use strict';
 
-				$('#fileupload').fileupload(
-						{
-							dataType : 'json',
-							maxNumberOfFiles : 1,
-							submit : function(e, data) {
-								$('#fileupload').fileupload(
-										'option',
-										'url',
-										'doLoad?runName='
-												+ escape($('#runName').val()));
-								$('#files').html('');
-								$('#progress').show();
-							},
-							done : function(e, data) {
-								$.each(data.result.files,
-										function(index, file) {
-											$('#progress').fadeOut(1000);
-											$('<p/>').text(
-													'Uploaded ' + file.name
-															+ ' successfully')
-													.appendTo('#files');
-
-										});
-							},
-							fail : function(e, data) {
-								$('#progress').fadeOut(1000);
-								$('<p/>').text('Failed to upload file')
-										.appendTo('#files');
-							},
-							progressall : function(e, data) {
-								var progress = parseInt(data.loaded
-										/ data.total * 100, 10);
-								$('#progress .bar')
-										.css('width', progress + '%');
-							}
-						});
+				$('#fileupload').fileupload({
+					dataType : 'json',
+					maxNumberOfFiles : 1,
+					submit : function(e, data) {
+						$('#fileupload').fileupload(
+								'option',
+								'url',
+								'doLoad?runName='+ escape($('#runName').val()));
+						$('#files').html('Uploading...');
+						$('#progress').show();
+					},
+					done : function(e, data) {
+						$.each(data.result.files,
+								function(index, file) {
+									$('#progress').hide();
+									$('#files').html('Uploaded ' + file.name+ ' successfully');
+								});
+					},
+					fail : function(e, data) {
+						$('#progress').fadeOut(1000);
+						$('<p/>').text('Failed to upload file').appendTo('#files');
+					}
+				});
 			});
 </script>
-<style type="text/css">
-#progress {
-	width: 100px;
-}
-
-#files {
-	margin-bottom: 10px;
-}
-</style>
 </head>
 <body>
   <jsp:include page="headers.jsp" />
@@ -71,16 +60,16 @@
     <h3>Upload Excel data</h3>
 
     <!-- The container for the uploaded files -->
-    <div id="files" class="files">No files uploaded</div>
+    <span id="files" class="files">Please enter a run name and submit a file</span>
+     <!-- The global progress bar -->
+    <span id="progress" style="display:none">
+      <img src="static/img/loader.gif"/>
+    </span>
     <!-- The fileinput-button span is used to style the file input field as button -->
-    Run name: <input type="text" id="runName" /> <span class="btn btn-success fileinput-button"> <i
+    <div style="padding-top: 10px;">Run name: <input type="text" id="runName" /> <span class="btn btn-success fileinput-button"> <i
       class="icon-plus icon-white"></i> <span>Upload</span> <!-- The file input field used as target for the file upload widget -->
       <input id="fileupload" type="file" name="files[]" multiple>
-    </span> <br> <br>
-    <!-- The global progress bar -->
-    <div id="progress" class="progress progress-success progress-striped">
-      <div class="bar"></div>
-    </div>
+    </span> </div>
 
   </div>
 

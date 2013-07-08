@@ -3,6 +3,7 @@
 <head>
 <title>Delete Run</title>
 <link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap.min.css">
+<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-responsive.css">
 <link rel="stylesheet" href="static/css/style.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
