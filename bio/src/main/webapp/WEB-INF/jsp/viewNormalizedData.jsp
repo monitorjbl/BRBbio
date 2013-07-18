@@ -10,9 +10,7 @@
 #selectBox{
   margin-left:10px;
 }
-#excel{
-  position:absolute;
-}
+
 table.gridtable {
 	font-family: verdana,arial,sans-serif;
 	font-size:11px;
@@ -43,8 +41,7 @@ table.gridtable td {
 <script>
 
 function displayProcessedData(data, runId){
-	$('#processed').children().remove();
-	$('#processed').append('<a id="excel" href="getNormalizedDataExcel?runId='+runId+'"><img src="static/img/excel.png"/></a><table class="gridtable"><thead><tr><th>Plate ID</th><th>Gene</th></tr></thead><tbody></tbody></table>');
+	var tbl = $('<table class="table table-striped"><thead><tr><th>Plate ID</th><th>Gene</th></tr></thead><tbody></tbody></table>');
 	
 	var time = {};
 	var tableRows = {};
@@ -62,32 +59,36 @@ function displayProcessedData(data, runId){
 	});
 	
 	for(key in time){
-		$('#processed thead tr').append('<th>'+key.substring(1)+'hr</th>');
+		tbl.find('thead tr').append('<th>'+key.substring(1)+'hr</th>');
 	}
 	
 	for(key in tableRows){
 		var r = tableRows[key];
-		var row = '<tr><td>'+r.plate+'</td><td>'+r.gene+'</td>';
+		var row = $('<tr><td>'+r.plate+'</td><td>'+r.gene+'</td></tr>');
 		$.each(r.data, function(i,j){
-			row+= '<td>'+j+'</td>';
+			row.append('<td>'+j+'</td>');
 		});
-		row+= '</tr>';
 		
-		$('#processed tbody').append(row);
+		tbl.append(row);
 	}
-}
-
-function displayLoader(){
-	$('#processed').children().remove();
-	$('#processed').append('<img src="static/img/loader.gif"/>');
+	
+	$('#selectBox span').remove();
+	$('#processed').append(tbl);
 }
 
 $(document).ready(function(){
 	$('#run').change(function(){
 		var id = $(this).val();
-		$.get('getNormalizedData?runId='+id, function(data){
-			displayLoader();
-			displayProcessedData(data, id);
+		$('#processed').children().remove();
+		$('#selectBox a, #selectBox span').remove();
+		
+		$('<a id="excel" href="getNormalizedDataExcel?runId='+$(this).val()+'"><img src="static/img/excel.png"/></a>').appendTo('#selectBox');
+		$('<span style="display:block;"><button class="btn">Show data</button></span>').appendTo('#selectBox').find('button').click(function(){
+			$(this).parent().append('<img class="loading" src="static/img/loader.gif"/>');
+			$(this).text('Loading...').attr('disabled', true);
+    		$.get('getNormalizedData?runId='+id, function(data){
+    			displayProcessedData(data, id);
+    		});
 		});
 	})
 });
@@ -95,23 +96,26 @@ $(document).ready(function(){
 </script>
 </head>
 <body>
-<jsp:include page="headers.jsp" />
+  <jsp:include page="headers.jsp" />
 
   <div class="container">
-<div id="selectBox">
-<h3>View Normalized Data</h3>
+    <div id="selectBox">
+      <h3>View Normalized Data</h3>
 
-Run: 
-<select id="run">
-  <option value="">[-Select-]</option>
-  <c:forEach var="run" items="${runs}">
-   <option value="<c:out value="${run.getId()}"/>"><c:out value="${run.getRunName()}"/></option>
-  </c:forEach>
-</select>
-</div>
-<br/>
-<div id="processed">
-</div>
-</div>
+      Run: <select id="run">
+        <option value="">[-Select-]</option>
+        <c:forEach var="run" items="${runs}">
+          <option value="<c:out value="${run.getId()}"/>">
+            <c:out value="${run.getRunName()}" />
+          </option>
+        </c:forEach>
+      </select>
+    </div>
+    <br />
+    
+    <div class="row">
+      <div id="processed" class="span6"></div>
+    </div>
+  </div>
 </body>
 </html>

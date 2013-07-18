@@ -61,7 +61,7 @@ public class DataDao {
 	}
 
 	public Run getRunById(long runId) {
-		return jdbc.queryForObject(read(RUN_SQL), new RunRowMapper());
+		return jdbc.queryForObject(read(RUN_SQL+" WHERE id = ?"), new Object[]{runId}, new RunRowMapper());
 	}
 
 	public List<NormalizedData> getNormalizedDataByRunId(long runId) {

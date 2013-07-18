@@ -32,7 +32,7 @@
         </option>
       </c:forEach>
     </select>
-    <button onclick="deleteRun()">Delete</button>
+    <button class="btn" onclick="deleteRun()">Delete</button>
   </div>
   </div>
 

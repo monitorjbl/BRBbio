@@ -29,15 +29,12 @@ body {
   <div class="container">
 
     <!-- Main hero unit for a primary marketing message or call to action -->
-    <div class="hero-unit">
+    <div class="hero-unit" style="background-image: url('static/img/science.png');background-repeat:no-repeat;background-position: 91% 100%;background-size:21%;">
       <h1>For Science!</h1>
       <p>This is webapp designed to make life easier for analyzing...stuff!</p>
-      <!-- p>
-        <a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a>
-      </p-->
     </div>
 
-    <!-- Example row of columns -->
+  <!-- Example row of columns -->
     <div class="row">
       <div class="span3">
         <h2>Excel Upload</h2>
@@ -55,14 +52,14 @@ body {
       </div>
       <div class="span3">
         <h2>Normalization</h2>
-        <p>Holy shit!</p>
+        <p>Hot damn!</p>
         <p>
           <a class="btn" href="viewNormalizedData">Go &raquo;</a>
         </p>
       </div>
       <div class="span3">
         <h2>Z Factors</h2>
-        <p>Factors!</p>
+        <p>Mathematical!</p>
         <p>
           <a class="btn" href="viewZFactor">Go &raquo;</a>
         </p>
