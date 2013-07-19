@@ -33,15 +33,23 @@ public class ExcelUpload {
 	@Autowired
 	private DataDao	dao;
 
-	@RequestMapping(value = "excelUpload")
-	public ModelAndView ui() {
-		ModelAndView mv = new ModelAndView("excelUpload");
+	@RequestMapping(value = "rawUpload")
+	public ModelAndView rawDataUi() {
+		ModelAndView mv = new ModelAndView("rawUpload");
 		return mv;
 	}
+	
+	@RequestMapping(value = "viabilityUpload")
+	public ModelAndView viabilityUi() {
+		ModelAndView mv = new ModelAndView("viabilityUpload");
+		mv.addObject("runs", dao.getRuns());
+		return mv;
+	}
+	
 
-	@RequestMapping(value = "doLoad")
+	@RequestMapping(value = "doRawDataLoad")
 	public @ResponseBody
-	Upload load(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	Upload loadRawData(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String runName = request.getParameter("runName");
 		if(runName == null || "".equals(runName)){
 			throw new DatabaseException("Run name is required");
@@ -72,7 +80,46 @@ public class ExcelUpload {
 		item.setSize(it.getSize());
 		it.write(it.getStoreLocation());
 
-		dao.loadExcel(runName, new FileInputStream(it.getStoreLocation()));
+		dao.loadRawDataExcel(runName, new FileInputStream(it.getStoreLocation()));
+
+		return upload;
+	}
+	
+	@RequestMapping(value = "doViabilityLoad")
+	public @ResponseBody
+	Upload loadViability(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String rid = request.getParameter("runId");
+		if(rid == null || "".equals(rid)){
+			throw new DatabaseException("Run name is required");
+		}
+		long runId = Long.parseLong(rid);
+		
+		Item item = new Item();
+		Upload upload = new Upload();
+		upload.getFiles().add(item);
+		
+		// Create a factory for disk-based file items
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+
+		// Configure a repository (to ensure a secure temp location is used)
+		ServletContext servletContext = request.getSession().getServletContext();
+		File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+		factory.setRepository(repository);
+
+		// Create a new file upload handler
+		ServletFileUpload up = new ServletFileUpload(factory);
+
+		// Parse the request (sometimes theres fucking 3 of them, hell if i know why)
+		List<FileItem> items = up.parseRequest(request);
+		DiskFileItem it = null;
+		for(FileItem fi : items){
+			it = (DiskFileItem) fi;
+		}
+		item.setName(it.getName());
+		item.setSize(it.getSize());
+		it.write(it.getStoreLocation());
+
+		dao.loadViabilityExcel(runId, new FileInputStream(it.getStoreLocation()));
 
 		return upload;
 	}
@@ -84,6 +131,7 @@ public class ExcelUpload {
 		RestError mv = new RestError();
 		mv.setException(ex.getClass().getCanonicalName());
 		mv.setMessage(ex.getLocalizedMessage());
+		ex.printStackTrace();
 		return mv;
 	}
 

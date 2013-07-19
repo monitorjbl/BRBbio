@@ -20,12 +20,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.io.Resources;
-import com.thundermoose.bio.excel.RawDataReader;
+import com.thundermoose.bio.excel.ExcelDataReader;
 import com.thundermoose.bio.model.Control;
 import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.NormalizedData;
 import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
+import com.thundermoose.bio.model.ViabilityData;
 import com.thundermoose.bio.model.ZFactor;
 
 public class DataDao {
@@ -34,12 +35,15 @@ public class DataDao {
 	private static final String PLATE_SQL = "sql/plate.sql";
 	private static final String NORMALIZE_SQL = "sql/normalize.sql";
 	private static final String ZFACTOR_SQL = "sql/zfactor.sql";
-	
+	private static final String VIABILITY_SQL = "sql/viability.sql";
+
 	private static final String INSERT_RUN = "INSERT INTO runs (run_name) VALUES(?)";
 	private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
 	private static final String INSERT_CONTROL = "INSERT INTO controls (plate_id,control_type,time_marker,data) VALUES(?,?,?,?)";
 	private static final String INSERT_RAW_DATA = "INSERT INTO raw_data (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
-	
+	private static final String INSERT_VIABILITY_DATA = "INSERT INTO cell_viability (plate_id,identifier,data) VALUES(?,?,?)";
+
+	private static final String DELETE_VIABILITY_DATA = "DELETE FROM cell_viability WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
 	private static final String DELETE_RAW_DATA = "DELETE FROM raw_data WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
 	private static final String DELETE_CONTROLS = "DELETE FROM controls WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
 	private static final String DELETE_PLATES = "DELETE FROM plates WHERE run_id = ?";
@@ -57,23 +61,32 @@ public class DataDao {
 	}
 
 	public Plate getPlateById(long plateId) {
-		return jdbc.queryForObject(read(PLATE_SQL), new PlateRowMapper());
+		return jdbc.queryForObject(read(PLATE_SQL) + " WHERE id=?", new PlateRowMapper());
+	}
+
+	public Plate getPlateByName(long runId, String plateName) {
+		return jdbc.queryForObject(read(PLATE_SQL) + " WHERE run_id=? AND plate_name=?", new Object[] { runId, plateName }, new PlateRowMapper());
 	}
 
 	public Run getRunById(long runId) {
-		return jdbc.queryForObject(read(RUN_SQL+" WHERE id = ?"), new Object[]{runId}, new RunRowMapper());
+		return jdbc.queryForObject(read(RUN_SQL) + " WHERE id = ?", new Object[] { runId }, new RunRowMapper());
 	}
 
 	public List<NormalizedData> getNormalizedDataByRunId(long runId) {
 		return jdbc.query(read(NORMALIZE_SQL), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
-	
+
 	public List<ZFactor> getZFactorsByRunId(long runId) {
 		return jdbc.query(read(ZFACTOR_SQL), new Object[] { runId }, new ZFactorRowMapper());
 	}
 
+	public List<NormalizedData> getViabilityByRunId(long runId) {
+		return jdbc.query(read(VIABILITY_SQL), new Object[] { runId }, new ProcessedDataRowMapper());
+	}
+
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void deleteRun(long runId) {
+		jdbc.update(DELETE_VIABILITY_DATA, new Object[] { runId });
 		jdbc.update(DELETE_RAW_DATA, new Object[] { runId });
 		jdbc.update(DELETE_CONTROLS, new Object[] { runId });
 		jdbc.update(DELETE_PLATES, new Object[] { runId });
@@ -146,9 +159,33 @@ public class DataDao {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void loadExcel(String runName, InputStream is) {
+	public long addViabilityData(final ViabilityData rawData) {
+		return jdbc.update(new PreparedStatementCreator() {
+
+			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
+				PreparedStatement ps = conn.prepareStatement(INSERT_VIABILITY_DATA, Statement.RETURN_GENERATED_KEYS);
+				ps.setLong(1, rawData.getPlateId());
+				ps.setString(2, rawData.getIdentifier());
+				ps.setFloat(3, rawData.getData());
+				return ps;
+			}
+
+		});
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void loadRawDataExcel(String runName, InputStream is) {
 		try {
-			new RawDataReader(this).readExcel(runName, is);
+			new ExcelDataReader(this).readRawData(runName, is);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void loadViabilityExcel(long runId, InputStream is) {
+		try {
+			new ExcelDataReader(this).readViability(runId, is);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -193,13 +230,13 @@ public class DataDao {
 		}
 
 	}
-	
-	private class ZFactorRowMapper implements RowMapper<ZFactor>{
+
+	private class ZFactorRowMapper implements RowMapper<ZFactor> {
 
 		public ZFactor mapRow(ResultSet rs, int rownum) throws SQLException {
 			return new ZFactor(rs.getString("plate_name"), rs.getInt("time_marker"), rs.getFloat("z_factor"));
 		}
-		
+
 	}
 
 	/*

@@ -29,39 +29,70 @@ body {
   <div class="container">
 
     <!-- Main hero unit for a primary marketing message or call to action -->
-    <div class="hero-unit" style="background-image: url('static/img/science.png');background-repeat:no-repeat;background-position: 91% 100%;background-size:21%;">
-      <h1>For Science!</h1>
-      <p>This is webapp designed to make life easier for analyzing...stuff!</p>
+    <div class="hero-unit"
+      style="background-image: url('static/img/science.png'); background-repeat: no-repeat; background-position: 91% 100%; background-size: 21%;">
+      <h1>BRBBio</h1>
+      <p>This webapp is designed to make life easier for analyzing...stuff!</p>
     </div>
 
-  <!-- Example row of columns -->
+    <div class="row" style="margin-bottom:25px;">
+      <div class="span12">
+        <h2>Upload and manage data</h2>
+      </div>
+    </div>
+    
     <div class="row">
+      <div class="span2"></div>
       <div class="span3">
-        <h2>Excel Upload</h2>
-        <p>Fucking Excel!</p>
+        <h4>Raw Upload</h4>
+        <p>Upload raw screening data from Excel</p>
         <p>
-          <a class="btn" href="excelUpload">Go &raquo;</a>
+          <a class="btn" href="rawUpload">Go &raquo;</a>
         </p>
       </div>
       <div class="span3">
-        <h2>Delete a Run</h2>
-        <p>Get that shit out of here!</p>
+        <h4>Viability Upload</h4>
+        <p>Upload cytotoxicity data from Excel</p>
+        <p>
+          <a class="btn" href="viabilityUpload">Go &raquo;</a>
+        </p>
+      </div>
+      <div class="span3">
+        <h4>Delete a Run</h4>
+        <p>Remove datasets from database</p>
         <p>
           <a class="btn" href="deleteRun">Go &raquo;</a>
         </p>
       </div>
+    </div>
+
+    <div class="row" style="margin-top:15px;margin-bottom:25px;">
+      <div class="span12">
+        <h2>View processed data</h2>
+      </div>
+    </div>
+
+    <div class="row">
+    <div class="span2"></div>
       <div class="span3">
-        <h2>Normalization</h2>
-        <p>Hot damn!</p>
+        <h4>Normalization</h4>
+        <p>Woo!</p>
         <p>
           <a class="btn" href="viewNormalizedData">Go &raquo;</a>
         </p>
       </div>
       <div class="span3">
-        <h2>Z Factors</h2>
-        <p>Mathematical!</p>
+        <h4>Z Factors</h4>
+        <p>Aw yeah!</p>
         <p>
           <a class="btn" href="viewZFactor">Go &raquo;</a>
+        </p>
+      </div>
+      <div class="span2">
+        <h4>Cell Viability</h4>
+        <p>Ohhhh!</p>
+        <p>
+          <a class="btn" href="viewViability">Go &raquo;</a>
         </p>
       </div>
     </div>

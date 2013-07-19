@@ -65,7 +65,7 @@ public class TestNormalize {
 		dao.setJdbc(db);
 		
 		try{
-			dao.loadExcel("test", new FileInputStream(new File("src/test/resources/test_data.xlsx")));
+			dao.loadRawDataExcel("test", new FileInputStream(new File("src/test/resources/test_data.xlsx")));
 			System.out.println("data loaded");
 		}catch(Exception e){
 			e.printStackTrace();

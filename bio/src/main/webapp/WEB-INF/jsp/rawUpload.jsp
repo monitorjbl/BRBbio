@@ -34,7 +34,7 @@
 						$('#fileupload').fileupload(
 								'option',
 								'url',
-								'doLoad?runName='+ escape($('#runName').val()));
+								'doRawDataLoad?runName='+ escape($('#runName').val()));
 						$('#files').html('Uploading...');
 						$('#progress').show();
 					},
@@ -57,7 +57,7 @@
   <jsp:include page="headers.jsp" />
 
   <div class="container">
-    <h3>Upload Excel data</h3>
+    <h3>Upload raw data</h3>
 
     <!-- The container for the uploaded files -->
     <span id="files" class="files">Please enter a run name and submit a file</span>

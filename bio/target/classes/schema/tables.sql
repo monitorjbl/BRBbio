@@ -31,6 +31,19 @@ CREATE TABLE controls (
 
 ALTER TABLE controls ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
 
+CREATE TABLE cell_viability (
+  id bigint AUTO_INCREMENT NOT NULL,
+  plate_id bigint NOT NULL,
+  identifier varchar(128)  NOT NULL,
+  data float NOT NULL,
+  create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  PRIMARY KEY (id)
+);
+
+ALTER TABLE cell_viability ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
+
+ALTER TABLE cell_viability ADD CONSTRAINT cell_viability_uc_1 UNIQUE (plate_id,identifier);
+
 CREATE TABLE raw_data (
   id bigint AUTO_INCREMENT NOT NULL,
   plate_id bigint NOT NULL,

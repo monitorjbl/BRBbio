@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +22,9 @@ import com.thundermoose.bio.model.Control;
 import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
+import com.thundermoose.bio.model.ViabilityData;
 
-public class RawDataReader {
+public class ExcelDataReader {
 
 	private static final String PLATE_ID = "AssayPlate";
 	private static final String DATA = "Data";
@@ -46,12 +48,12 @@ public class RawDataReader {
 
 	private DataDao dao;
 
-	public RawDataReader(DataDao dao) {
+	public ExcelDataReader(DataDao dao) {
 		this.dao = dao;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void readExcel(String runName, InputStream file) throws IOException {
+	public void readRawData(String runName, InputStream file) throws IOException {
 		Workbook wb;
 		try {
 			wb = WorkbookFactory.create(file);
@@ -110,6 +112,73 @@ public class RawDataReader {
 					try {
 						dao.addRawData(new RawData(plateId, ident, time, data));
 					} catch (Exception e) {
+						throw new DatabaseException("Duplicate data found");
+					}
+				}
+			}
+		}
+
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void readViability(long runId, InputStream file) throws IOException {
+		Workbook wb;
+		try {
+			wb = WorkbookFactory.create(file);
+		} catch (InvalidFormatException e1) {
+			throw new RuntimeException(e1);
+		}
+
+		Sheet sheet = wb.getSheetAt(0);
+
+		Map<String, Integer> head = new HashMap<String, Integer>();
+		for (Cell cell : sheet.getRow(0)) {
+			head.put(cell.getStringCellValue(), cell.getColumnIndex());
+		}
+		if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(IDENTIFIER)) {
+			throw new RuntimeException("Missing required column");
+		}
+
+		// map external to internal id
+		Map<String, Long> plates = new HashMap<String, Long>();
+		Map<String, Integer> dupCheck = new HashMap<String, Integer>();
+
+		for (Row row : sheet) {
+			if (row.getRowNum() == 0) {
+				continue;
+			}
+			String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
+
+			// get plate, or create if necessary
+			if (!plates.containsKey(plateName)) {
+				try {
+					plates.put(plateName, dao.getPlateByName(runId, plateName).getId());
+				} catch (EmptyResultDataAccessException e) {
+					//create plate if does not exist
+					System.out.println("Creating plate "+plateName+" for run "+runId);
+					plates.put(plateName, dao.addPlate(new Plate(runId, plateName)));
+					
+				}
+			}
+			long plateId = plates.get(plateName);
+
+			String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
+			float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
+
+			// track neg/pos
+			if (controls.containsKey(ident)) {
+				// do nothing
+			} else if (ignored.containsKey(ident)) {
+				// do nothing
+			} else {
+				String d = plateId + "_" + ident;
+				if (!dupCheck.containsKey(d)) {
+					dupCheck.put(d, 1);
+					try {
+						dao.addViabilityData(new ViabilityData(plateId, ident, data));
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.out.println(d);
 						throw new DatabaseException("Duplicate data found");
 					}
 				}
