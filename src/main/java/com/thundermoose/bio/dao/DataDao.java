@@ -36,16 +36,19 @@ public class DataDao {
 	private static final String NORMALIZE_SQL = "sql/normalize.sql";
 	private static final String ZFACTOR_SQL = "sql/zfactor.sql";
 	private static final String VIABILITY_SQL = "sql/viability.sql";
+	private static final String GET_RUN_CONTROLS = "select distinct c.identifier from plates p join raw_data_controls c on c.plate_id = p.id where p.run_id=?";
 
 	private static final String INSERT_RUN = "INSERT INTO runs (run_name) VALUES(?)";
 	private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
-	private static final String INSERT_CONTROL = "INSERT INTO controls (plate_id,control_type,time_marker,data) VALUES(?,?,?,?)";
+	private static final String INSERT_RAW_DATA_CONTROL = "INSERT INTO raw_data_controls (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
 	private static final String INSERT_RAW_DATA = "INSERT INTO raw_data (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
+	private static final String INSERT_VIABILITY_CONTROL = "INSERT INTO cell_viability_controls (plate_id,identifier,data) VALUES(?,?,?)";
 	private static final String INSERT_VIABILITY_DATA = "INSERT INTO cell_viability (plate_id,identifier,data) VALUES(?,?,?)";
 
 	private static final String DELETE_VIABILITY_DATA = "DELETE FROM cell_viability WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
+	private static final String DELETE_VIABILITY_CONTROLS = "DELETE FROM cell_viability_controls WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
 	private static final String DELETE_RAW_DATA = "DELETE FROM raw_data WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
-	private static final String DELETE_CONTROLS = "DELETE FROM controls WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
+	private static final String DELETE_RAW_DATA_CONTROLS = "DELETE FROM raw_data_controls WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
 	private static final String DELETE_PLATES = "DELETE FROM plates WHERE run_id = ?";
 	private static final String DELETE_RUN = "DELETE FROM runs WHERE id = ?";
 
@@ -73,27 +76,33 @@ public class DataDao {
 	}
 
 	public List<NormalizedData> getNormalizedDataByRunId(long runId, String function) {
-		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#", convertFunction(function)), new Object[] { runId }, new ProcessedDataRowMapper());
+		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#", convertFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
 
 	public List<ZFactor> getZFactorsByRunId(long runId, String function) {
-		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#", convertFunction(function)), new Object[] { runId }, new ZFactorRowMapper());
+		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#", convertFunction(runId, function)), new Object[] { runId }, new ZFactorRowMapper());
 	}
 
 	public List<NormalizedData> getViabilityByRunId(long runId, String function) {
-		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertFunction(function)), new Object[] { runId }, new ProcessedDataRowMapper());
+		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
 
-	private String convertFunction(String function) {
-		return function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("positiveControl", "CASE WHEN a.type='raw' THEN a.data END")
-				.replaceAll("positiveControl", "CASE WHEN a.type='positive' THEN a.data END").replaceAll("negativeControl", "CASE WHEN a.type='negative' THEN a.data END");
+	private String convertFunction(long runId, String function) {
+		String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
+		List<String> res = jdbc.queryForList(GET_RUN_CONTROLS, new Object[] { runId }, String.class);
+		for (String r : res) {
+			func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
+		}
+		
+		return func;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void deleteRun(long runId) {
 		jdbc.update(DELETE_VIABILITY_DATA, new Object[] { runId });
+		jdbc.update(DELETE_VIABILITY_CONTROLS, new Object[] { runId });
 		jdbc.update(DELETE_RAW_DATA, new Object[] { runId });
-		jdbc.update(DELETE_CONTROLS, new Object[] { runId });
+		jdbc.update(DELETE_RAW_DATA_CONTROLS, new Object[] { runId });
 		jdbc.update(DELETE_PLATES, new Object[] { runId });
 		jdbc.update(DELETE_RUN, new Object[] { runId });
 	}
@@ -130,14 +139,14 @@ public class DataDao {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public long addControl(final Control control) {
+	public long addRawDataControl(final Control control) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbc.update(new PreparedStatementCreator() {
 
 			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
-				PreparedStatement ps = conn.prepareStatement(INSERT_CONTROL, Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement ps = conn.prepareStatement(INSERT_RAW_DATA_CONTROL, Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, control.getPlateId());
-				ps.setString(2, control.getControlType());
+				ps.setString(2, control.getIdentifier());
 				ps.setInt(3, control.getTimeMarker());
 				ps.setFloat(4, control.getData());
 				return ps;
@@ -176,6 +185,23 @@ public class DataDao {
 			}
 
 		});
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public long addViabilityControl(final Control control) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		jdbc.update(new PreparedStatementCreator() {
+
+			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
+				PreparedStatement ps = conn.prepareStatement(INSERT_VIABILITY_CONTROL, Statement.RETURN_GENERATED_KEYS);
+				ps.setLong(1, control.getPlateId());
+				ps.setString(2, control.getIdentifier());
+				ps.setFloat(3, control.getData());
+				return ps;
+			}
+
+		}, keyHolder);
+		return keyHolder.getKey().longValue();
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)

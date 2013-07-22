@@ -34,9 +34,9 @@ public class ExcelDataReader {
 	@SuppressWarnings("serial")
 	private static final Map<String, String> controls = new HashMap<String, String>() {
 		{
-			put("negativecontrol", "negative_control");
-			put("Copb1_indi", "positive_control");
-			put("Rab2_indi", "Rab2_indi");
+			put("negativecontrol", null);
+			put("Copb1_indi", null);
+			put("Rab2_indi", null);
 		}
 	};
 
@@ -102,7 +102,7 @@ public class ExcelDataReader {
 
 			// track neg/pos
 			if (controls.containsKey(ident)) {
-				dao.addControl(new Control(-1, plateId, controls.get(ident), time, data, new Date()));
+				dao.addRawDataControl(new Control(-1, plateId, ident, time, data, new Date()));
 			} else if (ignored.containsKey(ident)) {
 				// do nothing
 			} else {
@@ -167,7 +167,7 @@ public class ExcelDataReader {
 
 			// track neg/pos
 			if (controls.containsKey(ident)) {
-				// do nothing
+				dao.addViabilityControl(new Control(-1, plateId, ident, data, new Date()));
 			} else if (ignored.containsKey(ident)) {
 				// do nothing
 			} else {

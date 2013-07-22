@@ -4,23 +4,31 @@ import java.util.Date;
 
 public class Control {
 
-	private long		id;
-	private long		plateId;
-	private String	controlType;
-	private int			timeMarker;
-	private float		data;
+	private long id;
+	private long plateId;
+	private String identifier;
+	private int timeMarker;
+	private float data;
 
-	private Date		createDate;
+	private Date createDate;
 
 	public Control() {
 
 	}
 
-	public Control(long id, long plateId, String controlType, int timeMarker, float data, Date createDate) {
+	public Control(long id, long plateId, String identifier, int timeMarker, float data, Date createDate) {
 		this.id = id;
 		this.plateId = plateId;
-		this.controlType = controlType;
+		this.identifier = identifier;
 		this.timeMarker = timeMarker;
+		this.data = data;
+		this.createDate = createDate;
+	}
+	
+	public Control(long id, long plateId, String identifier, float data, Date createDate) {
+		this.id = id;
+		this.plateId = plateId;
+		this.identifier = identifier;
 		this.data = data;
 		this.createDate = createDate;
 	}
@@ -41,12 +49,12 @@ public class Control {
 		this.plateId = plateId;
 	}
 
-	public String getControlType() {
-		return controlType;
+	public String getIdentifier() {
+		return identifier;
 	}
 
-	public void setControlType(String controlType) {
-		this.controlType = controlType;
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
 	}
 
 	public int getTimeMarker() {

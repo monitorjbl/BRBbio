@@ -94,7 +94,7 @@ $(document).ready(function(){
 
         <tr>
           <td>Function</td>
-          <td><textarea id="func">data/AVG(negativeControl)</textarea></td>
+          <td><textarea id="func">rawData/AVG(negativecontrol)</textarea></td>
         </tr>
 
         <tr>

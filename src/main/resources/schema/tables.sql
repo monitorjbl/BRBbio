@@ -19,17 +19,28 @@ ALTER TABLE plates ADD FOREIGN KEY (run_id) REFERENCES runs(id);
 
 ALTER TABLE plates ADD CONSTRAINT plates_uc_1 UNIQUE (run_id,plate_name);
 
-CREATE TABLE controls (
+CREATE TABLE raw_data_controls (
   id bigint AUTO_INCREMENT NOT NULL,
   plate_id bigint NOT NULL,
-  control_type varchar(64)  NOT NULL,
+  identifier varchar(64)  NOT NULL,
   time_marker int  NOT NULL,
   data float  NOT NULL,
   create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
   PRIMARY KEY (id)
 );
 
-ALTER TABLE controls ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
+ALTER TABLE raw_data_controls ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
+
+CREATE TABLE cell_viability_controls (
+  id bigint AUTO_INCREMENT NOT NULL,
+  plate_id bigint NOT NULL,
+  identifier varchar(64)  NOT NULL,
+  data float  NOT NULL,
+  create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  PRIMARY KEY (id)
+);
+
+ALTER TABLE cell_viability_controls ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
 
 CREATE TABLE cell_viability (
   id bigint AUTO_INCREMENT NOT NULL,

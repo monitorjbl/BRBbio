@@ -1,5 +1,6 @@
 package com.thundermoose.bio.controllers;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,6 +131,36 @@ public class ViewData {
 
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_normalized.xlsx\"");
 		wb.write(response.getOutputStream());
+	}
+	
+	@RequestMapping(value = "getNormalizedDataTsv")
+	public void getNormalizedDataTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		long runId = Long.parseLong(request.getParameter("runId"));
+		String function = request.getParameter("func");
+		List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, function);
+
+		String headers="Plate Name\tGene\t";
+		Map<String,String> rowmap = new HashMap<String,String>();
+		
+		for (NormalizedData dt : ex) {
+			if (!headers.contains(dt.getTimeMarker() + "hr")) {
+				headers+= dt.getTimeMarker() + "hr\t";
+			}
+
+			String key = dt.getPlateName() + "_" + dt.getGeneId();
+			if (!rowmap.containsKey(key)) {
+				String row= dt.getPlateName()+"\t"+dt.getGeneId()+"\t";
+				rowmap.put(key, row);
+			}
+			rowmap.put(key, rowmap.get(key)+"\t");
+		}
+
+		String tsv = headers+"\n";
+		for(String s : rowmap.keySet()){
+			tsv+=s+"\n";
+		}
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_normalized.tsv\"");
+		response.getOutputStream().write(tsv.getBytes());
 	}
 
 	@RequestMapping(value = "getZFactorExcel")

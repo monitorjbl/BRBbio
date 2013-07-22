@@ -119,7 +119,7 @@ $(document).ready(function(){
 
         <tr>
           <td>Function</td>
-          <td><textarea id="func">(data/AVG(positiveControl))/(AVG(negativeControl)/AVG(positiveControl))</textarea></td>
+          <td><textarea id="func">(rawData/AVG(Copb1_indi))/(AVG(negativecontrol)/AVG(Copb1_indi))</textarea></td>
         </tr>
 
         <tr>

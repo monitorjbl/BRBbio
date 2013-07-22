@@ -70,6 +70,10 @@
       class="icon-plus icon-white"></i> <span>Upload</span> <!-- The file input field used as target for the file upload widget -->
       <input id="fileupload" type="file" name="files[]" multiple>
     </span> </div>
+    
+    <div>
+    Control:<input type="text"/>
+    </div>
 
   </div>
 

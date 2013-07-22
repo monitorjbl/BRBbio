@@ -126,7 +126,7 @@ $(document).ready(function(){
 
         <tr>
           <td>Function</td>
-          <td><textarea id="func">1-(3*(STD(negativeControl) + STD(positiveControl)))/(AVG(negativeControl)-AVG(positiveControl))</textarea></td>
+          <td><textarea id="func">1-(3*(STD(negativecontrol) + STD(Copb1_indi)))/(AVG(negativecontrol)-AVG(Copb1_indi))</textarea></td>
         </tr>
 
         <tr>
