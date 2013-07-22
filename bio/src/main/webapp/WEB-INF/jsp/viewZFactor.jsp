@@ -10,6 +10,19 @@
 #selectBox{
   margin-left:10px;
 }
+#processed table{
+  margin-left:50px;
+}
+table td{
+  padding:5px;
+}
+textarea{
+  width:100%;
+  height:100px;
+}
+a{
+  padding-left:10px;
+}
 td.badData{
   color:red;
   text-align:center;
@@ -21,8 +34,9 @@ td.badData{
 <script>
 
 function displayProcessedData(data, runId){
-	var tbl = $('<table class="table table-striped"><thead><tr><th>Plate ID</th></tr></thead><tbody></tbody></table>');
+	$('#processed').children().remove();
 	
+	var tbl = $('<table class="table table-striped"><thead><tr><th>Plate ID</th></tr></thead><tbody></tbody></table>');
 	var time = {};
 	var tableRows = {};
 	$.each(data, function(){
@@ -56,25 +70,34 @@ function displayProcessedData(data, runId){
 		tbl.append(row);
 	}
 	
-	$('#selectBox span').remove();
 	$('#processed').append(tbl);
+	hideLoading();
+}
+
+function showLoading(){
+	$('#selectBox table tr:nth-child(3) td:last-child').html('<img class="loading" src="static/img/loader.gif"/>');
+	$('#selectBox table button').text('Loading...').attr('disabled', true);
+}
+
+function hideLoading(){
+	$('#selectBox table tr:nth-child(3) td:last-child').html('');
+	$('#selectBox table button').text('Show Data').attr('disabled', false);
 }
 
 $(document).ready(function(){
 	$('#run').change(function(){
 		var id = $(this).val();
 		$('#processed').children().remove();
-		$('#selectBox a, #selectBox span').remove();
+		$('#selectBox span').remove();
 		
-		$('<a id="excel" href="getNormalizedDataExcel?runId='+$(this).val()+'"><img src="static/img/excel.png"/></a>').appendTo('#selectBox');
-		$('<span style="display:block;"><button class="btn">Show data</button></span>').appendTo('#selectBox').find('button').click(function(){
-			$(this).parent().append('<img class="loading" src="static/img/loader.gif"/>');
-			$(this).text('Loading...').attr('disabled', true);
-    		$.get('getZFactorData?runId='+id, function(data){
+		$('#selectBox a').attr('href','getZFactorDataExcel?runId='+$(this).val()+'&func='+$('#func').val());
+		$('#selectBox button').click(function(){
+			showLoading();
+    		$.get('getZFactorData', {runId:id,func:$('#func').val()}, function(data){
     			displayProcessedData(data, id);
     		});
 		});
-	})
+	});
 });
 
 </script>
@@ -85,18 +108,33 @@ $(document).ready(function(){
   <div class="container">
     <div id="selectBox">
       <h3>View Z Factors</h3>
+      <table>
+        <tr>
+          <td>Run</td>
+          <td><select id="run">
+              <option value="">[-Select-]</option>
+              <c:forEach var="run" items="${runs}">
+                <option value="<c:out value="${run.getId()}"/>">
+                  <c:out value="${run.getRunName()}" />
+                </option>
+              </c:forEach>
+          </select><a id="excel" href="#"><img src="static/img/excel.png"></a></td>
+        </tr>
 
-      Run: <select id="run">
-        <option value="">[-Select-]</option>
-        <c:forEach var="run" items="${runs}">
-          <option value="<c:out value="${run.getId()}"/>">
-            <c:out value="${run.getRunName()}" />
-          </option>
-        </c:forEach>
-      </select>
+        <tr>
+          <td>Function</td>
+          <td><textarea id="func">1-(3*(STD(negativeControl) + STD(positiveControl)))/(AVG(negativeControl)-AVG(positiveControl))</textarea></td>
+        </tr>
+
+        <tr>
+          <td><button class="btn">Show data</button></td>
+          <td></td>
+        </tr>
+      </table>
+      
     </div>
     <br />
-
+  
     <div class="row">
       <div id="processed" class="span6"></div>
     </div>

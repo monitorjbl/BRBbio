@@ -72,16 +72,19 @@ public class DataDao {
 		return jdbc.queryForObject(read(RUN_SQL) + " WHERE id = ?", new Object[] { runId }, new RunRowMapper());
 	}
 
-	public List<NormalizedData> getNormalizedDataByRunId(long runId) {
-		return jdbc.query(read(NORMALIZE_SQL), new Object[] { runId }, new ProcessedDataRowMapper());
+	public List<NormalizedData> getNormalizedDataByRunId(long runId, String function) {
+		String f = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("data", "IF(type='raw',data,null)").replaceAll("positiveControl", "IF(type='positive',data,null)").replaceAll("negativeControl", "IF(type='negative',data,null)");
+		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#",f), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
 
-	public List<ZFactor> getZFactorsByRunId(long runId) {
-		return jdbc.query(read(ZFACTOR_SQL), new Object[] { runId }, new ZFactorRowMapper());
+	public List<ZFactor> getZFactorsByRunId(long runId, String function) {
+		String f = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("positiveControl", "IF(type='positive',data,null)").replaceAll("negativeControl", "IF(type='negative',data,null)");
+		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#",f), new Object[] { runId }, new ZFactorRowMapper());
 	}
 
-	public List<NormalizedData> getViabilityByRunId(long runId) {
-		return jdbc.query(read(VIABILITY_SQL), new Object[] { runId }, new ProcessedDataRowMapper());
+	public List<NormalizedData> getViabilityByRunId(long runId, String function) {
+		String f = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("positiveControl", "IF(type='positive',data,null)").replaceAll("negativeControl", "IF(type='negative',data,null)");
+		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#",f), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)

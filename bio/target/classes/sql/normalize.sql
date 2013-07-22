@@ -1,7 +1,19 @@
-SELECT pl.plate_name, rd.identifier, rd.time_marker, (rd.data/p.ctrl)/(n.ctrl/p.ctrl) as norm
-	FROM raw_data rd 
-	JOIN plates pl ON pl.id = rd.plate_id
-	JOIN avg_control p ON p.plate_id = rd.plate_id AND p.time_marker = rd.time_marker AND p.control_type = 'positive_control'
-	JOIN avg_control n ON n.plate_id = rd.plate_id AND n.time_marker = rd.time_marker AND n.control_type = 'negative_control'
+SELECT plate_name, identifier, time_marker, #function# as norm
+FROM plates pl
+JOIN (
+SELECT plate_id, identifier, time_marker, data, 'raw' as type
+	FROM raw_data 
+UNION ALL
+SELECT c.plate_id, rd.identifier, c.time_marker, c.data, 'negative' as type
+	FROM controls c
+	JOIN raw_data rd ON rd.plate_id = c.plate_id AND rd.time_marker = c.time_marker
+	WHERE c.control_type = 'negative_control'
+UNION ALL
+SELECT c.plate_id, rd.identifier, c.time_marker, c.data, 'positive' as type
+	FROM controls c
+	JOIN raw_data rd ON rd.plate_id = c.plate_id AND rd.time_marker = c.time_marker
+	WHERE c.control_type = 'positive_control'
+) a ON a.plate_id = pl.id
 WHERE pl.run_id = ?
-ORDER BY pl.plate_name, rd.identifier, rd.time_marker ASC
+GROUP BY plate_name, identifier, time_marker
+ORDER BY plate_name, identifier, time_marker ASC

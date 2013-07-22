@@ -1,6 +1,18 @@
-SELECT pl.plate_name, rd.identifier, null as time_marker, rd.data/n.ctrl as norm
-	FROM cell_viability rd 
-	JOIN plates pl ON pl.id = rd.plate_id
-	JOIN (SELECT plate_id, AVG(data) ctrl FROM controls WHERE control_type = 'negative_control' GROUP BY plate_id) n ON n.plate_id = rd.plate_id
+SELECT pl.plate_name, a.identifier, null as time_marker, #function# as norm
+FROM plates pl
+JOIN (
+SELECT plate_id, identifier, data, 'raw' as type
+	FROM cell_viability 
+UNION ALL
+SELECT c.plate_id, rd.identifier, c.data, 'negative' as type
+	FROM controls c
+	JOIN cell_viability rd ON rd.plate_id = c.plate_id
+	WHERE c.control_type = 'negative_control'
+UNION ALL
+SELECT c.plate_id, rd.identifier, c.data, 'positive' as type
+	FROM controls c
+	JOIN cell_viability rd ON rd.plate_id = c.plate_id
+	WHERE c.control_type = 'positive_control'
+) a ON a.plate_id = pl.id
 WHERE pl.run_id = ?
-ORDER BY pl.plate_name, rd.identifier ASC
+GROUP BY pl.plate_name, a.identifier

@@ -73,26 +73,27 @@ public class ViewData {
 
 	@RequestMapping(value = "getNormalizedData")
 	public @ResponseBody
-	List<NormalizedData> getNormalizedData(@RequestParam long runId) {
-		return dao.getNormalizedDataByRunId(runId);
+	List<NormalizedData> getNormalizedData(@RequestParam long runId, @RequestParam String func) {
+		return dao.getNormalizedDataByRunId(runId, func);
 	}
 
 	@RequestMapping(value = "getViabilityData")
 	public @ResponseBody
-	List<NormalizedData> getViabilityData(@RequestParam long runId) {
-		return dao.getViabilityByRunId(runId);
+	List<NormalizedData> getViabilityData(@RequestParam long runId, @RequestParam String func) {
+		return dao.getViabilityByRunId(runId, func);
 	}
 
 	@RequestMapping(value = "getZFactorData")
 	public @ResponseBody
-	List<ZFactor> getZFactors(@RequestParam long runId) {
-		return dao.getZFactorsByRunId(runId);
+	List<ZFactor> getZFactors(@RequestParam long runId, @RequestParam String func) {
+		return dao.getZFactorsByRunId(runId, func);
 	}
 
 	@RequestMapping(value = "getNormalizedDataExcel")
 	public void getNormalizedDataExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
-		List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId);
+		String function = request.getParameter("func");
+		List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, function);
 		@SuppressWarnings("serial")
 		List<String> headers = new ArrayList<String>() {
 			{
@@ -134,7 +135,8 @@ public class ViewData {
 	@RequestMapping(value = "getZFactorExcel")
 	public void getZFactorExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
-		List<ZFactor> ex = dao.getZFactorsByRunId(runId);
+		String function = request.getParameter("func");
+		List<ZFactor> ex = dao.getZFactorsByRunId(runId, function);
 		@SuppressWarnings("serial")
 		List<String> headers = new ArrayList<String>() {
 			{
@@ -174,7 +176,8 @@ public class ViewData {
 	@RequestMapping(value = "getViabilityDataExcel")
 	public void getViabilityExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
-		List<NormalizedData> ex = dao.getViabilityByRunId(runId);
+		String function = request.getParameter("func");
+		List<NormalizedData> ex = dao.getViabilityByRunId(runId, function);
 		@SuppressWarnings("serial")
 		List<String> headers = new ArrayList<String>() {
 			{

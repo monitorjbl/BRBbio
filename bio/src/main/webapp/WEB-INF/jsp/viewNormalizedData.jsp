@@ -10,29 +10,18 @@
 #selectBox{
   margin-left:10px;
 }
-
-table.gridtable {
-	font-family: verdana,arial,sans-serif;
-	font-size:11px;
-	color:#333333;
-	border-width: 1px;
-	border-color: #666666;
-	border-collapse: collapse;
-    margin-left: 75px;
+#processed table{
+  margin-left:50px;
 }
-table.gridtable th {
-	border-width: 1px;
-	padding: 8px;
-	border-style: solid;
-	border-color: #666666;
-	background-color: #dedede;
+table td{
+  padding:5px;
 }
-table.gridtable td {
-	border-width: 1px;
-	padding: 8px;
-	border-style: solid;
-	border-color: #666666;
-	background-color: #ffffff;
+textarea{
+  width:100%;
+  height:100px;
+}
+a{
+  padding-left:10px;
 }
 </style>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -41,8 +30,9 @@ table.gridtable td {
 <script>
 
 function displayProcessedData(data, runId){
-	var tbl = $('<table class="table table-striped"><thead><tr><th>Plate ID</th><th>Gene</th></tr></thead><tbody></tbody></table>');
+	$('#processed').children().remove();
 	
+	var tbl = $('<table class="table table-striped"><thead><tr><th>Plate ID</th><th>Gene</th></tr></thead><tbody></tbody></table>');
 	var time = {};
 	var tableRows = {};
 	$.each(data, function(){
@@ -72,25 +62,34 @@ function displayProcessedData(data, runId){
 		tbl.append(row);
 	}
 	
-	$('#selectBox span').remove();
 	$('#processed').append(tbl);
+	hideLoading();
+}
+
+function showLoading(){
+	$('#selectBox table tr:nth-child(3) td:last-child').html('<img class="loading" src="static/img/loader.gif"/>');
+	$('#selectBox table button').text('Loading...').attr('disabled', true);
+}
+
+function hideLoading(){
+	$('#selectBox table tr:nth-child(3) td:last-child').html('');
+	$('#selectBox table button').text('Show Data').attr('disabled', false);
 }
 
 $(document).ready(function(){
 	$('#run').change(function(){
 		var id = $(this).val();
 		$('#processed').children().remove();
-		$('#selectBox a, #selectBox span').remove();
+		$('#selectBox span').remove();
 		
-		$('<a id="excel" href="getNormalizedDataExcel?runId='+$(this).val()+'"><img src="static/img/excel.png"/></a>').appendTo('#selectBox');
-		$('<span style="display:block;"><button class="btn">Show data</button></span>').appendTo('#selectBox').find('button').click(function(){
-			$(this).parent().append('<img class="loading" src="static/img/loader.gif"/>');
-			$(this).text('Loading...').attr('disabled', true);
-    		$.get('getNormalizedData?runId='+id, function(data){
+		$('#selectBox a').attr('href','getNormalizedDataExcel?runId='+$(this).val()+'&func='+$('#func').val());
+		$('#selectBox button').click(function(){
+			showLoading();
+    		$.get('getNormalizedData', {runId:id,func:$('#func').val()}, function(data){
     			displayProcessedData(data, id);
     		});
 		});
-	})
+	});
 });
 
 </script>
@@ -102,14 +101,29 @@ $(document).ready(function(){
     <div id="selectBox">
       <h3>View Normalized Data</h3>
 
-      Run: <select id="run">
-        <option value="">[-Select-]</option>
-        <c:forEach var="run" items="${runs}">
-          <option value="<c:out value="${run.getId()}"/>">
-            <c:out value="${run.getRunName()}" />
-          </option>
-        </c:forEach>
-      </select>
+      <table>
+        <tr>
+          <td>Run</td>
+          <td><select id="run">
+              <option value="">[-Select-]</option>
+              <c:forEach var="run" items="${runs}">
+                <option value="<c:out value="${run.getId()}"/>">
+                  <c:out value="${run.getRunName()}" />
+                </option>
+              </c:forEach>
+          </select><a id="excel" href="#"><img src="static/img/excel.png"></a></td>
+        </tr>
+
+        <tr>
+          <td>Function</td>
+          <td><textarea id="func">(data/AVG(positiveControl))/(AVG(negativeControl)/AVG(positiveControl))</textarea></td>
+        </tr>
+
+        <tr>
+          <td><button class="btn">Show data</button></td>
+          <td></td>
+        </tr>
+      </table>
     </div>
     <br />
     
