@@ -36,7 +36,9 @@ public class DataDao {
 	private static final String NORMALIZE_SQL = "sql/normalize.sql";
 	private static final String ZFACTOR_SQL = "sql/zfactor.sql";
 	private static final String VIABILITY_SQL = "sql/viability.sql";
-	private static final String GET_RUN_CONTROLS = "select distinct c.identifier from plates p join raw_data_controls c on c.plate_id = p.id where p.run_id=?";
+	
+	private static final String GET_RAW_DATA_CONTROLS = "select distinct c.identifier from plates p join raw_data_controls c on c.plate_id = p.id where p.run_id=?";
+	private static final String GET_VIABILITY_CONTROLS = "select distinct c.identifier from plates p join cell_viability_controls c on c.plate_id = p.id where p.run_id=?";
 
 	private static final String INSERT_RUN = "INSERT INTO runs (run_name) VALUES(?)";
 	private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
@@ -76,21 +78,37 @@ public class DataDao {
 	}
 
 	public List<NormalizedData> getNormalizedDataByRunId(long runId, String function) {
-		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#", convertFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
+		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#", convertRawDataFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
 
 	public List<ZFactor> getZFactorsByRunId(long runId, String function) {
-		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#", convertFunction(runId, function)), new Object[] { runId }, new ZFactorRowMapper());
+		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#", convertRawDataFunction(runId, function)), new Object[] { runId }, new ZFactorRowMapper());
 	}
 
 	public List<NormalizedData> getViabilityByRunId(long runId, String function) {
-		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
+		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertVisibilityFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
+	}
+	
+	public List<String> getRawDataControlsForRun(long runId){
+		return jdbc.queryForList(GET_RAW_DATA_CONTROLS, new Object[] { runId }, String.class);
+	}
+	
+	public List<String> getViabilityControlsForRun(long runId){
+		return jdbc.queryForList(GET_VIABILITY_CONTROLS, new Object[] { runId }, String.class);
 	}
 
-	private String convertFunction(long runId, String function) {
+	private String convertRawDataFunction(long runId, String function) {
 		String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
-		List<String> res = jdbc.queryForList(GET_RUN_CONTROLS, new Object[] { runId }, String.class);
-		for (String r : res) {
+		for (String r : getRawDataControlsForRun(runId)) {
+			func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
+		}
+		
+		return func;
+	}
+	
+	private String convertVisibilityFunction(long runId, String function) {
+		String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
+		for (String r : getViabilityControlsForRun(runId)) {
 			func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
 		}
 		
@@ -205,18 +223,18 @@ public class DataDao {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void loadRawDataExcel(String runName, InputStream is) {
+	public void loadRawDataExcel(String runName, List<String> controls, InputStream is) {
 		try {
-			new ExcelDataReader(this).readRawData(runName, is);
+			new ExcelDataReader(this, controls).readRawData(runName, is);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void loadViabilityExcel(long runId, InputStream is) {
+	public void loadViabilityExcel(long runId, List<String> controls, InputStream is) {
 		try {
-			new ExcelDataReader(this).readViability(runId, is);
+			new ExcelDataReader(this, controls).readViability(runId, is);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

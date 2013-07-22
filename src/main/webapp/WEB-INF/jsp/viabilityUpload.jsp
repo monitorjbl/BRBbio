@@ -11,9 +11,25 @@
 #progress {
   width: 100px;
 }
-
 #files {
   margin-bottom: 10px;
+}
+#controls li{
+  list-style-type: none;
+}
+table td{
+  padding:10px;
+}
+input[type="text"]{
+  display:block;
+  height:24px;
+}
+button{
+  position:relative;
+  top: -5px;
+}
+.ctrlAdd{
+  margin-left:10px;
 }
 </style>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -22,8 +38,10 @@
 <script src="static/js/jquery.iframe-transport.js"></script>
 <script src="static/js/jquery.fileupload.js"></script>
 <script>
-	/*jslint unparam: true */
-	/*global window, $ */
+    function addControl(){
+    	$('#controls').append('<input name="ctrl" type="text" />');
+    }
+
 	$(document).ready(
 			function() {
 				'use strict';
@@ -32,10 +50,17 @@
 					dataType : 'json',
 					maxNumberOfFiles : 1,
 					submit : function(e, data) {
+						var controls  = [];
+						$('input[name="ctrl"]').each(function(){
+							if($(this).val() != ''){
+								controls.push($(this).val());
+							}
+						});
+						
 						$('#fileupload').fileupload(
 								'option',
 								'url',
-								'doViabilityLoad?runId='+ $('#run').val());
+								'doViabilityLoad?runId='+ $('#run').val()+'&controls='+escape(controls.join()));
 						$('#files').html('Uploading...');
 						$('#progress').show();
 					},
@@ -61,23 +86,43 @@
     <h3>Upload viability data</h3>
 
     <!-- The container for the uploaded files -->
-    <span id="files" class="files">Please select a run and submit a file. If your viability data contains plates that the run did not have, they will be added without controls. This means that they will not appear in the viability report.</span>
+    <span id="files" class="files">Please select a run and submit a file.</span>
     <!-- The global progress bar -->
     <span id="progress" style="display: none"> <img src="static/img/loader.gif" />
     </span>
-    <!-- The fileinput-button span is used to style the file input field as button -->
-    <div style="padding-top: 10px;">
-      Run: <select id="run">
-        <option value="">[-Select-]</option>
-        <c:forEach var="run" items="${runs}">
-          <option value="<c:out value="${run.getId()}"/>">
-            <c:out value="${run.getRunName()}" />
-          </option>
-        </c:forEach>
-      </select> <span class="btn btn-success fileinput-button"> <i class="icon-plus icon-white"></i> <span>Upload</span> <!-- The file input field used as target for the file upload widget -->
-        <input id="fileupload" type="file" name="files[]" multiple>
-      </span>
-    </div>
+
+    <table>
+      <tr>
+        <td>Run</td>
+        <td>
+          <!-- The fileinput-button span is used to style the file input field as button --> <select id="run">
+            <option value="">[-Select-]</option>
+            <c:forEach var="run" items="${runs}">
+              <option value="<c:out value="${run.getId()}"/>">
+                <c:out value="${run.getRunName()}" />
+              </option>
+            </c:forEach>
+        </select>
+        </td>
+        <td><span class="btn btn-success fileinput-button"> <i class="icon-plus icon-white"></i> <span>Upload</span>
+            <!-- The file input field used as target for the file upload widget --> <input id="fileupload" type="file"
+            name="files[]" multiple>
+        </span></td>
+      </tr>
+      <tr>
+        <td>Controls:</td>
+        <td>
+          <div id="controls">
+            <input name="ctrl" type="text" />
+          </div>
+        </td>
+        <td>
+          <button class="btn ctrlAdd" onclick="addControl()">
+            <i class="icon-plus icon-gray"></i> Add
+          </button>
+        </td>
+      </tr>
+    </table>
 
   </div>
 

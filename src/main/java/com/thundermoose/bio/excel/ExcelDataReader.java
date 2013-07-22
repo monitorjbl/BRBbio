@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -31,25 +32,30 @@ public class ExcelDataReader {
 	private static final String IDENTIFIER = "Identifier";
 	private static final String TIME_MARKER = "TimeMarker";
 
-	@SuppressWarnings("serial")
-	private static final Map<String, String> controls = new HashMap<String, String>() {
+	private final Map<String, String> controls;
+	
+	/*= new HashMap<String, String>() {
 		{
 			put("negativecontrol", null);
 			put("Copb1_indi", null);
 			put("Rab2_indi", null);
 		}
-	};
+	};*/
 
 	@SuppressWarnings("serial")
-	private static final Map<String, String> ignored = new HashMap<String, String>() {
+	private final Map<String, String> ignored = new HashMap<String, String>() {
 		{
 		}
 	};
 
 	private DataDao dao;
 
-	public ExcelDataReader(DataDao dao) {
+	public ExcelDataReader(DataDao dao, List<String> controls) {
 		this.dao = dao;
+		this.controls = new HashMap<String,String>();
+		for(String c : controls){
+			this.controls.put(c, null);
+		}
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)

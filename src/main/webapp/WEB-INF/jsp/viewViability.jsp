@@ -6,27 +6,7 @@
 <link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-responsive.css">
 <link rel="stylesheet" href="static/css/style.css">
 <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css">
-<style type="text/css">
-#selectBox{
-  margin-left:10px;
-}
-#processed table{
-  margin-left:50px;
-}
-#selectBox button{
-  width:100px;
-}
-table td{
-  padding:5px;
-}
-textarea{
-  width:100%;
-  height:100px;
-}
-a{
-  padding-left:10px;
-}
-</style>
+<link rel="stylesheet" href="static/css/brb.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script src="http://blueimp.github.com/cdn/js/bootstrap.min.js"></script>
@@ -44,6 +24,13 @@ function displayProcessedData(data, runId){
 	hideLoading();
 }
 
+function displayControlsForRun(data){
+	$('#controls').children().remove();
+	$.each(data, function(){
+		$('#controls').append('<option>'+this+'</option>');
+	});
+}
+
 function showLoading(){
 	$('#selectBox table tr:nth-child(3) td:last-child').html('<img class="loading" src="static/img/loader.gif"/>');
 	$('#selectBox table button').text('Loading...').attr('disabled', true);
@@ -59,6 +46,10 @@ $(document).ready(function(){
 		var id = $(this).val();
 		$('#processed').children().remove();
 		$('#selectBox span').remove();
+		
+		$.get('getViabilityControlsForRun', {runId:id}, function(data){
+			displayControlsForRun(data);
+		});
 		
 		$('#selectBox a').attr('href','getViabilityDataExcel?runId='+$(this).val()+'&func='+$('#func').val());
 		$('#selectBox button').click(function(){
@@ -93,7 +84,7 @@ $(document).ready(function(){
         </tr>
 
         <tr>
-          <td>Function</td>
+          <td>Formula</td>
           <td><textarea id="func">rawData/AVG(negativecontrol)</textarea></td>
         </tr>
 
@@ -103,6 +94,19 @@ $(document).ready(function(){
         </tr>
       </table>
     </div>
+        
+    <div id="legend">
+      <h4>Available functions</h4>
+      <p>AVG(): Average of field</p>
+      <p>STD(): Standard deviation of field</p>
+      <p>MIN(): Lowest value of field</p>
+      <p>MAX(): Largest value of field</p>
+      <h4>Available fields</h4>
+      <p>rawData: value of the Data column of the cytotoxicity spreadsheet</p>
+      <h4>Available controls</h4>
+      <select id="controls" multiple disabled></select>
+    </div>
+    
     <br />
 
     <div class="row">

@@ -3,6 +3,7 @@ package com.thundermoose.bio.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -55,6 +56,12 @@ public class ExcelUpload {
 			throw new DatabaseException("Run name is required");
 		}
 		
+		String ctrl = request.getParameter("controls");
+		List<String> controls = new ArrayList<String>();
+		for(String c : ctrl.split(",")){
+			controls.add(c);
+		}
+		
 		Item item = new Item();
 		Upload upload = new Upload();
 		upload.getFiles().add(item);
@@ -80,7 +87,7 @@ public class ExcelUpload {
 		item.setSize(it.getSize());
 		it.write(it.getStoreLocation());
 
-		dao.loadRawDataExcel(runName, new FileInputStream(it.getStoreLocation()));
+		dao.loadRawDataExcel(runName, controls, new FileInputStream(it.getStoreLocation()));
 
 		return upload;
 	}
@@ -94,6 +101,12 @@ public class ExcelUpload {
 		}
 		long runId = Long.parseLong(rid);
 		
+		String ctrl = request.getParameter("controls");
+		List<String> controls = new ArrayList<String>();
+		for(String c : ctrl.split(",")){
+			controls.add(c);
+		}
+		
 		Item item = new Item();
 		Upload upload = new Upload();
 		upload.getFiles().add(item);
@@ -119,7 +132,7 @@ public class ExcelUpload {
 		item.setSize(it.getSize());
 		it.write(it.getStoreLocation());
 
-		dao.loadViabilityExcel(runId, new FileInputStream(it.getStoreLocation()));
+		dao.loadViabilityExcel(runId, controls, new FileInputStream(it.getStoreLocation()));
 
 		return upload;
 	}
