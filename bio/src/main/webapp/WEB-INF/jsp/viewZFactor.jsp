@@ -13,6 +13,9 @@
 #processed table{
   margin-left:50px;
 }
+#selectBox button{
+  width:100px;
+}
 table td{
   padding:5px;
 }

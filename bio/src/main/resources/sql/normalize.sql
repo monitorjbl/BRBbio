@@ -1,4 +1,4 @@
-SELECT plate_name, identifier, time_marker, #function# as norm
+SELECT pl.plate_name, a.identifier, a.time_marker, #function# as norm
 FROM plates pl
 JOIN (
 SELECT plate_id, identifier, time_marker, data, 'raw' as type
@@ -15,5 +15,5 @@ SELECT c.plate_id, rd.identifier, c.time_marker, c.data, 'positive' as type
 	WHERE c.control_type = 'positive_control'
 ) a ON a.plate_id = pl.id
 WHERE pl.run_id = ?
-GROUP BY plate_name, identifier, time_marker
-ORDER BY plate_name, identifier, time_marker ASC
+GROUP BY pl.plate_name, a.identifier, a.time_marker
+ORDER BY pl.plate_name, a.identifier, a.time_marker ASC

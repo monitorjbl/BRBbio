@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.dao.DataAccessException;
@@ -22,8 +23,9 @@ public class TestNormalize {
 	private static DataDao	dao;
 
 	@Test
+	@Ignore
 	public void test() throws IOException {
-		dao.getNormalizedDataByRunId(0);
+		dao.getNormalizedDataByRunId(0, "(data/AVG(positiveControl))/(AVG(negativeControl)/AVG(positiveControl))");
 		/*List<Plate> plates = dao.getPlates();
 		for(Plate plate : plates){
 			System.out.println(plate.getPlateName());

@@ -73,18 +73,20 @@ public class DataDao {
 	}
 
 	public List<NormalizedData> getNormalizedDataByRunId(long runId, String function) {
-		String f = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("data", "IF(type='raw',data,null)").replaceAll("positiveControl", "IF(type='positive',data,null)").replaceAll("negativeControl", "IF(type='negative',data,null)");
-		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#",f), new Object[] { runId }, new ProcessedDataRowMapper());
+		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#", convertFunction(function)), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
 
 	public List<ZFactor> getZFactorsByRunId(long runId, String function) {
-		String f = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("positiveControl", "IF(type='positive',data,null)").replaceAll("negativeControl", "IF(type='negative',data,null)");
-		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#",f), new Object[] { runId }, new ZFactorRowMapper());
+		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#", convertFunction(function)), new Object[] { runId }, new ZFactorRowMapper());
 	}
 
 	public List<NormalizedData> getViabilityByRunId(long runId, String function) {
-		String f = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("positiveControl", "IF(type='positive',data,null)").replaceAll("negativeControl", "IF(type='negative',data,null)");
-		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#",f), new Object[] { runId }, new ProcessedDataRowMapper());
+		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertFunction(function)), new Object[] { runId }, new ProcessedDataRowMapper());
+	}
+
+	private String convertFunction(String function) {
+		return function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("positiveControl", "CASE WHEN a.type='raw' THEN a.data END")
+				.replaceAll("positiveControl", "CASE WHEN a.type='positive' THEN a.data END").replaceAll("negativeControl", "CASE WHEN a.type='negative' THEN a.data END");
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
