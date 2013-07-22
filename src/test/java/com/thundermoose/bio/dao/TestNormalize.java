@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.AfterClass;
@@ -17,25 +18,21 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
-
 public class TestNormalize {
 
-	private static DataDao	dao;
+	private static DataDao dao;
 
 	@Test
 	@Ignore
 	public void test() throws IOException {
 		dao.getNormalizedDataByRunId(0, "(data/AVG(positiveControl))/(AVG(negativeControl)/AVG(positiveControl))");
-		/*List<Plate> plates = dao.getPlates();
-		for(Plate plate : plates){
-			System.out.println(plate.getPlateName());
-			for(Control c : plate.getControls()){
-				System.out.println("\t"+c.getNegativeControl());
-			}
-			for(RawData rd : plate.getRawData()){
-				System.out.println("\t"+rd.getIdentifier());
-			}
-		}*/
+		/*
+		 * List<Plate> plates = dao.getPlates(); for(Plate plate : plates){
+		 * System.out.println(plate.getPlateName()); for(Control c :
+		 * plate.getControls()){ System.out.println("\t"+c.getNegativeControl()); }
+		 * for(RawData rd : plate.getRawData()){
+		 * System.out.println("\t"+rd.getIdentifier()); } }
+		 */
 	}
 
 	@BeforeClass
@@ -64,15 +61,19 @@ public class TestNormalize {
 		// create test hibernate factory
 		dao = new DataDao();
 		dao.setJdbc(db);
-		
-		try{
-			dao.loadRawDataExcel("test", new FileInputStream(new File("src/test/resources/test_data.xlsx")));
+
+		try {
+			dao.loadRawDataExcel("test", new ArrayList<String>() {
+				{
+					add("negativecontrol");
+					add("Copb1_indi");
+				}
+			}, new FileInputStream(new File("src/test/resources/test_data.xlsx")));
 			System.out.println("data loaded");
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
+
 	}
 
 	@AfterClass
