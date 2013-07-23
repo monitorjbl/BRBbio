@@ -70,6 +70,10 @@ function hideLoading(){
 	$('#selectBox table button').text('Show Data').attr('disabled', false);
 }
 
+function getFormula(){
+	return encodeURIComponent($('#func').val());
+}
+
 $(document).ready(function(){
 	$('#run').change(function(){
 		var id = $(this).val();
@@ -80,10 +84,12 @@ $(document).ready(function(){
 			displayControlsForRun(data);
 		});
 		
-		$('#selectBox a').attr('href','getZFactorDataExcel?runId='+$(this).val()+'&func='+$('#func').val());
+		$('#excel').attr('href','getZFactorExcel?runId='+$(this).val()+'&func='+getFormula());
+		$('#tsv').attr('href','getZFactorTsv?runId='+$(this).val()+'&func='+getFormula());
+		
 		$('#selectBox button').click(function(){
 			showLoading();
-    		$.get('getZFactorData', {runId:id,func:$('#func').val()}, function(data){
+    		$.get('getZFactorData', {runId:id,func:getFormula()}, function(data){
     			displayProcessedData(data, id);
     		});
 		});
@@ -108,7 +114,7 @@ $(document).ready(function(){
                   <c:out value="${run.getRunName()}" />
                 </option>
               </c:forEach>
-          </select><a id="excel" href="#"><img src="static/img/excel.png"></a></td>
+          </select><a id="excel" href="#"><img src="static/img/excel.png"></a><a id="tsv" href="#"><img src="static/img/tsv.png"></a></td>
         </tr>
 
         <tr>

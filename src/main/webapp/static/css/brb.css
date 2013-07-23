@@ -1,6 +1,10 @@
 #selectBox{
   margin-left:10px;
 }
+#selectBox img{
+  width:50px;
+  height:50px;
+}
 #processed table{
   margin-left:50px;
 }

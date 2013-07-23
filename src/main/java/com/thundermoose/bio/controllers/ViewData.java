@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -94,7 +95,7 @@ public class ViewData {
 	List<String> getRawDataControlsForRun(@RequestParam long runId) {
 		return dao.getRawDataControlsForRun(runId);
 	}
-	
+
 	@RequestMapping(value = "getViabilityControlsForRun")
 	public @ResponseBody
 	List<String> getViabilityControlsForRun(@RequestParam long runId) {
@@ -151,7 +152,7 @@ public class ViewData {
 		List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, function);
 
 		String headers = "Plate Name\tGene\t";
-		Map<String, String> rowmap = new HashMap<String, String>();
+		Map<String, String> rowmap = new TreeMap<String, String>();
 
 		for (NormalizedData dt : ex) {
 			if (!headers.contains(dt.getTimeMarker() + "hr")) {
@@ -163,12 +164,12 @@ public class ViewData {
 				String row = dt.getPlateName() + "\t" + dt.getGeneId() + "\t";
 				rowmap.put(key, row);
 			}
-			rowmap.put(key, rowmap.get(key) + "\t");
+			rowmap.put(key, rowmap.get(key) + dt.getNormalized() + "\t");
 		}
 
 		String tsv = headers + "\n";
 		for (String s : rowmap.keySet()) {
-			tsv += s + "\n";
+			tsv += rowmap.get(s) + "\n";
 		}
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_normalized.tsv\"");
 		response.getOutputStream().write(tsv.getBytes());
@@ -214,6 +215,36 @@ public class ViewData {
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_zfactor.xlsx\"");
 		wb.write(response.getOutputStream());
 	}
+	
+	@RequestMapping(value = "getZFactorTsv")
+	public void getZFactorTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		long runId = Long.parseLong(request.getParameter("runId"));
+		String function = request.getParameter("func");
+		List<ZFactor> ex = dao.getZFactorsByRunId(runId, function);
+
+		String headers = "Plate Name\t";
+		Map<String, String> rowmap = new TreeMap<String, String>();
+
+		for (ZFactor dt : ex) {
+			if (!headers.contains(dt.getTimeMarker() + "hr")) {
+				headers += dt.getTimeMarker() + "hr\t";
+			}
+
+			String key = dt.getPlateName();
+			if (!rowmap.containsKey(key)) {
+				String row = dt.getPlateName() + "\t";
+				rowmap.put(key, row);
+			}
+			rowmap.put(key, rowmap.get(key) + dt.getzFactor() + "\t");
+		}
+
+		String tsv = headers + "\n";
+		for (String s : rowmap.keySet()) {
+			tsv += rowmap.get(s) + "\n";
+		}
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_zfactor.tsv\"");
+		response.getOutputStream().write(tsv.getBytes());
+	}
 
 	@RequestMapping(value = "getViabilityDataExcel")
 	public void getViabilityExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -247,5 +278,31 @@ public class ViewData {
 
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_viability.xlsx\"");
 		wb.write(response.getOutputStream());
+	}
+	
+	@RequestMapping(value = "getViabilityDataTsv")
+	public void getViabilityDataTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		long runId = Long.parseLong(request.getParameter("runId"));
+		String function = request.getParameter("func");
+		List<NormalizedData> ex = dao.getViabilityByRunId(runId, function);
+
+		String headers = "Plate Name\tGene\tViability";
+		Map<String, String> rowmap = new TreeMap<String, String>();
+
+		for (NormalizedData dt : ex) {
+			String key = dt.getPlateName() + "_" + dt.getGeneId();
+			if (!rowmap.containsKey(key)) {
+				String row = dt.getPlateName() + "\t" + dt.getGeneId() + "\t";
+				rowmap.put(key, row);
+			}
+			rowmap.put(key, rowmap.get(key) + dt.getNormalized() + "\t");
+		}
+
+		String tsv = headers + "\n";
+		for (String s : rowmap.keySet()) {
+			tsv += rowmap.get(s) + "\n";
+		}
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_viability.tsv\"");
+		response.getOutputStream().write(tsv.getBytes());
 	}
 }
