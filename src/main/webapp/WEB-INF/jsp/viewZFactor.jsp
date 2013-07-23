@@ -89,7 +89,7 @@ $(document).ready(function(){
 		
 		$('#selectBox button').click(function(){
 			showLoading();
-    		$.get('getZFactorData', {runId:id,func:getFormula()}, function(data){
+    		$.get('getZFactorData', {runId:id,func:$('#func').val()}, function(data){
     			displayProcessedData(data, id);
     		});
 		});
