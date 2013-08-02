@@ -36,7 +36,7 @@ public class DataDao {
 	private static final String NORMALIZE_SQL = "sql/normalize.sql";
 	private static final String ZFACTOR_SQL = "sql/zfactor.sql";
 	private static final String VIABILITY_SQL = "sql/viability.sql";
-	
+
 	private static final String GET_RAW_DATA_CONTROLS = "select distinct c.identifier from plates p join raw_data_controls c on c.plate_id = p.id where p.run_id=?";
 	private static final String GET_VIABILITY_CONTROLS = "select distinct c.identifier from plates p join cell_viability_controls c on c.plate_id = p.id where p.run_id=?";
 
@@ -88,12 +88,12 @@ public class DataDao {
 	public List<NormalizedData> getViabilityByRunId(long runId, String function) {
 		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertVisibilityFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
-	
-	public List<String> getRawDataControlsForRun(long runId){
+
+	public List<String> getRawDataControlsForRun(long runId) {
 		return jdbc.queryForList(GET_RAW_DATA_CONTROLS, new Object[] { runId }, String.class);
 	}
-	
-	public List<String> getViabilityControlsForRun(long runId){
+
+	public List<String> getViabilityControlsForRun(long runId) {
 		return jdbc.queryForList(GET_VIABILITY_CONTROLS, new Object[] { runId }, String.class);
 	}
 
@@ -102,16 +102,16 @@ public class DataDao {
 		for (String r : getRawDataControlsForRun(runId)) {
 			func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
 		}
-		
+
 		return func;
 	}
-	
+
 	private String convertVisibilityFunction(long runId, String function) {
 		String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
 		for (String r : getViabilityControlsForRun(runId)) {
 			func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
 		}
-		
+
 		return func;
 	}
 

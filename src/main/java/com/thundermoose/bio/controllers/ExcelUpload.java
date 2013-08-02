@@ -32,40 +32,28 @@ import com.thundermoose.bio.model.Upload.Item;
 public class ExcelUpload {
 
 	@Autowired
-	private DataDao	dao;
+	private DataDao dao;
 
-	@RequestMapping(value = "rawUpload")
+	@RequestMapping(value = "/rawUpload")
 	public ModelAndView rawDataUi() {
 		ModelAndView mv = new ModelAndView("rawUpload");
 		return mv;
 	}
-	
-	@RequestMapping(value = "viabilityUpload")
+
+	@RequestMapping(value = "/viabilityUpload")
 	public ModelAndView viabilityUi() {
 		ModelAndView mv = new ModelAndView("viabilityUpload");
 		mv.addObject("runs", dao.getRuns());
 		return mv;
 	}
-	
 
-	@RequestMapping(value = "doRawDataLoad")
+	@RequestMapping(value = "/doRawDataLoad")
 	public @ResponseBody
 	Upload loadRawData(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String runName = request.getParameter("runName");
-		if(runName == null || "".equals(runName)){
-			throw new DatabaseException("Run name is required");
-		}
-		
-		String ctrl = request.getParameter("controls");
-		List<String> controls = new ArrayList<String>();
-		for(String c : ctrl.split(",")){
-			controls.add(c);
-		}
-		
 		Item item = new Item();
 		Upload upload = new Upload();
 		upload.getFiles().add(item);
-		
+
 		// Create a factory for disk-based file items
 		DiskFileItemFactory factory = new DiskFileItemFactory();
 
@@ -77,40 +65,44 @@ public class ExcelUpload {
 		// Create a new file upload handler
 		ServletFileUpload up = new ServletFileUpload(factory);
 
-		// Parse the request (sometimes theres fucking 3 of them, hell if i know why)
-		List<FileItem> items = up.parseRequest(request);
 		DiskFileItem it = null;
-		for(FileItem fi : items){
-			it = (DiskFileItem) fi;
+		String runName = request.getParameter("runName");
+		List<String> controls = new ArrayList<String>();
+		
+		for (FileItem fi :  up.parseRequest(request)) {
+			DiskFileItem d = (DiskFileItem) fi;
+			if("file".equals(d.getFieldName())){
+				it = d;
+			} else if("control".equals(d.getFieldName())){
+				controls.add(d.getString());
+			} else if("runName".equals(d.getFieldName())){
+				runName = d.getString();
+			} else {
+				System.out.println(d);
+			}
+			
 		}
+		
 		item.setName(it.getName());
 		item.setSize(it.getSize());
 		it.write(it.getStoreLocation());
 
+		if (runName == null || "".equals(runName)) {
+			throw new DatabaseException("Run name is required");
+		}
+		
 		dao.loadRawDataExcel(runName, controls, new FileInputStream(it.getStoreLocation()));
 
 		return upload;
 	}
-	
-	@RequestMapping(value = "doViabilityLoad")
+
+	@RequestMapping(value = "/doViabilityLoad")
 	public @ResponseBody
 	Upload loadViability(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String rid = request.getParameter("runId");
-		if(rid == null || "".equals(rid)){
-			throw new DatabaseException("Run name is required");
-		}
-		long runId = Long.parseLong(rid);
-		
-		String ctrl = request.getParameter("controls");
-		List<String> controls = new ArrayList<String>();
-		for(String c : ctrl.split(",")){
-			controls.add(c);
-		}
-		
 		Item item = new Item();
 		Upload upload = new Upload();
 		upload.getFiles().add(item);
-		
+
 		// Create a factory for disk-based file items
 		DiskFileItemFactory factory = new DiskFileItemFactory();
 
@@ -122,11 +114,23 @@ public class ExcelUpload {
 		// Create a new file upload handler
 		ServletFileUpload up = new ServletFileUpload(factory);
 
-		// Parse the request (sometimes theres fucking 3 of them, hell if i know why)
+		// Parse the request (sometimes theres fucking 3 of them, hell if i know
+		// why)
 		List<FileItem> items = up.parseRequest(request);
+		long runId = -1;
+		List<String> controls = new ArrayList<String>();
 		DiskFileItem it = null;
-		for(FileItem fi : items){
-			it = (DiskFileItem) fi;
+		for (FileItem fi : items) {
+			DiskFileItem d = (DiskFileItem) fi;
+			if("file".equals(d.getFieldName())){
+				it = d;
+			} else if("control".equals(d.getFieldName())){
+				controls.add(d.getString());
+			} else if("runId".equals(d.getFieldName())){
+				runId = Long.parseLong(d.getString());
+			} else {
+				System.out.println(d);
+			}
 		}
 		item.setName(it.getName());
 		item.setSize(it.getSize());
@@ -149,8 +153,8 @@ public class ExcelUpload {
 	}
 
 	private class RestError {
-		private String	exception;
-		private String	message;
+		private String exception;
+		private String message;
 
 		@SuppressWarnings("unused")
 		public String getException() {

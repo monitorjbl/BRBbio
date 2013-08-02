@@ -32,77 +32,77 @@ public class ViewData {
 	@Autowired
 	private DataDao dao;
 
-	@RequestMapping(value = "viewNormalizedData")
+	@RequestMapping(value = "/viewNormalizedData")
 	public ModelAndView normalizedDataUi() {
 		ModelAndView mv = new ModelAndView("viewNormalizedData");
 		mv.addObject("runs", getRuns());
 		return mv;
 	}
 
-	@RequestMapping(value = "viewViability")
+	@RequestMapping(value = "/viewViability")
 	public ModelAndView viabilityUi() {
 		ModelAndView mv = new ModelAndView("viewViability");
 		mv.addObject("runs", getRuns());
 		return mv;
 	}
 
-	@RequestMapping(value = "viewZFactor")
+	@RequestMapping(value = "/viewZFactor")
 	public ModelAndView zFactorUi() {
 		ModelAndView mv = new ModelAndView("viewZFactor");
 		mv.addObject("runs", getRuns());
 		return mv;
 	}
 
-	@RequestMapping(value = "deleteRun")
+	@RequestMapping(value = "/deleteRun")
 	public ModelAndView deleteRunUi() {
 		ModelAndView mv = new ModelAndView("deleteRun");
 		mv.addObject("runs", getRuns());
 		return mv;
 	}
 
-	@RequestMapping(value = "getRuns")
+	@RequestMapping(value = "/getRuns")
 	public @ResponseBody
 	List<Run> getRuns() {
 		return dao.getRuns();
 	}
 
-	@RequestMapping(value = "deleteRunById")
+	@RequestMapping(value = "/deleteRunById")
 	public @ResponseBody
 	void deleteRun(@RequestParam long runId) {
 		dao.deleteRun(runId);
 	}
 
-	@RequestMapping(value = "getNormalizedData")
+	@RequestMapping(value = "/getNormalizedData")
 	public @ResponseBody
 	List<NormalizedData> getNormalizedData(@RequestParam long runId, @RequestParam String func) {
 		return dao.getNormalizedDataByRunId(runId, func);
 	}
 
-	@RequestMapping(value = "getViabilityData")
+	@RequestMapping(value = "/getViabilityData")
 	public @ResponseBody
 	List<NormalizedData> getViabilityData(@RequestParam long runId, @RequestParam String func) {
 		return dao.getViabilityByRunId(runId, func);
 	}
 
-	@RequestMapping(value = "getZFactorData")
+	@RequestMapping(value = "/getZFactorData")
 	public @ResponseBody
 	List<ZFactor> getZFactors(@RequestParam long runId, @RequestParam String func) {
 		return dao.getZFactorsByRunId(runId, func);
 	}
 
-	@RequestMapping(value = "getRawDataControlsForRun")
+	@RequestMapping(value = "/getRawDataControlsForRun")
 	public @ResponseBody
 	List<String> getRawDataControlsForRun(@RequestParam long runId) {
 		return dao.getRawDataControlsForRun(runId);
 	}
 
-	@RequestMapping(value = "getViabilityControlsForRun")
+	@RequestMapping(value = "/getViabilityControlsForRun")
 	public @ResponseBody
 	List<String> getViabilityControlsForRun(@RequestParam long runId) {
 		return dao.getViabilityControlsForRun(runId);
 	}
 
-	@RequestMapping(value = "getNormalizedDataExcel")
+	@RequestMapping(value = "/getNormalizedDataExcel")
 	public void getNormalizedDataExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
@@ -145,7 +145,7 @@ public class ViewData {
 		wb.write(response.getOutputStream());
 	}
 
-	@RequestMapping(value = "getNormalizedDataTsv")
+	@RequestMapping(value = "/getNormalizedDataTsv")
 	public void getNormalizedDataTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
@@ -175,7 +175,7 @@ public class ViewData {
 		response.getOutputStream().write(tsv.getBytes());
 	}
 
-	@RequestMapping(value = "getZFactorExcel")
+	@RequestMapping(value = "/getZFactorExcel")
 	public void getZFactorExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
@@ -215,8 +215,8 @@ public class ViewData {
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_zfactor.xlsx\"");
 		wb.write(response.getOutputStream());
 	}
-	
-	@RequestMapping(value = "getZFactorTsv")
+
+	@RequestMapping(value = "/getZFactorTsv")
 	public void getZFactorTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
@@ -246,7 +246,7 @@ public class ViewData {
 		response.getOutputStream().write(tsv.getBytes());
 	}
 
-	@RequestMapping(value = "getViabilityDataExcel")
+	@RequestMapping(value = "/getViabilityDataExcel")
 	public void getViabilityExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
@@ -279,8 +279,8 @@ public class ViewData {
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_viability.xlsx\"");
 		wb.write(response.getOutputStream());
 	}
-	
-	@RequestMapping(value = "getViabilityDataTsv")
+
+	@RequestMapping(value = "/getViabilityDataTsv")
 	public void getViabilityDataTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
