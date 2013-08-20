@@ -135,6 +135,103 @@ function DisplayController($scope, $location, $http) {
         $scope.showingData = true;
         $scope.loading = false;
         $scope.loaded = true;
+
+        var d = [];
+        var plates = [];
+        var count = 0;
+        $.each(tableRows, function() {
+          plates.push(this.plate);
+          $.each(this.data, function(i, j) {
+            if (i >= d.length) {
+              d.push([]);
+            }
+            d[i].push([ count, j ]);
+          });
+          count++;
+        });
+
+        var series = [];
+        $.each($scope.hours, function(i, j) {
+          series.push({
+            name : j,
+            data : d[i]
+          });
+        });
+
+        $('#chart').highcharts({
+          chart : {
+            type : 'scatter',
+            zoomType : 'xy'
+          },
+          turboThreshold : 0,
+          title : {
+            text : 'ZFactors by plate and time'
+          },
+          subtitle : {
+            text : 'Source'
+          },
+          xAxis : {
+            title : {
+              enabled : true,
+              text : 'Plate'
+            },
+            format : {
+              type : "category"
+            },
+            categories : plates,
+            labels: {
+              rotation: -45,
+              align: 'right',
+              style: {
+                  fontSize: '9px',
+                  fontFamily: 'Verdana, sans-serif'
+              }
+            }
+          },
+          yAxis : {
+            title : {
+              text : 'ZFactor'
+            },
+            max : 1,
+            min : 0
+          },
+          legend : {
+            layout : 'vertical',
+            align : 'left',
+            verticalAlign : 'top',
+            x : 100,
+            y : 70,
+            floating : true,
+            backgroundColor : '#FFFFFF',
+            borderWidth : 1
+          },
+          plotOptions : {
+            scatter : {
+              marker : {
+                radius : 5,
+                states : {
+                  hover : {
+                    enabled : true,
+                    lineColor : 'rgb(100,100,100)'
+                  }
+                }
+              },
+              states : {
+                hover : {
+                  marker : {
+                    enabled : false
+                  }
+                }
+              },
+              tooltip : {
+                headerFormat : '<b>{series.name}</b><br>',
+                pointFormat : '{point.category}, {point.y}'
+              }
+            }
+          },
+          
+          series : series
+        });
       });
     }
   };

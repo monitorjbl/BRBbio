@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><!DOCTYPE html>
 <div class="row">
   <div class="span10" ng-controller="RawCtrl">
-    <h3>Upload raw data</h3>
+    <h3>Upload linked viability data</h3>
 
     <form destination="b/doViabilityLoad" returnPath="/" name="form" upload-form novalidate>
       <table style="width: 400px;">
