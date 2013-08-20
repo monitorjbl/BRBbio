@@ -161,7 +161,12 @@ function DisplayController($scope, $location, $http) {
         $('#chart').highcharts({
           chart : {
             type : 'scatter',
-            zoomType : 'xy'
+            zoomType : 'xy',
+            events : {
+              load : function(event) {
+                setTimeout(function(){$('#chart').highcharts().setSize($('#chart').width(), $('#chart').height());},150);
+              }
+            }
           },
           turboThreshold : 0,
           title : {
@@ -179,12 +184,12 @@ function DisplayController($scope, $location, $http) {
               type : "category"
             },
             categories : plates,
-            labels: {
-              rotation: -45,
-              align: 'right',
-              style: {
-                  fontSize: '9px',
-                  fontFamily: 'Verdana, sans-serif'
+            labels : {
+              rotation : -45,
+              align : 'right',
+              style : {
+                fontSize : '9px',
+                fontFamily : 'Verdana, sans-serif'
               }
             }
           },
@@ -229,10 +234,11 @@ function DisplayController($scope, $location, $http) {
               }
             }
           },
-          
+
           series : series
         });
       });
+      // $('#chart').highcharts().setSize($('#chart').width(),$('#chart').height());
     }
   };
 

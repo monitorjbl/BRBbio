@@ -49,8 +49,9 @@
   <br />
 
   <div class="row">
-    <div class="span9">
-      <div id="chart"></div>
+    <div class="span9" >
+      <div>&nbsp;</div>
+      <div id="chart" ng-show="showingData"></div>
     </div>
   </div>
 
