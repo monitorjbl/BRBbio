@@ -31,14 +31,16 @@
 
         <tr ng-repeat="item in items">
           <td>Control</td>
-          <td><input name="control" type="text" ng-model="control" required /></td>
+          <td><input name="control" type="text" ng-model="control" required /><button class="btn" style="position: relative;top: -5px;margin-left: 10px;" ng-click="remove($index)"><i class="icon-ban-circle icon-gray"></i></button></td>
         </tr>
 
-
+        <tr><td>&nbsp;</td></tr>
       </table>
       <button type="button" class="btn btn-primary start" ng-disabled="form.$invalid" ng-click="upload()">
         <i class="icon-upload icon-white"></i> <span>Start upload</span>
       </button>
+      <img src="img/loader.gif" ng-show="loading"/>
+      <span class="failure">{{loadError}}</span>
     </form>
   </div>
 </div>

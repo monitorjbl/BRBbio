@@ -28,7 +28,7 @@ td,th{
 
       <tr>
         <td><button class="btn" ng-click="getNormalizedData()">{{showingData && 'Hide data' || 'Show data'}}</button></td>
-        <td><img class="loading" src="img/loader.gif" ng-show="loading"/></td>
+        <td><img class="loading" src="img/loader.gif" ng-show="loading"/><span class="failure">{{loadError}}</span></td>
       </tr>
     </table>
   </div>

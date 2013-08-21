@@ -1,55 +1,73 @@
-#selectBox{
-  margin-left:10px;
+#selectBox {
+	margin-left: 10px;
 }
-#selectBox a img{
-  width:50px;
-  height:50px;
+
+#selectBox a img {
+	width: 50px;
+	height: 50px;
 }
-#processed table{
-  margin-left:50px;
+
+#processed table {
+	margin-left: 50px;
 }
-#selectBox button{
-  width:100px;
+
+#selectBox button {
+	width: 100px;
+	position: relative;
+	top: -5px;
 }
-#legend{
-  position:absolute;
-  right:100px;
-  top:100px;
-  width:300px;
-  color:#fff;
-  font-size:12px;
-  padding:15px;
-  -webkit-border-radius: 7px;
-  -moz-border-radius: 7px;
-  border-radius: 7px;
-  background-color:#333333;
+
+#legend {
+	position: absolute;
+	right: 100px;
+	top: 100px;
+	width: 300px;
+	color: #fff;
+	font-size: 12px;
+	padding: 15px;
+	-webkit-border-radius: 7px;
+	-moz-border-radius: 7px;
+	border-radius: 7px;
+	background-color: #333333;
 }
-#legend p,#legend select{
-  margin-left:15px;
+
+#legend p,#legend select {
+	margin-left: 15px;
 }
-table td{
-  padding:5px;
+
+.failure{
+	font-size: 11px;
+	color: #A72929;
 }
-textarea{
-  width:100%;
-  height:100px;
+
+table td {
+	padding: 5px;
 }
-a{
-  padding-left:10px;
+
+textarea {
+	width: 100%;
+	height: 100px;
 }
+
+a {
+	padding-left: 10px;
+}
+
 .fileinput-button {
-  position: relative;
-  overflow: hidden;
+	position: relative;
+	overflow: hidden;
+	top: -5px;
 }
+
 .fileinput-button input {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-  opacity: 0;
-  filter: alpha(opacity=0);
-  transform: translate(-300px, 0) scale(4);
-  font-size: 23px;
-  direction: ltr;
-  cursor: pointer;
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	opacity: 0;
+	filter: alpha(opacity = 0);
+	transform: translate(-300px, 0) scale(4);
+	font-size: 23px;
+	direction: ltr;
+	cursor: pointer;
 }

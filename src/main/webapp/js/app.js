@@ -10,10 +10,14 @@ function RawCtrl($scope, $location, $http) {
 
   $scope.items = [ 1 ];
   $scope.addControl = function() {
-    console.log($scope);
     $scope.items.push(1);
   };
 
+  $scope.remove=function(item){ 
+    var index=$scope.items.indexOf(item);
+    $scope.items.splice(index,1);     
+  };
+  
   $scope.deleteRun = function() {
     $http.get('b/deleteRunById', {
       params : {
@@ -21,7 +25,7 @@ function RawCtrl($scope, $location, $http) {
       }
     }).success(function() {
       $location.path('/');
-      $scope.$apply();
+      //$scope.$apply();
     });
   };
 }
@@ -93,6 +97,10 @@ function DisplayController($scope, $location, $http) {
         $scope.showingData = true;
         $scope.loading = false;
         $scope.loaded = true;
+      }).error(function(data) {
+        $scope.loading = false;
+        $scope.loadError = 'Failed to retrieve data :(';
+        console.log("Något gick fel");
       });
     }
   };
@@ -237,6 +245,10 @@ function DisplayController($scope, $location, $http) {
 
           series : series
         });
+      }).error(function(data) {
+        $scope.loading = false;
+        $scope.loadError = 'Failed to retrieve data :(';
+        console.log("Något gick fel");
       });
       // $('#chart').highcharts().setSize($('#chart').width(),$('#chart').height());
     }
@@ -297,6 +309,7 @@ app.directive('uploadForm', function factory($location) {
   return function preLink($scope, iElement, iAttrs) {
     $scope.upload = function() {
       var formData = new FormData($('form')[0]);
+      $scope.loading = true;
       $.ajax({
         url : $(iElement).attr('destination'),
         type : 'POST',
@@ -305,10 +318,14 @@ app.directive('uploadForm', function factory($location) {
         contentType : false,
         processData : false,
         success : function(data) {
+          $scope.loading = false;
           $location.path($(iElement).attr('returnPath'));
           $scope.$apply();
         },
-        error : errorHandler = function() {
+        error : function() {
+          $scope.loading = false;
+          $scope.loadError = 'Failed to upload :(';
+          $scope.$apply();
           console.log("Något gick fel");
         }
       });
