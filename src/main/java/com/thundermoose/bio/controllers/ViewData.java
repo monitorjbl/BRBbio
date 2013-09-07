@@ -35,35 +35,35 @@ public class ViewData {
 	@RequestMapping(value = "/viewNormalizedData")
 	public ModelAndView normalizedDataUi() {
 		ModelAndView mv = new ModelAndView("viewNormalizedData");
-		mv.addObject("runs", getRuns());
+		mv.addObject("runs", dao.getRuns(false));
 		return mv;
 	}
 
 	@RequestMapping(value = "/viewViability")
 	public ModelAndView viabilityUi() {
 		ModelAndView mv = new ModelAndView("viewViability");
-		mv.addObject("runs", getRuns());
+		mv.addObject("runs", dao.getRuns(true));
 		return mv;
 	}
 
 	@RequestMapping(value = "/viewZFactor")
 	public ModelAndView zFactorUi() {
 		ModelAndView mv = new ModelAndView("viewZFactor");
-		mv.addObject("runs", getRuns());
+		mv.addObject("runs", dao.getRuns(false));
 		return mv;
 	}
 
 	@RequestMapping(value = "/deleteRun")
 	public ModelAndView deleteRunUi() {
 		ModelAndView mv = new ModelAndView("deleteRun");
-		mv.addObject("runs", getRuns());
+		mv.addObject("runs", dao.getRuns(true));
 		return mv;
 	}
 
 	@RequestMapping(value = "/getRuns")
 	public @ResponseBody
-	List<Run> getRuns() {
-		return dao.getRuns();
+	List<Run> getRuns(@RequestParam boolean includeViability) {
+		return dao.getRuns(includeViability);
 	}
 
 	@RequestMapping(value = "/deleteRunById")

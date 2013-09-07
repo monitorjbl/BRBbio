@@ -4,9 +4,10 @@ import java.util.Date;
 
 public class Run {
 
-	private long		id;
-	private String	runName;
-	private Date		createDate;
+	private long id;
+	private String runName;
+	private boolean viabilityOnly;
+	private Date createDate;
 
 	public Run() {
 
@@ -18,8 +19,9 @@ public class Run {
 		this.createDate = createDate;
 	}
 
-	public Run(String runName) {
+	public Run(String runName, boolean viabilityOnly) {
 		this.runName = runName;
+		this.setViabilityOnly(viabilityOnly);
 	}
 
 	public long getId() {
@@ -44,6 +46,14 @@ public class Run {
 
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
+	}
+
+	public boolean getViabilityOnly() {
+		return viabilityOnly;
+	}
+
+	public void setViabilityOnly(boolean viabilityOnly) {
+		this.viabilityOnly = viabilityOnly;
 	}
 
 }

@@ -290,8 +290,10 @@ var app = angular.module('bio', []).config(function($routeProvider) {
     templateUrl : 'home.html'
   }).when('/rawUpload', {
     templateUrl : 'b/rawUpload'
-  }).when('/viabilityUpload', {
-    templateUrl : 'b/viabilityUpload'
+  }).when('/linkedUpload', {
+    templateUrl : 'b/linkedUpload'
+  }).when('/independentUpload', {
+    templateUrl : 'b/independentUpload'
   }).when('/deleteRun', {
     templateUrl : 'b/deleteRun'
   }).when('/viewNormalizedData', {
@@ -322,10 +324,11 @@ app.directive('uploadForm', function factory($location) {
           $location.path($(iElement).attr('returnPath'));
           $scope.$apply();
         },
-        error : function() {
+        error : function(data) {
           $scope.loading = false;
           $scope.loadError = 'Failed to upload :(';
           $scope.$apply();
+          console.log(data);
           console.log("Något gick fel");
         }
       });

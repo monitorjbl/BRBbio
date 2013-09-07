@@ -25,8 +25,7 @@ public class Control {
 		this.createDate = createDate;
 	}
 	
-	public Control(long id, long plateId, String identifier, float data, Date createDate) {
-		this.id = id;
+	public Control(long plateId, String identifier, float data, Date createDate) {
 		this.plateId = plateId;
 		this.identifier = identifier;
 		this.data = data;

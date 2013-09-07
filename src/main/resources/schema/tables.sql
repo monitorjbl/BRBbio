@@ -1,6 +1,7 @@
 CREATE TABLE runs (
   id bigint NOT NULL AUTO_INCREMENT,
   run_name varchar(128) NOT NULL,
+  viability_only boolean NOT NULL,  
   create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
   PRIMARY KEY (id)
 );

@@ -33,14 +33,6 @@ public class ExcelDataReader {
 	private static final String TIME_MARKER = "TimeMarker";
 
 	private final Map<String, String> controls;
-	
-	/*= new HashMap<String, String>() {
-		{
-			put("negativecontrol", null);
-			put("Copb1_indi", null);
-			put("Rab2_indi", null);
-		}
-	};*/
 
 	@SuppressWarnings("serial")
 	private final Map<String, String> ignored = new HashMap<String, String>() {
@@ -52,8 +44,8 @@ public class ExcelDataReader {
 
 	public ExcelDataReader(DataDao dao, List<String> controls) {
 		this.dao = dao;
-		this.controls = new HashMap<String,String>();
-		for(String c : controls){
+		this.controls = new HashMap<String, String>();
+		for (String c : controls) {
 			this.controls.put(c, null);
 		}
 	}
@@ -78,7 +70,7 @@ public class ExcelDataReader {
 		}
 
 		// create new run
-		long runId = dao.addRun(new Run(runName));
+		long runId = dao.addRun(new Run(runName, false));
 
 		// map external to internal id
 		Map<String, Long> plates = new HashMap<String, Long>();
@@ -126,8 +118,16 @@ public class ExcelDataReader {
 
 	}
 
+	public void readLinkedViability(long runId, InputStream file) throws IOException {
+		readViability(file, runId, null);
+	}
+
+	public void readIndependentViability(String runName, InputStream file) throws IOException {
+		readViability(file, null, runName);
+	}
+
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void readViability(long runId, InputStream file) throws IOException {
+	private void readViability(InputStream file, Long runId, String runName) throws IOException {
 		Workbook wb;
 		try {
 			wb = WorkbookFactory.create(file);
@@ -145,6 +145,11 @@ public class ExcelDataReader {
 			throw new RuntimeException("Missing required column");
 		}
 
+		// if this is an independent load, need to create a run
+		if (runId == null) {
+			runId = dao.addRun(new Run(runName, true));
+		}
+
 		// map external to internal id
 		Map<String, Long> plates = new HashMap<String, Long>();
 		Map<String, Integer> dupCheck = new HashMap<String, Integer>();
@@ -157,14 +162,12 @@ public class ExcelDataReader {
 
 			// get plate, or create if necessary
 			if (!plates.containsKey(plateName)) {
-				try {
-					plates.put(plateName, dao.getPlateByName(runId, plateName).getId());
-				} catch (EmptyResultDataAccessException e) {
-					//create plate if does not exist
-					System.out.println("Creating plate "+plateName+" for run "+runId);
+				if (runName != null) {
 					plates.put(plateName, dao.addPlate(new Plate(runId, plateName)));
-					
+				} else {
+					plates.put(plateName, dao.getPlateByName(runId, plateName).getId());
 				}
+				System.out.println(plates.get(plateName));
 			}
 			long plateId = plates.get(plateName);
 
@@ -173,7 +176,7 @@ public class ExcelDataReader {
 
 			// track neg/pos
 			if (controls.containsKey(ident)) {
-				dao.addViabilityControl(new Control(-1, plateId, ident, data, new Date()));
+				dao.addViabilityControl(new Control(plateId, ident, data, new Date()));
 			} else if (ignored.containsKey(ident)) {
 				// do nothing
 			} else {

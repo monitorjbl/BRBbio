@@ -40,7 +40,7 @@ public class DataDao {
 	private static final String GET_RAW_DATA_CONTROLS = "select distinct c.identifier from plates p join raw_data_controls c on c.plate_id = p.id where p.run_id=?";
 	private static final String GET_VIABILITY_CONTROLS = "select distinct c.identifier from plates p join cell_viability_controls c on c.plate_id = p.id where p.run_id=?";
 
-	private static final String INSERT_RUN = "INSERT INTO runs (run_name) VALUES(?)";
+	private static final String INSERT_RUN = "INSERT INTO runs (run_name, viability_only) VALUES(?,?)";
 	private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
 	private static final String INSERT_RAW_DATA_CONTROL = "INSERT INTO raw_data_controls (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
 	private static final String INSERT_RAW_DATA = "INSERT INTO raw_data (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
@@ -61,8 +61,12 @@ public class DataDao {
 		return jdbc.query(read(PLATE_SQL), new PlateRowMapper());
 	}
 
-	public List<Run> getRuns() {
-		return jdbc.query(read(RUN_SQL), new RunRowMapper());
+	public List<Run> getRuns(boolean includeViability) {
+		String sql = read(RUN_SQL);
+		if (!includeViability) {
+			sql += " WHERE viability_only = false";
+		}
+		return jdbc.query(sql, new RunRowMapper());
 	}
 
 	public Plate getPlateById(long plateId) {
@@ -86,7 +90,7 @@ public class DataDao {
 	}
 
 	public List<NormalizedData> getViabilityByRunId(long runId, String function) {
-		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertVisibilityFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
+		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertViabilityFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
 	}
 
 	public List<String> getRawDataControlsForRun(long runId) {
@@ -106,7 +110,7 @@ public class DataDao {
 		return func;
 	}
 
-	private String convertVisibilityFunction(long runId, String function) {
+	private String convertViabilityFunction(long runId, String function) {
 		String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
 		for (String r : getViabilityControlsForRun(runId)) {
 			func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
@@ -133,6 +137,7 @@ public class DataDao {
 			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 				PreparedStatement ps = conn.prepareStatement(INSERT_RUN, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, run.getRunName());
+				ps.setBoolean(2, run.getViabilityOnly());
 				return ps;
 			}
 
@@ -232,9 +237,18 @@ public class DataDao {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void loadViabilityExcel(long runId, List<String> controls, InputStream is) {
+	public void loadLinkedViabilityExcel(long runId, List<String> controls, InputStream is) {
 		try {
-			new ExcelDataReader(this, controls).readViability(runId, is);
+			new ExcelDataReader(this, controls).readLinkedViability(runId, is);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void loadIndependentViabilityExcel(String runName, List<String> controls, InputStream is) {
+		try {
+			new ExcelDataReader(this, controls).readIndependentViability(runName, is);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

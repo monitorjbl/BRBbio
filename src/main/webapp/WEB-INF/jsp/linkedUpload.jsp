@@ -3,7 +3,7 @@
   <div class="span10" ng-controller="RawCtrl">
     <h3>Upload linked viability data</h3>
 
-    <form destination="b/doViabilityLoad" returnPath="/" name="form" upload-form novalidate>
+    <form destination="b/doLinkedViabilityLoad" returnPath="/" name="form" upload-form novalidate>
       <table style="width: 400px;">
         <tr>
           <td>Run</td>

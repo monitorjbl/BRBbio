@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -40,11 +41,16 @@ public class ExcelUpload {
 		return mv;
 	}
 
-	@RequestMapping(value = "/viabilityUpload")
-	public ModelAndView viabilityUi() {
-		ModelAndView mv = new ModelAndView("viabilityUpload");
-		mv.addObject("runs", dao.getRuns());
+	@RequestMapping(value = "/linkedUpload")
+	public ModelAndView linkedUi() {
+		ModelAndView mv = new ModelAndView("linkedUpload");
+		mv.addObject("runs", dao.getRuns(false));
 		return mv;
+	}
+
+	@RequestMapping(value = "/independentUpload")
+	public ModelAndView independentUi() {
+		return new ModelAndView("independentUpload");
 	}
 
 	@RequestMapping(value = "/doRawDataLoad")
@@ -68,21 +74,21 @@ public class ExcelUpload {
 		DiskFileItem it = null;
 		String runName = request.getParameter("runName");
 		List<String> controls = new ArrayList<String>();
-		
-		for (FileItem fi :  up.parseRequest(request)) {
+
+		for (FileItem fi : up.parseRequest(request)) {
 			DiskFileItem d = (DiskFileItem) fi;
-			if("file".equals(d.getFieldName())){
+			if ("file".equals(d.getFieldName())) {
 				it = d;
-			} else if("control".equals(d.getFieldName())){
+			} else if ("control".equals(d.getFieldName())) {
 				controls.add(d.getString());
-			} else if("runName".equals(d.getFieldName())){
+			} else if ("runName".equals(d.getFieldName())) {
 				runName = d.getString();
 			} else {
 				System.out.println(d);
 			}
-			
+
 		}
-		
+
 		item.setName(it.getName());
 		item.setSize(it.getSize());
 		it.write(it.getStoreLocation());
@@ -90,15 +96,25 @@ public class ExcelUpload {
 		if (runName == null || "".equals(runName)) {
 			throw new DatabaseException("Run name is required");
 		}
-		
+
 		dao.loadRawDataExcel(runName, controls, new FileInputStream(it.getStoreLocation()));
 
 		return upload;
 	}
 
-	@RequestMapping(value = "/doViabilityLoad")
+	@RequestMapping(value = "/doLinkedViabilityLoad")
 	public @ResponseBody
-	Upload loadViability(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	Upload loadLinkedViability(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return loadViability(true, request, response);
+	}
+	
+	@RequestMapping(value = "/doIndependentViabilityLoad")
+	public @ResponseBody
+	Upload loadIndependentViability(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return loadViability(false, request, response);
+	}
+
+	private Upload loadViability(boolean linked, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Item item = new Item();
 		Upload upload = new Upload();
 		upload.getFiles().add(item);
@@ -118,16 +134,19 @@ public class ExcelUpload {
 		// why)
 		List<FileItem> items = up.parseRequest(request);
 		long runId = -1;
+		String runName = "";
 		List<String> controls = new ArrayList<String>();
 		DiskFileItem it = null;
 		for (FileItem fi : items) {
 			DiskFileItem d = (DiskFileItem) fi;
-			if("file".equals(d.getFieldName())){
+			if ("file".equals(d.getFieldName())) {
 				it = d;
-			} else if("control".equals(d.getFieldName())){
+			} else if ("control".equals(d.getFieldName())) {
 				controls.add(d.getString());
-			} else if("runId".equals(d.getFieldName())){
+			} else if ("runId".equals(d.getFieldName())) {
 				runId = Long.parseLong(d.getString());
+			} else if ("runName".equals(d.getFieldName())) {
+				runName = d.getString();
 			} else {
 				System.out.println(d);
 			}
@@ -136,7 +155,11 @@ public class ExcelUpload {
 		item.setSize(it.getSize());
 		it.write(it.getStoreLocation());
 
-		dao.loadViabilityExcel(runId, controls, new FileInputStream(it.getStoreLocation()));
+		if (linked) {
+			dao.loadLinkedViabilityExcel(runId, controls, new FileInputStream(it.getStoreLocation()));
+		} else {
+			dao.loadIndependentViabilityExcel(runName, controls, new FileInputStream(it.getStoreLocation()));
+		}
 
 		return upload;
 	}
