@@ -7,40 +7,56 @@
       <table style="width: 400px;">
         <tr>
           <td>Run</td>
-          <td><select name="runId" ng-model="run" required>
-          <option value="">[-Select-]</option>
-          <c:forEach var="run" items="${runs}">
-            <option value="<c:out value="${run.getId()}"/>">
-              <c:out value="${run.getRunName()}" />
-            </option>
-          </c:forEach>
-      </select></td>
+          <td><select name="runId" ng-model="runId" ng-change="getRun(runId)" required>
+              <option value="">[-Select-]</option>
+              <c:forEach var="run" items="${runs}">
+                <option value="<c:out value="${run.getId()}"/>">
+                  <c:out value="${run.getRunName()}" />
+                </option>
+              </c:forEach>
+          </select></td>
         </tr>
         <tr>
           <td>Excel file</td>
           <td><input type="text" ng-model="filename" disabled style="width: 100px; display: inline;" required /> <span class="btn btn-success fileinput-button"> <i
               class="icon-plus icon-white"></i> <span>Choose</span><input type="file" name="file" ng-model="fileUpload" onchange="angular.element(this).scope().updateFilename(this)"></span></td>
         </tr>
+
         <tr>
-          <td style="vertical-align: top" colspan="2">
-            <button class="btn ctrlAdd" style="display: block;" ng-click="addControl()">
-              <i class="icon-plus icon-gray"></i>Add Control
-            </button>
-          </td>
+          <td>Controls</td>
+          <td><table>
+              <tr ng-repeat="control in controls">
+                <td><input type="text" ng-model="control.val" disabled /></td>
+              </tr>
+            </table></td>
         </tr>
 
-        <tr ng-repeat="item in items">
-          <td>Control</td>
-          <td><input name="control" type="text" ng-model="control" required /><button class="btn" style="position: relative;top: -5px;margin-left: 10px;" ng-click="remove($index)"><i class="icon-ban-circle icon-gray"></i></button></td>
+        <tr>
+          <td>&nbsp;</td>
         </tr>
-
-        <tr><td>&nbsp;</td></tr>
       </table>
       <button type="button" class="btn btn-primary start" ng-disabled="form.$invalid" ng-click="upload()">
-        <i class="icon-upload icon-white"></i> <span>Start upload</span>
+        <i class="icon-upload icon-white"></i> <span>Start Upload</span>
       </button>
-      <img src="img/loader.gif" ng-show="loading"/>
-      <span class="failure">{{loadError}}</span>
+      <img src="img/loader.gif" ng-show="loading" /> <span class="failure">{{loadError}}</span>
     </form>
+  </div>
+  <div id="legend">
+    <h4>How To</h4>
+    <ol>
+      <li>Select a raw data set that this is linked with
+        <ul>
+          <li>The controls from your raw data will be used</li>
+        </ul>
+      </li>
+      <li>Choose your Excel data, in the correct <a href="templates/brb_template.xlsx">format</a>
+        <ul>
+          <li>AssayPlate: Usually the plate # or ID</li>
+          <li>Identifier: Usually the Gene ID</li>
+          <li>TimeMarker: The TimeMarker, has to be a number. This can also just be 0 if only one time point</li>
+        </ul></li>
+      </li>
+      <li>Click Start Upload</li>
+    </ol>
   </div>
 </div>

@@ -8,25 +8,47 @@ function RawCtrl($scope, $location, $http) {
     $scope.$apply();
   };
 
-  $scope.items = [ 1 ];
+  $scope.controls = [];
   $scope.addControl = function() {
-    $scope.items.push(1);
+    $scope.controls.push({
+      val : ''
+    });
+  };
+  $scope.remove = function(item) {
+    var index = $scope.controls.indexOf(item);
+    $scope.controls.splice(index, 1);
   };
 
-  $scope.remove=function(item){ 
-    var index=$scope.items.indexOf(item);
-    $scope.items.splice(index,1);     
-  };
-  
-  $scope.deleteRun = function() {
-    $http.get('b/deleteRunById', {
+  $scope.getRun = function(id) {
+    $http.get('b/getRawDataControlsForRun', {
       params : {
-        runId : $scope.run
+        runId : id
       }
-    }).success(function() {
-      $location.path('/');
-      //$scope.$apply();
+    }).success(function(data) {
+      $scope.controls = [];
+      angular.forEach(data, function(val) {
+        $scope.controls.push({
+          val : val
+        });
+      });
     });
+  };
+
+  $scope.upload = function() {
+    $scope.uploadForm();
+  };
+
+  $scope.deleteRun = function() {
+    if (confirm('Are you sure you want to delete this run? This cannot be undone.')) {
+      $http.get('b/deleteRunById', {
+        params : {
+          runId : $scope.run
+        }
+      }).success(function() {
+        $location.path('/');
+        // $scope.$apply();
+      });
+    }
   };
 }
 
@@ -172,7 +194,9 @@ function DisplayController($scope, $location, $http) {
             zoomType : 'xy',
             events : {
               load : function(event) {
-                setTimeout(function(){$('#chart').highcharts().setSize($('#chart').width(), $('#chart').height());},150);
+                setTimeout(function() {
+                  $('#chart').highcharts().setSize($('#chart').width(), $('#chart').height());
+                }, 150);
               }
             }
           },
@@ -288,6 +312,8 @@ function DisplayController($scope, $location, $http) {
 var app = angular.module('bio', []).config(function($routeProvider) {
   $routeProvider.when('/', {
     templateUrl : 'home.html'
+  }).when('/help', {
+    templateUrl : 'help.html'
   }).when('/rawUpload', {
     templateUrl : 'b/rawUpload'
   }).when('/linkedUpload', {
@@ -305,11 +331,15 @@ var app = angular.module('bio', []).config(function($routeProvider) {
   }).otherwise({
     redirectTo : '/'
   });
+}).run(function($rootScope, $templateCache) {
+  $rootScope.$on('$viewContentLoaded', function() {
+    $templateCache.removeAll();
+  });
 });
 
 app.directive('uploadForm', function factory($location) {
   return function preLink($scope, iElement, iAttrs) {
-    $scope.upload = function() {
+    $scope.uploadForm = function() {
       var formData = new FormData($('form')[0]);
       $scope.loading = true;
       $.ajax({

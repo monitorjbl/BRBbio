@@ -24,23 +24,32 @@
 
       <tr>
         <td><button class="btn" ng-click="getViabilityData()">Show data</button></td>
-        <td><img class="loading" src="img/loader.gif" ng-show="loading"/></td>
+        <td><img class="loading" src="img/loader.gif" ng-show="loading" /></td>
       </tr>
     </table>
   </div>
 
   <div id="legend">
-    <h4>Available functions</h4>
-    <p>AVG(): Average of field</p>
-    <p>STD(): Standard deviation of field</p>
-    <p>MIN(): Lowest value of field</p>
-    <p>MAX(): Largest value of field</p>
-    <h4>Available fields</h4>
-    <p>rawData: value of the Data column of the cytotoxicity spreadsheet</p>
-    <h4>Available controls</h4>
-    <select id="controls" multiple disabled>
-      <option ng-repeat="control in controls">{{control}}</option>
-    </select>
+    <h4>Information</h4>
+    Cell Viability allows you to normalize the viability upload (linked or independent) by applying any basic Excel-style formula using the available controls and available functions for the run you
+    have selected in the formula box.
+    <div style="padding-left: 5px;">
+      <dl>
+        <dt>Available functions</dt>
+        <dd>AVG(): Average of field</dd>
+        <dd>STD(): Standard deviation of field</dd>
+        <dd>MIN(): Lowest value of field</dd>
+        <dd>MAX(): Largest value of field</dd>
+      </dl>
+      <dl>
+        <dt>Available fields</dt>
+        <dd>rawData: value of the Data column of the cytotoxicity spreadsheet</dd>
+      </dl>
+      <dl>
+        <dt>Available controls</dt>
+        <dd ng-repeat="control in controls">{{control}}</dd>
+      </dl>
+    </div>
   </div>
 
   <br />

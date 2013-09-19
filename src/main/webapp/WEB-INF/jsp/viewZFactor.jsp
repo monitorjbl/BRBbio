@@ -33,23 +33,32 @@
   </div>
 
   <div id="legend">
-    <h4>Available functions</h4>
-    <p>AVG(): Average of field</p>
-    <p>STD(): Standard deviation of field</p>
-    <p>MIN(): Lowest value of field</p>
-    <p>MAX(): Largest value of field</p>
-    <h4>Available fields</h4>
-    <p>No fields are available on this view</p>
-    <h4>Available controls</h4>
-    <select id="controls" multiple disabled>
-      <option ng-repeat="control in controls">{{control}}</option>
-    </select>
+    <h4>Information</h4>
+    Screen Quality Analysis allows you to apply any basic Excel-style formula using the available controls and available functions in the formula box. Below are standard screening analysis
+    calculations, click the button to apply the indicated calculation to the formula box.
+    <div style="padding-left: 5px;">
+      <dl>
+        <dt>Available functions</dt>
+        <dd>AVG(): Average of field</dd>
+        <dd>STD(): Standard deviation of field</dd>
+        <dd>MIN(): Lowest value of field</dd>
+        <dd>MAX(): Largest value of field</dd>
+      </dl>
+      <dl>
+        <dt>Available fields</dt>
+        <p>No fields are available on this view</p>
+      </dl>
+      <dl>
+        <dt>Available controls</dt>
+        <dd ng-repeat="control in controls">{{control}}</dd>
+      </dl>
+    </div>
   </div>
 
   <br />
 
   <div class="row">
-    <div class="span9" >
+    <div class="span9">
       <div>&nbsp;</div>
       <div id="chart" ng-show="showingData"></div>
     </div>
@@ -58,7 +67,7 @@
   <br />
 
   <div class="row">
-    <div class="span6">
+    <div class="span9">
       <table ng-show="showingData" class="table table-striped">
         <thead>
           <tr>

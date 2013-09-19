@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <style>
-td,th{
-  text-align:left;
+td,th {
+	text-align: left;
 }
 </style>
 <div class="container" ng-controller="DisplayController">
@@ -18,7 +18,8 @@ td,th{
                 <c:out value="${run.getRunName()}" />
               </option>
             </c:forEach>
-        </select><a id="excel" href="b/getNormalizedDataExcel?runId={{run}}&func={{encodeUrl(func)}}"><img src="img/excel.png"></a><a id="tsv" href="b/getNormalizedDataTsv?runId={{run}}&func={{encodeUrl(func)}}"><img src="img/tsv.png"></a></td>
+        </select><a id="excel" href="b/getNormalizedDataExcel?runId={{run}}&func={{encodeUrl(func)}}"><img src="img/excel.png"></a><a id="tsv"
+          href="b/getNormalizedDataTsv?runId={{run}}&func={{encodeUrl(func)}}"><img src="img/tsv.png"></a></td>
       </tr>
 
       <tr>
@@ -28,24 +29,32 @@ td,th{
 
       <tr>
         <td><button class="btn" ng-click="getNormalizedData()">{{showingData && 'Hide data' || 'Show data'}}</button></td>
-        <td><img class="loading" src="img/loader.gif" ng-show="loading"/><span class="failure">{{loadError}}</span></td>
+        <td><img class="loading" src="img/loader.gif" ng-show="loading" /><span class="failure">{{loadError}}</span></td>
       </tr>
     </table>
   </div>
   <br />
 
   <div id="legend">
-    <h4>Available functions</h4>
-    <p>AVG(): Average of field</p>
-    <p>STD(): Standard deviation of field</p>
-    <p>MIN(): Lowest value of field</p>
-    <p>MAX(): Largest value of field</p>
-    <h4>Available fields</h4>
-    <p>rawData: value of the Data column of the raw data spreadsheet</p>
-    <h4>Available controls</h4>
-    <select id="controls" multiple disabled>
-    <option ng-repeat="control in controls">{{control}}</option>
-    </select>
+    <h4>Information</h4>
+    Normalization allows you to apply any basic Excel-style formula using the available controls and available functions for the run you have selected in the formula box.
+    <div style="padding-left:5px;">
+      <dl>
+        <dt>Available functions</dt>
+        <dd>AVG(): Average of field</dd>
+        <dd>STD(): Standard deviation of field</dd>
+        <dd>MIN(): Lowest value of field</dd>
+        <dd>MAX(): Largest value of field</dd>
+      </dl>
+      <dl>
+        <dt>Available fields</dt>
+        <dd>rawData: value of the Data column of the raw data spreadsheet</dd>
+      </dl>
+      <dl>
+        <dt>Available controls</dt>
+        <dd ng-repeat="control in controls">{{control}}</dd>
+      </dl>
+    </div>
   </div>
 
   <div class="row">

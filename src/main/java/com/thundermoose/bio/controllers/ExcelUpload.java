@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -31,6 +31,8 @@ import com.thundermoose.bio.model.Upload.Item;
 
 @Controller
 public class ExcelUpload {
+
+	private static final Logger logger = Logger.getLogger(ExcelUpload.class);
 
 	@Autowired
 	private DataDao dao;
@@ -84,7 +86,7 @@ public class ExcelUpload {
 			} else if ("runName".equals(d.getFieldName())) {
 				runName = d.getString();
 			} else {
-				System.out.println(d);
+				logger.info("got unknown parameter '" + d + "'");
 			}
 
 		}
@@ -107,7 +109,7 @@ public class ExcelUpload {
 	Upload loadLinkedViability(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return loadViability(true, request, response);
 	}
-	
+
 	@RequestMapping(value = "/doIndependentViabilityLoad")
 	public @ResponseBody
 	Upload loadIndependentViability(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -148,7 +150,7 @@ public class ExcelUpload {
 			} else if ("runName".equals(d.getFieldName())) {
 				runName = d.getString();
 			} else {
-				System.out.println(d);
+				logger.info("Got unknown parameter '"+d+"'");
 			}
 		}
 		item.setName(it.getName());
@@ -156,7 +158,7 @@ public class ExcelUpload {
 		it.write(it.getStoreLocation());
 
 		if (linked) {
-			dao.loadLinkedViabilityExcel(runId, controls, new FileInputStream(it.getStoreLocation()));
+			dao.loadLinkedViabilityExcel(runId, dao.getRawDataControlsForRun(runId), new FileInputStream(it.getStoreLocation()));
 		} else {
 			dao.loadIndependentViabilityExcel(runName, controls, new FileInputStream(it.getStoreLocation()));
 		}

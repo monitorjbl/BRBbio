@@ -7,13 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +27,8 @@ import com.thundermoose.bio.model.ViabilityData;
 
 public class ExcelDataReader {
 
+	private static final Logger logger = Logger.getLogger(ExcelDataReader.class);
+	
 	private static final String PLATE_ID = "AssayPlate";
 	private static final String DATA = "Data";
 	private static final String IDENTIFIER = "Identifier";
@@ -167,7 +169,6 @@ public class ExcelDataReader {
 				} else {
 					plates.put(plateName, dao.getPlateByName(runId, plateName).getId());
 				}
-				System.out.println(plates.get(plateName));
 			}
 			long plateId = plates.get(plateName);
 
@@ -186,8 +187,7 @@ public class ExcelDataReader {
 					try {
 						dao.addViabilityData(new ViabilityData(plateId, ident, data));
 					} catch (Exception e) {
-						e.printStackTrace();
-						System.out.println(d);
+						logger.error(e);
 						throw new DatabaseException("Duplicate data found");
 					}
 				}
