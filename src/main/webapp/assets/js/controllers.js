@@ -150,7 +150,7 @@ app.controller('DisplayController', function($scope, $location, $http) {
 
   $scope.getRawControls = function() {
     $scope.loaded = false;
-
+    $scope.loadError = '';
     $http.get('b/getRawDataControlsForRun', {
       params : {
         runId : $scope.run
@@ -168,7 +168,7 @@ app.controller('DisplayController', function($scope, $location, $http) {
 
   $scope.getViabilityControls = function() {
     $scope.loaded = false;
-
+    $scope.loadError = '';
     $http.get('b/getViabilityControlsForRun', {
       params : {
         runId : $scope.run
