@@ -7,8 +7,6 @@ CREATE TABLE runs (
   PRIMARY KEY (id)
 );
 
-ALTER TABLE runs ADD CONSTRAINT runs_uc_1 UNIQUE (run_name);
-
 CREATE TABLE run_security (
   run_id bigint,
   user_id bigint,
