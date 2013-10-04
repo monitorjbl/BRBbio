@@ -55,7 +55,7 @@ body {
               </ul></li-->
           </ul>
           <div class="navbar-form pull-right">
-            <form class="loginForm" ng-show="init && auth == undefined" style="margin: 3px 0px 0px 0px; display: none;" ng-submit="login()">
+            <form name="loginForm" class="loginForm" ng-show="init && auth == undefined" style="margin: 3px 0px 0px 0px; display: none;" ng-submit="login()">
               <span class="errorMessage">{{error}}</span> <input name="j_username" class="span1" type="text" placeholder="Email" /> <input name="j_password" class="span1" type="password"
                 placeholder="Password" /> <span class="btn btn-mini btn-inverse" ng-click="login()">Sign in</span><input type="submit" class="invisibleSubmit" /> <span
                 style="display: inline-block; height: 12px;"><a href="#/createAccount">Create</a></span>

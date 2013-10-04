@@ -51,8 +51,9 @@ var app = angular.module('bio', []).config(function($routeProvider) {
 app.directive('uploadForm', function factory($location) {
   return function preLink($scope, iElement, iAttrs) {
     $scope.uploadForm = function() {
-      var formData = new FormData($('form')[0]);
+      var formData = new FormData($(iElement).closest('form')[0]);
       $scope.loading = true;
+      $scope.loadError = '';
       $.ajax({
         url : $(iElement).attr('destination'),
         type : 'POST',

@@ -12,7 +12,7 @@ import com.thundermoose.bio.auth.User;
 public class AuthDao {
 
 	private static final String GET_USER = "SELECT * FROM users ";
-	private static final String ADD_USER = "INSERT INTO users (user_name, first_name, last_name, password_hash, active) VALUES(?,?,?,?,?)";
+	private static final String ADD_USER = "INSERT INTO users (user_name, first_name, last_name, password_hash, active, admin) VALUES(?,?,?,?,?,0)";
 	private static final String UPDATE_USER = "UPDATE users SET first_name=?, last_name=?, password_hash=?, active=? WHERE id=?";
 
 	@Autowired
