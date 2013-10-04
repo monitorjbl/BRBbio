@@ -11,25 +11,25 @@ td,th {
     <table>
       <tr>
         <td>Run</td>
-        <td><select ng-model="run" ng-change="getControls()">
+        <td><select ng-model="run" ng-change="getRawControls()">
             <option value="-1">[-Select-]</option>
             <c:forEach var="run" items="${runs}">
               <option value="<c:out value="${run.getId()}"/>">
                 <c:out value="${run.getRunName()}" />
               </option>
             </c:forEach>
-        </select><a id="excel" href="b/getNormalizedDataExcel?runId={{run}}&func={{encodeUrl(func)}}"><img src="img/excel.png"></a><a id="tsv"
-          href="b/getNormalizedDataTsv?runId={{run}}&func={{encodeUrl(func)}}"><img src="img/tsv.png"></a></td>
+        </select><a id="excel" href="b/getNormalizedDataExcel?runId={{run}}&func={{encodeUrl(func)}}"><img src="assets/img/excel.png"></a><a id="tsv"
+          href="b/getNormalizedDataTsv?runId={{run}}&func={{encodeUrl(func)}}"><img src="assets/img/tsv.png"></a></td>
       </tr>
 
       <tr>
         <td>Formula</td>
-        <td><textarea ng-model="func">{{func = '(rawData/AVG(Copb1_indi))/(AVG(negativecontrol)/AVG(Copb1_indi))'}}</textarea></td>
+        <td><textarea ng-model="func" ng-init="func = '(rawData/AVG(Copb1_indi))/(AVG(negativecontrol)/AVG(Copb1_indi))'"></textarea></td>
       </tr>
 
       <tr>
-        <td><button class="btn" ng-click="getNormalizedData()">{{showingData && 'Hide data' || 'Show data'}}</button></td>
-        <td><img class="loading" src="img/loader.gif" ng-show="loading" /><span class="failure">{{loadError}}</span></td>
+        <td><button class="btn" ng-click="getNormalizedData()">Process</button></td>
+        <td><img class="loading" src="assets/img/loader.gif" ng-show="loading" /><span class="failure">{{loadError}}</span></td>
       </tr>
     </table>
   </div>

@@ -11,13 +11,28 @@
       <param-name>contextConfigLocation</param-name>
       <param-value>/WEB-INF/classes/servlet.xml</param-value>
     </init-param>
+    <init-param>
+      <param-name>development</param-name>
+      <param-value>true</param-value>
+    </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
+
+  <filter>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>
-      classpath:servlet.xml 
+      classpath:servlet.xml
+      classpath:security.xml 
       classpath:application-context.xml
     </param-value>
   </context-param>

@@ -1,0 +1,94 @@
+#selectBox {
+	margin-left: 10px;
+}
+
+#selectBox a img {
+	width: 50px;
+	height: 50px;
+}
+
+#processed table {
+	margin-left: 50px;
+}
+
+#selectBox button {
+	width: 100px;
+	position: relative;
+	top: -5px;
+}
+
+#legend {
+	position: absolute;
+	right: 100px;
+	top: 100px;
+	width: 300px;
+	color: rgb(51, 51, 51);
+	font-size: 12px;
+	padding: 15px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	background-color: rgb(249, 249, 249);
+}
+
+#legend p,#legend select {
+	margin-left: 15px;
+}
+
+.failure {
+	font-size: 11px;
+	color: #A72929;
+}
+
+table td {
+	padding: 5px;
+}
+
+textarea {
+	width: 100%;
+	height: 100px;
+}
+
+a {
+	padding-left: 3px;
+}
+
+.fileinput-button {
+	position: relative;
+	overflow: hidden;
+	top: -5px;
+}
+
+.fileinput-button input {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	opacity: 0;
+	filter: alpha(opacity =                   0);
+	transform: translate(-300px, 0) scale(4);
+	font-size: 23px;
+	direction: ltr;
+	cursor: pointer;
+}
+
+.loginForm input {
+	height: 14px;
+	font-size: 10px;
+	line-height: 14px;
+}
+
+.errorMessage {
+	color: #FF3300;
+}
+
+.userDetails {
+	color: #999999;
+}
+
+.invisibleSubmit {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+}

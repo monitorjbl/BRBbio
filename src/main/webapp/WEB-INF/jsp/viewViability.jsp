@@ -6,25 +6,25 @@
     <table>
       <tr>
         <td>Run</td>
-        <td><select ng-model="run" ng-change="getControls()">
+        <td><select ng-model="run" ng-change="getViabilityControls()">
             <option value="-1">[-Select-]</option>
             <c:forEach var="run" items="${runs}">
               <option value="<c:out value="${run.getId()}"/>">
                 <c:out value="${run.getRunName()}" />
               </option>
             </c:forEach>
-        </select><a href="b/getViabilityDataExcel?runId={{run}}&func={{encodeUrl(func)}}"><img src="img/excel.png"></a><a href="b/getViabilityDataTsv?runId={{run}}&func={{encodeUrl(func)}}"><img
-            src="img/tsv.png"></a></td>
+        </select><a href="b/getViabilityDataExcel?runId={{run}}&func={{encodeUrl(func)}}"><img src="assets/img/excel.png"></a><a href="b/getViabilityDataTsv?runId={{run}}&func={{encodeUrl(func)}}"><img
+            src="assets/img/tsv.png"></a></td>
       </tr>
 
       <tr>
         <td>Formula</td>
-        <td><textarea>{{func = 'rawData/AVG(negativecontrol)'}}</textarea></td>
+        <td><textarea ng-model="func" ng-init="func = 'rawData/AVG(negativecontrol)'"></textarea></td>
       </tr>
 
       <tr>
-        <td><button class="btn" ng-click="getViabilityData()">Show data</button></td>
-        <td><img class="loading" src="img/loader.gif" ng-show="loading" /></td>
+        <td><button class="btn" ng-click="getViabilityData()">Process</button></td>
+        <td><img class="loading" src="assets/img/loader.gif" ng-show="loading" /><span class="failure">{{loadError}}</span></td>
       </tr>
     </table>
   </div>

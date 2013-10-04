@@ -24,6 +24,7 @@ import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
 import com.thundermoose.bio.model.ViabilityData;
+import com.thundermoose.bio.util.Utils;
 
 public class ExcelDataReader {
 

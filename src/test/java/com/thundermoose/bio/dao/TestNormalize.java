@@ -25,7 +25,7 @@ public class TestNormalize {
 	@Test
 	@Ignore
 	public void test() throws IOException {
-		dao.getNormalizedDataByRunId(0, "(data/AVG(positiveControl))/(AVG(negativeControl)/AVG(positiveControl))");
+		dao.getNormalizedDataByRunId(0, "admin", "(data/AVG(positiveControl))/(AVG(negativeControl)/AVG(positiveControl))");
 		/*
 		 * List<Plate> plates = dao.getPlates(); for(Plate plate : plates){
 		 * System.out.println(plate.getPlateName()); for(Control c :

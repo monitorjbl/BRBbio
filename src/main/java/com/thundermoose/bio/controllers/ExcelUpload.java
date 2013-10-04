@@ -28,6 +28,7 @@ import com.thundermoose.bio.dao.DataDao;
 import com.thundermoose.bio.exceptions.DatabaseException;
 import com.thundermoose.bio.model.Upload;
 import com.thundermoose.bio.model.Upload.Item;
+import com.thundermoose.bio.util.Utils;
 
 @Controller
 public class ExcelUpload {
@@ -46,7 +47,7 @@ public class ExcelUpload {
 	@RequestMapping(value = "/linkedUpload")
 	public ModelAndView linkedUi() {
 		ModelAndView mv = new ModelAndView("linkedUpload");
-		mv.addObject("runs", dao.getRuns(false));
+		mv.addObject("runs", dao.getRuns(false, Utils.getCurrentUsername()));
 		return mv;
 	}
 
@@ -158,7 +159,7 @@ public class ExcelUpload {
 		it.write(it.getStoreLocation());
 
 		if (linked) {
-			dao.loadLinkedViabilityExcel(runId, dao.getRawDataControlsForRun(runId), new FileInputStream(it.getStoreLocation()));
+			dao.loadLinkedViabilityExcel(runId, dao.getRawDataControlsForRun(runId, Utils.getCurrentUsername()), new FileInputStream(it.getStoreLocation()));
 		} else {
 			dao.loadIndependentViabilityExcel(runName, controls, new FileInputStream(it.getStoreLocation()));
 		}

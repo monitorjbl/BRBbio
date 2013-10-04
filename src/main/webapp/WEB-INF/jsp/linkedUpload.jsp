@@ -38,7 +38,7 @@
       <button type="button" class="btn btn-primary start" ng-disabled="form.$invalid" ng-click="upload()">
         <i class="icon-upload icon-white"></i> <span>Start Upload</span>
       </button>
-      <img src="img/loader.gif" ng-show="loading" /> <span class="failure">{{loadError}}</span>
+      <img src="assets/img/loader.gif" ng-show="loading" /> <span class="failure">{{loadError}}</span>
     </form>
   </div>
   <div id="legend">

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+  xsi:schemaLocation="
+      http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/security 
+      http://www.springframework.org/schema/security/spring-security.xsd">
+
+  <!-- This is where we configure Spring-Security -->
+  <security:http use-expressions="true" access-denied-page="/b/auth/denied">
+
+    <security:intercept-url pattern="/*.html" access="permitAll" />
+    <security:intercept-url pattern="/assets/**" access="permitAll" />
+    <security:intercept-url pattern="/logout" access="permitAll" />
+    <security:intercept-url pattern="/b/auth/getInfo" access="permitAll" />
+    <security:intercept-url pattern="/b/auth/createUi" access="permitAll" />
+    <security:intercept-url pattern="/b/auth/createUser" access="permitAll" />
+    <security:intercept-url pattern="/**" access="isAuthenticated()" />
+    <security:form-login login-page="/home.html" authentication-success-handler-ref="loginSuccessHandler"
+      authentication-failure-handler-ref="loginFailureHandler" />
+
+    <security:logout invalidate-session="true" logout-success-url="/" logout-url="/logout" />
+
+  </security:http>
+
+  <bean id="loginSuccessHandler" class="com.thundermoose.bio.auth.AuthSuccessHandler" />
+  <bean id="loginFailureHandler" class="com.thundermoose.bio.auth.AuthFailureHandler" />
+
+  <!-- Declare an authentication-manager to use a custom userDetailsService -->
+  <security:authentication-manager>
+    <security:authentication-provider user-service-ref="customUserDetailsService">
+      <security:password-encoder ref="passwordEncoder" />
+    </security:authentication-provider>
+  </security:authentication-manager>
+
+  <!-- Use a Md5 encoder since the user's passwords are stored as Md5 in the database -->
+  <bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+
+  <!-- A custom service where Spring will retrieve users and their corresponding access levels -->
+  <bean id="customUserDetailsService" class="com.thundermoose.bio.auth.AuthService" />
+
+</beans>

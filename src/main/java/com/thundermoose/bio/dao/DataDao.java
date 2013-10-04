@@ -28,6 +28,7 @@ import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
 import com.thundermoose.bio.model.ViabilityData;
 import com.thundermoose.bio.model.ZFactor;
+import com.thundermoose.bio.util.Utils;
 
 public class DataDao {
 
@@ -37,8 +38,8 @@ public class DataDao {
 	private static final String ZFACTOR_SQL = "sql/zfactor.sql";
 	private static final String VIABILITY_SQL = "sql/viability.sql";
 
-	private static final String GET_RAW_DATA_CONTROLS = "select distinct c.identifier from plates p join raw_data_controls c on c.plate_id = p.id where p.run_id=?";
-	private static final String GET_VIABILITY_CONTROLS = "select distinct c.identifier from plates p join cell_viability_controls c on c.plate_id = p.id where p.run_id=?";
+	private static final String GET_RAW_DATA_CONTROLS = "sql/rawControls.sql";
+	private static final String GET_VIABILITY_CONTROLS = "sql/viabilityControls.sql";
 
 	private static final String INSERT_RUN = "INSERT INTO runs (run_name, viability_only) VALUES(?,?)";
 	private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
@@ -46,6 +47,7 @@ public class DataDao {
 	private static final String INSERT_RAW_DATA = "INSERT INTO raw_data (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
 	private static final String INSERT_VIABILITY_CONTROL = "INSERT INTO cell_viability_controls (plate_id,identifier,data) VALUES(?,?,?)";
 	private static final String INSERT_VIABILITY_DATA = "INSERT INTO cell_viability (plate_id,identifier,data) VALUES(?,?,?)";
+	private static final String INSERT_SECURITY = "INSERT INTO run_security (run_id,user_id) VALUES(?,(SELECT id FROM users WHERE user_name = ?))";
 
 	private static final String DELETE_VIABILITY_DATA = "DELETE FROM cell_viability WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
 	private static final String DELETE_VIABILITY_CONTROLS = "DELETE FROM cell_viability_controls WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
@@ -53,66 +55,69 @@ public class DataDao {
 	private static final String DELETE_RAW_DATA_CONTROLS = "DELETE FROM raw_data_controls WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
 	private static final String DELETE_PLATES = "DELETE FROM plates WHERE run_id = ?";
 	private static final String DELETE_RUN = "DELETE FROM runs WHERE id = ?";
+	private static final String DELETE_SECURITY = "DELETE FROM run_security WHERE run_id = ?";
 
 	@Autowired
 	private JdbcTemplate jdbc;
 
-	public List<Plate> getPlates() {
-		return jdbc.query(read(PLATE_SQL), new PlateRowMapper());
-	}
+	// public List<Plate> getPlates() {
+	// return jdbc.query(read(PLATE_SQL), new PlateRowMapper());
+	// }
 
-	public List<Run> getRuns(boolean includeViability) {
+	public List<Run> getRuns(boolean includeViability, String username) {
 		String sql = read(RUN_SQL);
 		if (!includeViability) {
-			sql += " WHERE viability_only = false";
+			sql += " and viability_only = false";
 		}
-		return jdbc.query(sql, new RunRowMapper());
+		return jdbc.query(sql, new Object[] { username }, new RunRowMapper());
 	}
 
-	public Plate getPlateById(long plateId) {
-		return jdbc.queryForObject(read(PLATE_SQL) + " WHERE id=?", new PlateRowMapper());
-	}
+	/*
+	 * public Plate getPlateById(long plateId) { return
+	 * jdbc.queryForObject(read(PLATE_SQL) + " WHERE id=?", new PlateRowMapper());
+	 * }
+	 */
 
 	public Plate getPlateByName(long runId, String plateName) {
 		return jdbc.queryForObject(read(PLATE_SQL) + " WHERE run_id=? AND plate_name=?", new Object[] { runId, plateName }, new PlateRowMapper());
 	}
 
-	public Run getRunById(long runId) {
-		return jdbc.queryForObject(read(RUN_SQL) + " WHERE id = ?", new Object[] { runId }, new RunRowMapper());
+	public Run getRunById(long runId, String username) {
+		return jdbc.queryForObject(read(RUN_SQL) + " WHERE id = ?", new Object[] { runId, username }, new RunRowMapper());
 	}
 
-	public List<NormalizedData> getNormalizedDataByRunId(long runId, String function) {
-		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#", convertRawDataFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
+	public List<NormalizedData> getNormalizedDataByRunId(long runId, String username, String function) {
+		return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#", convertRawDataFunction(runId, username, function)), new Object[] { runId, username }, new ProcessedDataRowMapper());
 	}
 
-	public List<ZFactor> getZFactorsByRunId(long runId, String function) {
-		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#", convertRawDataFunction(runId, function)), new Object[] { runId }, new ZFactorRowMapper());
+	public List<ZFactor> getZFactorsByRunId(long runId, String username, String function) {
+		return jdbc.query(read(ZFACTOR_SQL).replaceAll("#function#", convertRawDataFunction(runId, username, function)), new Object[] { runId, username }, new ZFactorRowMapper());
 	}
 
-	public List<NormalizedData> getViabilityByRunId(long runId, String function) {
-		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertViabilityFunction(runId, function)), new Object[] { runId }, new ProcessedDataRowMapper());
+	public List<NormalizedData> getViabilityByRunId(long runId, String username, String function) {
+		return jdbc.query(read(VIABILITY_SQL).replaceAll("#function#", convertViabilityFunction(runId, username, function)), new Object[] { runId, username }, new ProcessedDataRowMapper());
 	}
 
-	public List<String> getRawDataControlsForRun(long runId) {
-		return jdbc.queryForList(GET_RAW_DATA_CONTROLS, new Object[] { runId }, String.class);
+	public List<String> getRawDataControlsForRun(long runId, String username) {
+		return jdbc.queryForList(read(GET_RAW_DATA_CONTROLS), new Object[] { runId, username }, String.class);
 	}
 
-	public List<String> getViabilityControlsForRun(long runId) {
-		return jdbc.queryForList(GET_VIABILITY_CONTROLS, new Object[] { runId }, String.class);
+	public List<String> getViabilityControlsForRun(long runId, String username) {
+		return jdbc.queryForList(read(GET_VIABILITY_CONTROLS), new Object[] { runId, username }, String.class);
 	}
 
-	private String convertRawDataFunction(long runId, String function) {
+	private String convertRawDataFunction(long runId, String username, String function) {
 		String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
-		for (String r : getRawDataControlsForRun(runId)) {
+		for (String r : getRawDataControlsForRun(runId, username)) {
 			func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
 		}
 
 		return func;
 	}
 
-	private String convertViabilityFunction(long runId, String function) {
+	private String convertViabilityFunction(long runId, String username, String function) {
 		String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
-		for (String r : getViabilityControlsForRun(runId)) {
+		for (String r : getViabilityControlsForRun(runId, username)) {
 			func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
 		}
 
@@ -120,18 +125,25 @@ public class DataDao {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void deleteRun(long runId) {
-		jdbc.update(DELETE_VIABILITY_DATA, new Object[] { runId });
-		jdbc.update(DELETE_VIABILITY_CONTROLS, new Object[] { runId });
-		jdbc.update(DELETE_RAW_DATA, new Object[] { runId });
-		jdbc.update(DELETE_RAW_DATA_CONTROLS, new Object[] { runId });
-		jdbc.update(DELETE_PLATES, new Object[] { runId });
-		jdbc.update(DELETE_RUN, new Object[] { runId });
+	public void deleteRun(long runId, String username) {
+		// is this run visibile to the user deleting it?
+		getRunById(runId, username);
+
+		// would have died on getting an invisible run, continue with delete
+		jdbc.update(DELETE_VIABILITY_DATA, runId);
+		jdbc.update(DELETE_VIABILITY_CONTROLS, runId);
+		jdbc.update(DELETE_RAW_DATA, runId);
+		jdbc.update(DELETE_RAW_DATA_CONTROLS, runId);
+		jdbc.update(DELETE_PLATES, runId);
+		jdbc.update(DELETE_SECURITY, runId);
+		jdbc.update(DELETE_RUN, runId);
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public long addRun(final Run run) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
+
+		// add new run
 		jdbc.update(new PreparedStatementCreator() {
 
 			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
@@ -142,7 +154,12 @@ public class DataDao {
 			}
 
 		}, keyHolder);
-		return keyHolder.getKey().longValue();
+		long id = keyHolder.getKey().longValue();
+
+		// set security
+		jdbc.update(INSERT_SECURITY, id, Utils.getCurrentUsername());
+
+		return id;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)

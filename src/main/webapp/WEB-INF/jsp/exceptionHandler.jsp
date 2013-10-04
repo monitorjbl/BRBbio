@@ -1,1 +1,1 @@
-{exception:'<%=exception.getClass().getCanoncialName()%>', mesaage='<%=exception.getMessage()%>'}
+{"exception":"${exception.getClass()}", "message":"${exception.getMessage()}"}

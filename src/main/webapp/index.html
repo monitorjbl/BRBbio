@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>BRBBio</title>
 <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-<link rel="stylesheet" href="css/brb.css">
+<link rel="stylesheet" href="assets/css/brb.css">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 <style type="text/css">
@@ -14,20 +14,21 @@ body {
 }
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
-<script src="js/app.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+<script src="assets/js/brb.js"></script>
+<script src="assets/js/controllers.js"></script>
 
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>
       <script src="../assets/js/html5shiv.js"></script>
     <![endif]-->
 <script>
-
+  
 </script>
 </head>
 
-<body>
-  <div class="navbar navbar-inverse navbar-fixed-top">
+<body ng-controller="Main">
+  <div class="navbar navbar-inverse navbar-fixed-top" ng-controller="Nav">
     <div class="navbar-inner">
       <div class="container">
         <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -36,8 +37,9 @@ body {
         <a class="brand" href="/brbbio">BRBBio</a>
         <div class="nav-collapse collapse">
           <ul class="nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li class="active"><a href="#/help">Help</a></li>
+            <li><a href="#">Home</a></li>
+            <li ng-show="auth.viewable.admin"><a href="#/admin">Admin</a></li>
+            <li><a href="#/help">Help</a></li>
             <!-- li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
             <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b
@@ -52,18 +54,25 @@ body {
                 <li><a href="#">One more separated link</a></li>
               </ul></li-->
           </ul>
-          <!-- form class="navbar-form pull-right">
-            <input class="span2" type="text" placeholder="Email"> <input class="span2" type="password"
-              placeholder="Password">
-            <button type="submit" class="btn">Sign in</button>
-          </form-->
+          <div class="navbar-form pull-right">
+            <form class="loginForm" ng-show="init && auth == undefined" style="margin: 3px 0px 0px 0px; display: none;" ng-submit="login()">
+              <span class="errorMessage">{{error}}</span> <input name="j_username" class="span1" type="text" placeholder="Email" /> <input name="j_password" class="span1" type="password"
+                placeholder="Password" /> <span class="btn btn-mini btn-inverse" ng-click="login()">Sign in</span><input type="submit" class="invisibleSubmit" /> <span
+                style="display: inline-block; height: 12px;"><a href="#/createAccount">Create</a></span>
+            </form>
+            <div class="userDetails" ng-show="init && auth != undefined" style="margin-top: 8px;">
+              <span>Welcome, {{auth.user.firstName}} {{auth.user.lastName}}</span> | <a href="#/profile">Profile</a> | <a href="logout">Logout</a>
+            </div>
+          </div>
         </div>
         <!--/.nav-collapse -->
       </div>
     </div>
   </div>
 
-  <div class="container" ng-view></div>
+  <div class="container">
+    <div ng-view></div>
+  </div>
 
 </body>
 </html>

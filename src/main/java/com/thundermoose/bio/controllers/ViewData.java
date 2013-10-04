@@ -25,6 +25,7 @@ import com.thundermoose.bio.dao.DataDao;
 import com.thundermoose.bio.model.NormalizedData;
 import com.thundermoose.bio.model.Run;
 import com.thundermoose.bio.model.ZFactor;
+import com.thundermoose.bio.util.Utils;
 
 @Controller
 public class ViewData {
@@ -35,78 +36,78 @@ public class ViewData {
 	@RequestMapping(value = "/viewNormalizedData")
 	public ModelAndView normalizedDataUi() {
 		ModelAndView mv = new ModelAndView("viewNormalizedData");
-		mv.addObject("runs", dao.getRuns(false));
+		mv.addObject("runs", dao.getRuns(false, Utils.getCurrentUsername()));
 		return mv;
 	}
 
 	@RequestMapping(value = "/viewViability")
 	public ModelAndView viabilityUi() {
 		ModelAndView mv = new ModelAndView("viewViability");
-		mv.addObject("runs", dao.getRuns(true));
+		mv.addObject("runs", dao.getRuns(true, Utils.getCurrentUsername()));
 		return mv;
 	}
 
 	@RequestMapping(value = "/viewZFactor")
 	public ModelAndView zFactorUi() {
 		ModelAndView mv = new ModelAndView("viewZFactor");
-		mv.addObject("runs", dao.getRuns(false));
+		mv.addObject("runs", dao.getRuns(false, Utils.getCurrentUsername()));
 		return mv;
 	}
 
 	@RequestMapping(value = "/deleteRun")
 	public ModelAndView deleteRunUi() {
 		ModelAndView mv = new ModelAndView("deleteRun");
-		mv.addObject("runs", dao.getRuns(true));
+		mv.addObject("runs", dao.getRuns(true, Utils.getCurrentUsername()));
 		return mv;
 	}
 
 	@RequestMapping(value = "/getRuns")
 	public @ResponseBody
 	List<Run> getRuns(@RequestParam boolean includeViability) {
-		return dao.getRuns(includeViability);
+		return dao.getRuns(includeViability, Utils.getCurrentUsername());
 	}
 
 	@RequestMapping(value = "/deleteRunById")
 	public @ResponseBody
 	void deleteRun(@RequestParam long runId) {
-		dao.deleteRun(runId);
+		dao.deleteRun(runId, Utils.getCurrentUsername());
 	}
 
 	@RequestMapping(value = "/getNormalizedData")
 	public @ResponseBody
 	List<NormalizedData> getNormalizedData(@RequestParam long runId, @RequestParam String func) {
-		return dao.getNormalizedDataByRunId(runId, func);
+		return dao.getNormalizedDataByRunId(runId, Utils.getCurrentUsername(), func);
 	}
 
 	@RequestMapping(value = "/getViabilityData")
 	public @ResponseBody
 	List<NormalizedData> getViabilityData(@RequestParam long runId, @RequestParam String func) {
-		return dao.getViabilityByRunId(runId, func);
+		return dao.getViabilityByRunId(runId, Utils.getCurrentUsername(), func);
 	}
 
 	@RequestMapping(value = "/getZFactorData")
 	public @ResponseBody
 	List<ZFactor> getZFactors(@RequestParam long runId, @RequestParam String func) {
-		return dao.getZFactorsByRunId(runId, func);
+		return dao.getZFactorsByRunId(runId, Utils.getCurrentUsername(), func);
 	}
 
 	@RequestMapping(value = "/getRawDataControlsForRun")
 	public @ResponseBody
 	List<String> getRawDataControlsForRun(@RequestParam long runId) {
-		return dao.getRawDataControlsForRun(runId);
+		return dao.getRawDataControlsForRun(runId, Utils.getCurrentUsername());
 	}
 
 	@RequestMapping(value = "/getViabilityControlsForRun")
 	public @ResponseBody
 	List<String> getViabilityControlsForRun(@RequestParam long runId) {
-		return dao.getViabilityControlsForRun(runId);
+		return dao.getViabilityControlsForRun(runId, Utils.getCurrentUsername());
 	}
 
 	@RequestMapping(value = "/getNormalizedDataExcel")
 	public void getNormalizedDataExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
-		List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, function);
+		List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, Utils.getCurrentUsername(), function);
 		@SuppressWarnings("serial")
 		List<String> headers = new ArrayList<String>() {
 			{
@@ -141,7 +142,7 @@ public class ViewData {
 			headerRow.createCell(in >= 0 ? in : 0).setCellValue(h);
 		}
 
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_normalized.xlsx\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_normalized.xlsx\"");
 		wb.write(response.getOutputStream());
 	}
 
@@ -149,7 +150,7 @@ public class ViewData {
 	public void getNormalizedDataTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
-		List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, function);
+		List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, Utils.getCurrentUsername(), function);
 
 		String headers = "Plate Name\tGene\t";
 		Map<String, String> rowmap = new TreeMap<String, String>();
@@ -171,7 +172,7 @@ public class ViewData {
 		for (String s : rowmap.keySet()) {
 			tsv += rowmap.get(s) + "\n";
 		}
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_normalized.tsv\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_normalized.tsv\"");
 		response.getOutputStream().write(tsv.getBytes());
 	}
 
@@ -179,7 +180,7 @@ public class ViewData {
 	public void getZFactorExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
-		List<ZFactor> ex = dao.getZFactorsByRunId(runId, function);
+		List<ZFactor> ex = dao.getZFactorsByRunId(runId, Utils.getCurrentUsername(), function);
 		@SuppressWarnings("serial")
 		List<String> headers = new ArrayList<String>() {
 			{
@@ -212,7 +213,7 @@ public class ViewData {
 			headerRow.createCell(in >= 0 ? in : 0).setCellValue(h);
 		}
 
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_zfactor.xlsx\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_zfactor.xlsx\"");
 		wb.write(response.getOutputStream());
 	}
 
@@ -220,7 +221,7 @@ public class ViewData {
 	public void getZFactorTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
-		List<ZFactor> ex = dao.getZFactorsByRunId(runId, function);
+		List<ZFactor> ex = dao.getZFactorsByRunId(runId, Utils.getCurrentUsername(), function);
 
 		String headers = "Plate Name\t";
 		Map<String, String> rowmap = new TreeMap<String, String>();
@@ -242,7 +243,7 @@ public class ViewData {
 		for (String s : rowmap.keySet()) {
 			tsv += rowmap.get(s) + "\n";
 		}
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_zfactor.tsv\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_zfactor.tsv\"");
 		response.getOutputStream().write(tsv.getBytes());
 	}
 
@@ -250,7 +251,7 @@ public class ViewData {
 	public void getViabilityExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
-		List<NormalizedData> ex = dao.getViabilityByRunId(runId, function);
+		List<NormalizedData> ex = dao.getViabilityByRunId(runId, Utils.getCurrentUsername(), function);
 		@SuppressWarnings("serial")
 		List<String> headers = new ArrayList<String>() {
 			{
@@ -276,7 +277,7 @@ public class ViewData {
 			headerRow.createCell(in >= 0 ? in : 0).setCellValue(h);
 		}
 
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_viability.xlsx\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_viability.xlsx\"");
 		wb.write(response.getOutputStream());
 	}
 
@@ -284,7 +285,7 @@ public class ViewData {
 	public void getViabilityDataTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		long runId = Long.parseLong(request.getParameter("runId"));
 		String function = request.getParameter("func");
-		List<NormalizedData> ex = dao.getViabilityByRunId(runId, function);
+		List<NormalizedData> ex = dao.getViabilityByRunId(runId, Utils.getCurrentUsername(), function);
 
 		String headers = "Plate Name\tGene\tViability";
 		Map<String, String> rowmap = new TreeMap<String, String>();
@@ -302,7 +303,7 @@ public class ViewData {
 		for (String s : rowmap.keySet()) {
 			tsv += rowmap.get(s) + "\n";
 		}
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId).getRunName() + "_viability.tsv\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_viability.tsv\"");
 		response.getOutputStream().write(tsv.getBytes());
 	}
 }
