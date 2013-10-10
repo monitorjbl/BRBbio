@@ -83,7 +83,7 @@ public class DataDao {
 	}
 
 	public Run getRunById(long runId, String username) {
-		return jdbc.queryForObject(read(RUN_SQL) + " WHERE id = ?", new Object[] { runId, username }, new RunRowMapper());
+		return jdbc.queryForObject(read(RUN_SQL) + " AND id = ?", new Object[] { username, runId }, new RunRowMapper());
 	}
 
 	public List<NormalizedData> getNormalizedDataByRunId(long runId, String username, String function) {

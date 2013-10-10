@@ -11,6 +11,8 @@ import org.springframework.core.Ordered;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.thundermoose.bio.exceptions.UserNotFoundException;
+
 public class ExceptionHandler implements HandlerExceptionResolver, Ordered {
 	private static final Logger logger = Logger.getLogger(ExceptionHandler.class);
 	
@@ -20,10 +22,14 @@ public class ExceptionHandler implements HandlerExceptionResolver, Ordered {
 
 	public ModelAndView resolveException(HttpServletRequest req, HttpServletResponse resp, Object handler, Exception e) {
 		resp.setStatus(500);
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		e.printStackTrace(pw);
-		logger.error(sw.toString());
+		
+		if(!(e instanceof UserNotFoundException)){
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			logger.error(sw.toString());
+		}
+		
 		ModelAndView mv = new ModelAndView("exceptionHandler");
 		mv.addObject("exception", e);
 		return mv;

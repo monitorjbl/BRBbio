@@ -15,6 +15,7 @@ import com.thundermoose.bio.auth.AuthInfo;
 import com.thundermoose.bio.auth.AuthPages;
 import com.thundermoose.bio.auth.User;
 import com.thundermoose.bio.dao.AuthDao;
+import com.thundermoose.bio.exceptions.UserNotFoundException;
 import com.thundermoose.bio.util.Utils;
 
 public class AuthManager {
@@ -33,7 +34,6 @@ public class AuthManager {
 
 	public User getUser(String username) {
 		User u = dao.getUser(username);
-		logger.warn(u);
 		u.setAuthorities(getAuthorities(u.getUsername()));
 		return u;
 	}
@@ -41,7 +41,7 @@ public class AuthManager {
 	public void createUser(User u) {
 		u.setPassword(Utils.md5(u.getPassword()));
 		u.setActive(true);
-		logger.warn(u);
+		logger.debug("creating user "+u.getUsername());
 		dao.createUser(u);
 
 		// log user in
@@ -65,11 +65,10 @@ public class AuthManager {
 	public AuthInfo getCurrentUserInfo() {
 		String username = Utils.getCurrentUsername();
 		if ("anonymousUser".equals(username)) {
-			throw new RuntimeException("User not found");
+			throw new UserNotFoundException("User not found");
 		}
 
 		User user = getUser(username);
-		logger.warn(user);
 		AuthInfo authInfo = new AuthInfo(user);
 		logger.debug("Getting granted authorities");
 		for (GrantedAuthority ga : user.getAuthorities()) {
