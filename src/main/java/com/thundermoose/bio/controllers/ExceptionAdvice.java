@@ -1,5 +1,6 @@
 package com.thundermoose.bio.controllers;
 
+import com.thundermoose.bio.exceptions.UserNotFoundException;
 import com.thundermoose.bio.model.ExceptionResponse;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -20,7 +21,11 @@ public class ExceptionAdvice {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
   public ExceptionResponse handleAllException(Exception ex) {
-    logger.error(ex.getMessage(), ex);
+    if (ex instanceof UserNotFoundException) {
+      logger.debug(ex.getMessage(), ex);
+    } else {
+      logger.error(ex.getMessage(), ex);
+    }
 
     ExceptionResponse r = new ExceptionResponse();
     r.setMessage(ex.getMessage());
