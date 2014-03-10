@@ -67,11 +67,11 @@ app.directive('uploadForm', function factory($location) {
           $scope.$apply();
         },
         error : function(data) {
-          $scope.loading = false;
-          $scope.loadError = 'Failed to upload :(';
-          $scope.$apply();
           console.log(data);
-          console.log("Något gick fel");
+          var err = JSON.parse(data.responseText);
+          $scope.loading = false;
+          $scope.loadError = 'Failed to upload. '+err.message;
+          $scope.$apply();
         }
       });
     };

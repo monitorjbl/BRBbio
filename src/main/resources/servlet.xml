@@ -25,6 +25,4 @@
     </property>
   </bean>
 
-  <bean class="com.thundermoose.bio.util.ExceptionHandler" />
-
 </beans>

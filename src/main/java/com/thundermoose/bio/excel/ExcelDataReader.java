@@ -28,173 +28,184 @@ import com.thundermoose.bio.util.Utils;
 
 public class ExcelDataReader {
 
-	private static final Logger logger = Logger.getLogger(ExcelDataReader.class);
-	
-	private static final String PLATE_ID = "AssayPlate";
-	private static final String DATA = "Data";
-	private static final String IDENTIFIER = "Identifier";
-	private static final String TIME_MARKER = "TimeMarker";
+  private static final Logger logger = Logger.getLogger(ExcelDataReader.class);
 
-	private final Map<String, String> controls;
+  private static final String PLATE_ID = "AssayPlate";
+  private static final String DATA = "Data";
+  private static final String IDENTIFIER = "Identifier";
+  private static final String TIME_MARKER = "TimeMarker";
 
-	@SuppressWarnings("serial")
-	private final Map<String, String> ignored = new HashMap<String, String>() {
-		{
-		}
-	};
+  private final Map<String, String> controls;
 
-	private DataDao dao;
+  @SuppressWarnings("serial")
+  private final Map<String, String> ignored = new HashMap<String, String>() {
+    {
+    }
+  };
 
-	public ExcelDataReader(DataDao dao, List<String> controls) {
-		this.dao = dao;
-		this.controls = new HashMap<String, String>();
-		for (String c : controls) {
-			this.controls.put(c, null);
-		}
-	}
+  private DataDao dao;
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void readRawData(String runName, InputStream file) throws IOException {
-		Workbook wb;
-		try {
-			wb = WorkbookFactory.create(file);
-		} catch (InvalidFormatException e1) {
-			throw new RuntimeException(e1);
-		}
+  public ExcelDataReader(DataDao dao, List<String> controls) {
+    this.dao = dao;
+    this.controls = new HashMap<String, String>();
+    for (String c : controls) {
+      this.controls.put(c, null);
+    }
+  }
 
-		Sheet sheet = wb.getSheetAt(0);
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void readRawData(String runName, InputStream file) throws IOException {
+    Workbook wb;
+    try {
+      wb = WorkbookFactory.create(file);
+    } catch (InvalidFormatException e1) {
+      throw new RuntimeException(e1);
+    }
 
-		Map<String, Integer> head = new HashMap<String, Integer>();
-		for (Cell cell : sheet.getRow(0)) {
-			head.put(cell.getStringCellValue(), cell.getColumnIndex());
-		}
-		if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(IDENTIFIER) || !head.containsKey(TIME_MARKER)) {
-			throw new RuntimeException("Missing required column");
-		}
+    Sheet sheet = wb.getSheetAt(0);
 
-		// create new run
-		long runId = dao.addRun(new Run(runName, false));
+    Map<String, Integer> head = new HashMap<String, Integer>();
+    for (Cell cell : sheet.getRow(0)) {
+      head.put(cell.getStringCellValue(), cell.getColumnIndex());
+    }
+    if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(IDENTIFIER) || !head.containsKey(TIME_MARKER)) {
+      throw new RuntimeException("Missing required column");
+    }
 
-		// map external to internal id
-		Map<String, Long> plates = new HashMap<String, Long>();
-		Map<String, Integer> dupCheck = new HashMap<String, Integer>();
+    // create new run
+    long runId = dao.addRun(new Run(runName, false));
 
-		for (Row row : sheet) {
-			if (row.getRowNum() == 0) {
-				continue;
-			}
-			String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
+    // map external to internal id
+    Map<String, Long> plates = new HashMap<String, Long>();
+    Map<String, Integer> dupCheck = new HashMap<String, Integer>();
 
-			// get plate, or create if necessary
-			if (!plates.containsKey(plateName)) {
-				plates.put(plateName, dao.addPlate(new Plate(runId, plateName)));
-			}
-			long plateId = plates.get(plateName);
+    for (Row row : sheet) {
+      if (row.getRowNum() == 0 || row.getCell(0) == null) {
+        continue;
+      }
 
-			int time;
-			if (row.getCell(head.get(TIME_MARKER)).getCellType() == Cell.CELL_TYPE_STRING) {
-				time = Integer.parseInt(row.getCell(head.get(TIME_MARKER)).getStringCellValue());
-			} else {
-				time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
-			}
+      try {
+        String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
 
-			String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
-			float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
+        // get plate, or create if necessary
+        if (!plates.containsKey(plateName)) {
+          plates.put(plateName, dao.addPlate(new Plate(runId, plateName)));
+        }
+        long plateId = plates.get(plateName);
 
-			// track neg/pos
-			if (controls.containsKey(ident)) {
-				dao.addRawDataControl(new Control(-1, plateId, ident, time, data, new Date()));
-			} else if (ignored.containsKey(ident)) {
-				// do nothing
-			} else {
-				String d = plateId + "_" + ident + "_" + time;
-				if (!dupCheck.containsKey(d)) {
-					dupCheck.put(d, 1);
-					try {
-						dao.addRawData(new RawData(plateId, ident, time, data));
-					} catch (Exception e) {
-						throw new DatabaseException("Duplicate data found");
-					}
-				}
-			}
-		}
+        int time;
+        if (row.getCell(head.get(TIME_MARKER)).getCellType() == Cell.CELL_TYPE_STRING) {
+          time = Integer.parseInt(row.getCell(head.get(TIME_MARKER)).getStringCellValue());
+        } else {
+          time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
+        }
 
-	}
+        String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
+        float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
 
-	public void readLinkedViability(long runId, InputStream file) throws IOException {
-		readViability(file, runId, null);
-	}
+        // track neg/pos
+        if (controls.containsKey(ident)) {
+          dao.addRawDataControl(new Control(-1, plateId, ident, time, data, new Date()));
+        } else if (ignored.containsKey(ident)) {
+          // do nothing
+        } else {
+          String d = plateId + "_" + ident + "_" + time;
+          if (!dupCheck.containsKey(d)) {
+            dupCheck.put(d, 1);
+            try {
+              dao.addRawData(new RawData(plateId, ident, time, data));
+            } catch (Exception e) {
+              throw new DatabaseException("Duplicate data found");
+            }
+          }
+        }
+      } catch (Exception e) {
+        throw new RuntimeException("Error at row " + row.getRowNum()+". Please check the data and try again.", e);
+      }
+    }
 
-	public void readIndependentViability(String runName, InputStream file) throws IOException {
-		readViability(file, null, runName);
-	}
+  }
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	private void readViability(InputStream file, Long runId, String runName) throws IOException {
-		Workbook wb;
-		try {
-			wb = WorkbookFactory.create(file);
-		} catch (InvalidFormatException e1) {
-			throw new RuntimeException(e1);
-		}
+  public void readLinkedViability(long runId, InputStream file) throws IOException {
+    readViability(file, runId, null);
+  }
 
-		Sheet sheet = wb.getSheetAt(0);
+  public void readIndependentViability(String runName, InputStream file) throws IOException {
+    readViability(file, null, runName);
+  }
 
-		Map<String, Integer> head = new HashMap<String, Integer>();
-		for (Cell cell : sheet.getRow(0)) {
-			head.put(cell.getStringCellValue(), cell.getColumnIndex());
-		}
-		if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(IDENTIFIER)) {
-			throw new RuntimeException("Missing required column");
-		}
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  private void readViability(InputStream file, Long runId, String runName) throws IOException {
+    Workbook wb;
+    try {
+      wb = WorkbookFactory.create(file);
+    } catch (InvalidFormatException e1) {
+      throw new RuntimeException(e1);
+    }
 
-		// if this is an independent load, need to create a run
-		if (runId == null) {
-			runId = dao.addRun(new Run(runName, true));
-		}
 
-		// map external to internal id
-		Map<String, Long> plates = new HashMap<String, Long>();
-		Map<String, Integer> dupCheck = new HashMap<String, Integer>();
+    Sheet sheet = wb.getSheetAt(0);
 
-		for (Row row : sheet) {
-			if (row.getRowNum() == 0) {
-				continue;
-			}
-			String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
+    Map<String, Integer> head = new HashMap<String, Integer>();
+    for (Cell cell : sheet.getRow(0)) {
+      head.put(cell.getStringCellValue(), cell.getColumnIndex());
+    }
+    if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(IDENTIFIER)) {
+      throw new RuntimeException("Missing required column");
+    }
 
-			// get plate, or create if necessary
-			if (!plates.containsKey(plateName)) {
-				if (runName != null) {
-					plates.put(plateName, dao.addPlate(new Plate(runId, plateName)));
-				} else {
-					plates.put(plateName, dao.getPlateByName(runId, plateName).getId());
-				}
-			}
-			long plateId = plates.get(plateName);
+    // if this is an independent load, need to create a run
+    if (runId == null) {
+      runId = dao.addRun(new Run(runName, true));
+    }
 
-			String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
-			float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
+    // map external to internal id
+    Map<String, Long> plates = new HashMap<String, Long>();
+    Map<String, Integer> dupCheck = new HashMap<String, Integer>();
 
-			// track neg/pos
-			if (controls.containsKey(ident)) {
-				dao.addViabilityControl(new Control(plateId, ident, data, new Date()));
-			} else if (ignored.containsKey(ident)) {
-				// do nothing
-			} else {
-				String d = plateId + "_" + ident;
-				if (!dupCheck.containsKey(d)) {
-					dupCheck.put(d, 1);
-					try {
-						dao.addViabilityData(new ViabilityData(plateId, ident, data));
-					} catch (Exception e) {
-						logger.error(e);
-						throw new DatabaseException("Duplicate data found");
-					}
-				}
-			}
-		}
+    for (Row row : sheet) {
+      try {
+        if (row.getRowNum() == 0 || row.getCell(0) == null) {
+          continue;
+        }
+        String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
 
-	}
+        // get plate, or create if necessary
+        if (!plates.containsKey(plateName)) {
+          if (runName != null) {
+            plates.put(plateName, dao.addPlate(new Plate(runId, plateName)));
+          } else {
+            plates.put(plateName, dao.getPlateByName(runId, plateName).getId());
+          }
+        }
+        long plateId = plates.get(plateName);
+
+        String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
+        float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
+
+        // track neg/pos
+        if (controls.containsKey(ident)) {
+          dao.addViabilityControl(new Control(plateId, ident, data, new Date()));
+        } else if (ignored.containsKey(ident)) {
+          // do nothing
+        } else {
+          String d = plateId + "_" + ident;
+          if (!dupCheck.containsKey(d)) {
+            dupCheck.put(d, 1);
+            try {
+              dao.addViabilityData(new ViabilityData(plateId, ident, data));
+            } catch (Exception e) {
+              logger.error(e);
+              throw new DatabaseException("Duplicate data found");
+            }
+          }
+        }
+      } catch (Exception e) {
+        throw new RuntimeException("Error at row " + row.getRowNum()+". Please check the data and try again.", e);
+      }
+    }
+
+
+  }
 
 }

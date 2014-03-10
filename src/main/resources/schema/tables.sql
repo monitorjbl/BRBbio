@@ -7,15 +7,35 @@ CREATE TABLE runs (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE users (
+  id bigint AUTO_INCREMENT NOT NULL,
+  user_name varchar(128) NOT NULL,
+  first_name varchar(128) NOT NULL,
+  last_name varchar(128) NOT NULL,
+  password_hash varchar(512) NOT NULL,
+  active boolean NOT NULL,
+  admin boolean NOT NULL,
+  create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX users_name ON users(user_name);
+
 CREATE TABLE run_security (
   run_id bigint,
   user_id bigint,
   PRIMARY KEY (run_id, user_id)
-)
+);
 
 ALTER TABLE run_security ADD FOREIGN KEY (run_id) REFERENCES runs(id);
 
 ALTER TABLE run_security ADD FOREIGN KEY (user_id) REFERENCES users(id);
+
+CREATE VIEW user_security AS
+	SELECT u.id as user_id, u.user_name, r.id as run_id FROM users u
+		CROSS JOIN runs r
+		LEFT JOIN run_security rs ON rs.run_id = r.id AND rs.user_id = u.id
+	WHERE rs.run_id IS NOT NULL OR u.admin = 1;
 
 CREATE TABLE plates (
   id bigint AUTO_INCREMENT NOT NULL,
@@ -78,23 +98,3 @@ CREATE TABLE raw_data (
 ALTER TABLE raw_data ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
 
 ALTER TABLE raw_data ADD CONSTRAINT raw_data_uc_1 UNIQUE (plate_id,identifier,time_marker);
-
-CREATE TABLE users (
-  id bigint AUTO_INCREMENT NOT NULL,
-  user_name varchar(128) NOT NULL,
-  first_name varchar(128) NOT NULL,
-  last_name varchar(128) NOT NULL,
-  password_hash varchar(512) NOT NULL,
-  active boolean NOT NULL,
-  admin boolean NOT NULL,
-  create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  PRIMARY KEY (id)
-);
-
-CREATE UNIQUE INDEX users_name ON users(user_name);
-
-CREATE VIEW user_security AS
-	SELECT u.id as user_id, u.user_name, r.id as run_id FROM users u
-		CROSS JOIN runs r
-		LEFT JOIN run_security rs ON rs.run_id = r.id AND rs.user_id = u.id
-	WHERE rs.run_id IS NOT NULL OR u.admin = 1;
