@@ -7,7 +7,7 @@ public class Control {
 	private long id;
 	private long plateId;
 	private String identifier;
-	private int timeMarker;
+	private double timeMarker;
 	private float data;
 
 	private Date createDate;
@@ -16,7 +16,7 @@ public class Control {
 
 	}
 
-	public Control(long id, long plateId, String identifier, int timeMarker, float data, Date createDate) {
+	public Control(long id, long plateId, String identifier, double timeMarker, float data, Date createDate) {
 		this.id = id;
 		this.plateId = plateId;
 		this.identifier = identifier;
@@ -56,11 +56,11 @@ public class Control {
 		this.identifier = identifier;
 	}
 
-	public int getTimeMarker() {
+	public double getTimeMarker() {
 		return timeMarker;
 	}
 
-	public void setTimeMarker(int timeMarker) {
+	public void setTimeMarker(double timeMarker) {
 		this.timeMarker = timeMarker;
 	}
 

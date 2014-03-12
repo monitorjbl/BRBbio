@@ -5,81 +5,80 @@ import java.util.Date;
 public class RawData {
 
 
-	private long		id;
-	private long		plateId;
-	private String	identifier;
-	private int			timeMarker;
-	private float		data;
-	private Date		createDate;
+  private long id;
+  private long plateId;
+  private String identifier;
+  private double timeMarker;
+  private float data;
+  private Date createDate;
 
-	public RawData() {
+  public RawData() {
 
-	}
+  }
 
-	public RawData(long id, long plateId, String identifier, int timeMarker, float data, Date createDate) {
-		this.id = id;
-		this.plateId = plateId;
-		this.identifier = identifier;
-		this.timeMarker = timeMarker;
-		this.data = data;
-		this.createDate = createDate;
-	}
+  public RawData(long id, long plateId, String identifier, double timeMarker, float data, Date createDate) {
+    this.id = id;
+    this.plateId = plateId;
+    this.identifier = identifier;
+    this.timeMarker = timeMarker;
+    this.data = data;
+    this.createDate = createDate;
+  }
 
-	public RawData(long plateId, String identifier, int timeMarker, float data) {
-		this.plateId = plateId;
-		this.identifier = identifier;
-		this.timeMarker = timeMarker;
-		this.data = data;
-	}
+  public RawData(long plateId, String identifier, double timeMarker, float data) {
+    this.plateId = plateId;
+    this.identifier = identifier;
+    this.timeMarker = timeMarker;
+    this.data = data;
+  }
 
-	public long getId() {
-		return id;
-	}
+  public long getId() {
+    return id;
+  }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	public long getPlateId() {
-		return plateId;
-	}
+  public long getPlateId() {
+    return plateId;
+  }
 
-	public void setPlateId(long plateId) {
-		this.plateId = plateId;
-	}
+  public void setPlateId(long plateId) {
+    this.plateId = plateId;
+  }
 
-	public String getIdentifier() {
-		return identifier;
-	}
+  public String getIdentifier() {
+    return identifier;
+  }
 
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
+  public void setIdentifier(String identifier) {
+    this.identifier = identifier;
+  }
 
-	public int getTimeMarker() {
-		return timeMarker;
-	}
+  public double getTimeMarker() {
+    return timeMarker;
+  }
 
-	public void setTimeMarker(int timeMarker) {
-		this.timeMarker = timeMarker;
-	}
+  public void setTimeMarker(double timeMarker) {
+    this.timeMarker = timeMarker;
+  }
 
-	public float getData() {
-		return data;
-	}
+  public float getData() {
+    return data;
+  }
 
-	public void setData(float data) {
-		this.data = data;
-	}
+  public void setData(float data) {
+    this.data = data;
+  }
 
-	public Date getCreateDate() {
-		return createDate;
-	}
+  public Date getCreateDate() {
+    return createDate;
+  }
 
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
+  public void setCreateDate(Date createDate) {
+    this.createDate = createDate;
+  }
 
-	
 
 }

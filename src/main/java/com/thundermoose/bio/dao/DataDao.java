@@ -187,7 +187,7 @@ public class DataDao {
         PreparedStatement ps = conn.prepareStatement(INSERT_RAW_DATA_CONTROL, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, control.getPlateId());
         ps.setString(2, control.getIdentifier());
-        ps.setInt(3, control.getTimeMarker());
+        ps.setDouble(3, control.getTimeMarker());
         ps.setFloat(4, control.getData());
         return ps;
       }
@@ -204,7 +204,7 @@ public class DataDao {
         PreparedStatement ps = conn.prepareStatement(INSERT_RAW_DATA, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, rawData.getPlateId());
         ps.setString(2, rawData.getIdentifier());
-        ps.setInt(3, rawData.getTimeMarker());
+        ps.setDouble(3, rawData.getTimeMarker());
         ps.setFloat(4, rawData.getData());
         return ps;
       }

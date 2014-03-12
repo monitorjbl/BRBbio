@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellReference;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,8 +85,10 @@ public class ExcelDataReader {
         continue;
       }
 
+      int index = -1;
       try {
-        String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
+        index = head.get(PLATE_ID);
+        String plateName = row.getCell(index).getStringCellValue();
 
         // get plate, or create if necessary
         if (!plates.containsKey(plateName)) {
@@ -93,15 +96,19 @@ public class ExcelDataReader {
         }
         long plateId = plates.get(plateName);
 
-        int time;
-        if (row.getCell(head.get(TIME_MARKER)).getCellType() == Cell.CELL_TYPE_STRING) {
-          time = Integer.parseInt(row.getCell(head.get(TIME_MARKER)).getStringCellValue());
+        double time;
+        index = head.get(TIME_MARKER);
+        if (row.getCell(index).getCellType() == Cell.CELL_TYPE_STRING) {
+          time = Double.parseDouble(row.getCell(index).getStringCellValue());
         } else {
-          time = (int) row.getCell(head.get(TIME_MARKER)).getNumericCellValue();
+          time = row.getCell(index).getNumericCellValue();
         }
 
-        String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
-        float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
+        index = head.get(IDENTIFIER);
+        String ident = row.getCell(index).getStringCellValue();
+
+        index = head.get(DATA);
+        float data = (float) row.getCell(index).getNumericCellValue();
 
         // track neg/pos
         if (controls.containsKey(ident)) {
@@ -120,7 +127,8 @@ public class ExcelDataReader {
           }
         }
       } catch (Exception e) {
-        throw new RuntimeException("Error at row " + row.getRowNum()+". Please check the data and try again.", e);
+        throw new RuntimeException("Error at cell " + CellReference.convertNumToColString(index) +
+                row.getRowNum() + 1 + " [" + e.getMessage() + "]. Please check the data and try again.", e);
       }
     }
 
@@ -164,11 +172,14 @@ public class ExcelDataReader {
     Map<String, Integer> dupCheck = new HashMap<String, Integer>();
 
     for (Row row : sheet) {
+      if (row.getRowNum() == 0 || row.getCell(0) == null) {
+        continue;
+      }
+
+      int index = -1;
       try {
-        if (row.getRowNum() == 0 || row.getCell(0) == null) {
-          continue;
-        }
-        String plateName = row.getCell(head.get(PLATE_ID)).getStringCellValue();
+        index = head.get(PLATE_ID);
+        String plateName = row.getCell(index).getStringCellValue();
 
         // get plate, or create if necessary
         if (!plates.containsKey(plateName)) {
@@ -180,8 +191,11 @@ public class ExcelDataReader {
         }
         long plateId = plates.get(plateName);
 
-        String ident = row.getCell(head.get(IDENTIFIER)).getStringCellValue();
-        float data = (float) row.getCell(head.get(DATA)).getNumericCellValue();
+        index = head.get(IDENTIFIER);
+        String ident = row.getCell(index).getStringCellValue();
+
+        index = head.get(DATA);
+        float data = (float) row.getCell(index).getNumericCellValue();
 
         // track neg/pos
         if (controls.containsKey(ident)) {
@@ -201,7 +215,8 @@ public class ExcelDataReader {
           }
         }
       } catch (Exception e) {
-        throw new RuntimeException("Error at row " + row.getRowNum()+". Please check the data and try again.", e);
+        throw new RuntimeException("Error at cell " + CellReference.convertNumToColString(index) +
+                row.getRowNum() + 1 + "[" + e.getMessage() + "]. Please check the data and try again.", e);
       }
     }
 

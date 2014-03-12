@@ -53,7 +53,7 @@ CREATE TABLE raw_data_controls (
   id bigint AUTO_INCREMENT NOT NULL,
   plate_id bigint NOT NULL,
   identifier varchar(64)  NOT NULL,
-  time_marker int  NOT NULL,
+  time_marker float  NOT NULL,
   data float  NOT NULL,
   create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
   PRIMARY KEY (id)
@@ -89,7 +89,7 @@ CREATE TABLE raw_data (
   id bigint AUTO_INCREMENT NOT NULL,
   plate_id bigint NOT NULL,
   identifier varchar(128)  NOT NULL,
-  time_marker int  NOT NULL,
+  time_marker float  NOT NULL,
   data float NOT NULL,
   create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
   PRIMARY KEY (id)
