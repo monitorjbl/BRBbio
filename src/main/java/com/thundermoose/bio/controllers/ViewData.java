@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -117,7 +117,7 @@ public class ViewData {
 		};
 		Map<String, Row> rowmap = new HashMap<String, Row>();
 
-		Workbook wb = new XSSFWorkbook();
+		Workbook wb = new SXSSFWorkbook();
 		Sheet sheet = wb.createSheet();
 		Row headerRow = sheet.createRow(0);
 
@@ -189,7 +189,7 @@ public class ViewData {
 		};
 		Map<String, Row> rowmap = new HashMap<String, Row>();
 
-		Workbook wb = new XSSFWorkbook();
+		Workbook wb = new SXSSFWorkbook();
 		Sheet sheet = wb.createSheet();
 		Row headerRow = sheet.createRow(0);
 
@@ -261,7 +261,7 @@ public class ViewData {
 			}
 		};
 
-		Workbook wb = new XSSFWorkbook();
+		Workbook wb = new SXSSFWorkbook();
 		Sheet sheet = wb.createSheet();
 		Row headerRow = sheet.createRow(0);
 
