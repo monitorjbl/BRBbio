@@ -128,7 +128,7 @@ public class ExcelDataReader {
         }
       } catch (Exception e) {
         throw new RuntimeException("Error at cell " + CellReference.convertNumToColString(index) +
-                row.getRowNum() + 1 + " [" + e.getMessage() + "]. Please check the data and try again.", e);
+                (row.getRowNum() + 1) + " [" + e.getMessage() + "]. Please check the data and try again.", e);
       }
     }
 
@@ -216,7 +216,7 @@ public class ExcelDataReader {
         }
       } catch (Exception e) {
         throw new RuntimeException("Error at cell " + CellReference.convertNumToColString(index) +
-                row.getRowNum() + 1 + "[" + e.getMessage() + "]. Please check the data and try again.", e);
+                (row.getRowNum() + 1) + "[" + e.getMessage() + "]. Please check the data and try again.", e);
       }
     }
 
