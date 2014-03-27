@@ -55,7 +55,7 @@
           </execution>
         </executions>
         <configuration>
-          <format>Revision {0} - Compiled on {1,date,MM/dd/yyyy}</format>
+          <format>Built from revision {0} | Compiled on {1,date,MM/dd/yyyy}</format>
           <items>
             <item>scmVersion</item>
             <item>timestamp</item>
