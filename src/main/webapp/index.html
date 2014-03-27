@@ -1,80 +1,82 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="bio">
 <head>
-<meta charset="utf-8">
-<link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
-<link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
-<title>BRBBio</title>
-<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/brb.css">
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-<style type="text/css">
-body {
-	padding-top: 60px;
-	padding-bottom: 40px;
-}
-</style>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
-<script src="assets/js/brb.js"></script>
-<script src="assets/js/controllers.js"></script>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+    <title>BRBBio</title>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/brb.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
 
-<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-<!--[if lt IE 9]>
-      <script src="../assets/js/html5shiv.js"></script>
+        #footer {
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+    <script src="assets/js/brb.js"></script>
+    <script src="assets/js/controllers.js"></script>
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="../assets/js/html5shiv.js"></script>
     <![endif]-->
-<script>
-
-</script>
 </head>
 
 <body ng-controller="Main">
-  <div class="navbar navbar-inverse navbar-fixed-top" ng-controller="Nav">
+<div class="navbar navbar-inverse navbar-fixed-top" ng-controller="Nav">
     <div class="navbar-inner">
-      <div class="container">
-        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-        </button>
-        <a class="brand" href="/brbbio">BRBBio</a>
-        <div class="nav-collapse collapse">
-          <ul class="nav">
-            <li><a href="#">Home</a></li>
-            <li ng-show="auth.viewable.admin"><a href="#/admin">Admin</a></li>
-            <li><a href="#/help">Help</a></li>
-            <!-- li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b
-                class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="nav-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-              </ul></li-->
-          </ul>
-          <div class="navbar-form pull-right">
-            <form name="loginForm" class="loginForm" ng-show="init && auth == undefined" style="margin: 3px 0px 0px 0px; display: none;" ng-submit="login()">
-              <span class="errorMessage">{{error}}</span> <input name="j_username" class="span1" type="text" placeholder="Email" /> <input name="j_password" class="span1" type="password"
-                placeholder="Password" /> <span class="btn btn-mini btn-inverse" ng-click="login()">Sign in</span><input type="submit" class="invisibleSubmit" /> <span
-                style="display: inline-block; height: 12px;"><a href="#/createAccount">Create Account</a></span>
-            </form>
-            <div class="userDetails" ng-show="init && auth != undefined" style="margin-top: 8px;">
-              <span>Welcome, {{auth.user.firstName}} {{auth.user.lastName}}</span> | <a href="#/profile">Profile</a> | <a href="logout">Logout</a>
-            </div>
-          </div>
-        </div>
-        <!--/.nav-collapse -->
-      </div>
-    </div>
-  </div>
+        <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="/brbbio">BRBBio</a>
 
-  <div class="container">
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li><a href="#">Home</a></li>
+                    <li ng-show="auth.viewable.admin"><a href="#/admin">Admin</a></li>
+                    <li><a href="#/help">Help</a></li>
+                </ul>
+                <div class="navbar-form pull-right">
+                    <form name="loginForm" class="loginForm" ng-show="init && auth == undefined" style="margin: 3px 0px 0px 0px; display: none;" ng-submit="login()">
+                        <span class="errorMessage">{{error}}</span> <input name="j_username" class="span1" type="text" placeholder="Email"/> <input name="j_password" class="span1" type="password"
+                                                                                                                                                    placeholder="Password"/> <span
+                            class="btn btn-mini btn-inverse" ng-click="login()">Sign in</span><input type="submit" class="invisibleSubmit"/> <span
+                            style="display: inline-block; height: 12px;"><a href="#/createAccount">Create Account</a></span>
+                    </form>
+                    <div class="userDetails" ng-show="init && auth != undefined" style="margin-top: 8px;">
+                        <span>Welcome, {{auth.user.firstName}} {{auth.user.lastName}}</span> | <a href="#/profile">Profile</a> | <a href="logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container">
     <div ng-view></div>
-  </div>
+</div>
+
+<div id="footer">
+    <div class="container">
+        <p class="muted credit">${buildInfo} - Source code available on <a href="https://github.com/monitorjbl/BRBbio">GitHub</a>.</p>
+    </div>
+</div>
+
+<footer>
+    <div>
+
+    </div>
+</footer>
 
 </body>
 </html>
