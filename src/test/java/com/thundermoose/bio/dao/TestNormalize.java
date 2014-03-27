@@ -35,7 +35,6 @@ public class TestNormalize {
 		 */
 	}
 
-	@BeforeClass
 	public static void createDao() throws SQLException, ClassNotFoundException, DataAccessException, IOException {
 		// delete hsqldb files
 		File[] toBeDeleted = new File("target").listFiles(new FileFilter() {

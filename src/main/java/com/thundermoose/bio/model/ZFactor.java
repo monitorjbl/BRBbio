@@ -10,7 +10,7 @@ public class ZFactor {
 
   }
 
-  public ZFactor(String plateName, int timeMarker, float zFactor) {
+  public ZFactor(String plateName, double timeMarker, float zFactor) {
     this.plateName = plateName;
     this.timeMarker = timeMarker;
     this.zFactor = zFactor;

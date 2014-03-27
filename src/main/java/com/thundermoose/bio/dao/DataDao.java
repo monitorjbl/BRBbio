@@ -8,11 +8,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
+import com.thundermoose.bio.model.NormalizedRow;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -40,6 +49,7 @@ public class DataDao {
 
   private static final String GET_RAW_DATA_CONTROLS = "sql/rawControls.sql";
   private static final String GET_VIABILITY_CONTROLS = "sql/viabilityControls.sql";
+  private static final String GET_TIME_MARKERS = "sql/getTimeMarkers.sql";
 
   private static final String INSERT_RUN = "INSERT INTO runs (run_name, viability_only) VALUES(?,?)";
   private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
@@ -60,10 +70,6 @@ public class DataDao {
   @Autowired
   private JdbcTemplate jdbc;
 
-  // public List<Plate> getPlates() {
-  // return jdbc.query(read(PLATE_SQL), new PlateRowMapper());
-  // }
-
   public List<Run> getRuns(boolean includeViability, String username) {
     String sql = read(RUN_SQL);
     if (!includeViability) {
@@ -72,18 +78,20 @@ public class DataDao {
     return jdbc.query(sql, new Object[]{username}, new RunRowMapper());
   }
 
-	/*
-   * public Plate getPlateById(long plateId) { return
-	 * jdbc.queryForObject(read(PLATE_SQL) + " WHERE id=?", new PlateRowMapper());
-	 * }
-	 */
-
   public Plate getPlateByName(long runId, String plateName) {
     return jdbc.queryForObject(read(PLATE_SQL) + " WHERE run_id=? AND plate_name=?", new Object[]{runId, plateName}, new PlateRowMapper());
   }
 
   public Run getRunById(long runId, String username) {
     return jdbc.queryForObject(read(RUN_SQL) + " AND id = ?", new Object[]{username, runId}, new RunRowMapper());
+  }
+
+  public List<Double> getTimeMarkers(long runId, String username) {
+    return jdbc.queryForList(read(GET_TIME_MARKERS), Double.class, runId, username, runId, username);
+  }
+
+  public List<NormalizedRow> getNormalizedRowDataByRunId(long runId, String username, String function) {
+    return jdbc.query(read(NORMALIZE_SQL).replaceAll("#function#", convertRawDataFunction(runId, username, function)), new Object[]{runId, username}, new ProcessedDataExtractor());
   }
 
   public List<NormalizedData> getNormalizedDataByRunId(long runId, String username, String function) {
@@ -288,11 +296,36 @@ public class DataDao {
   }
 
   private class ProcessedDataRowMapper implements RowMapper<NormalizedData> {
-
+    @Override
     public NormalizedData mapRow(ResultSet rs, int rownum) throws SQLException {
-      return new NormalizedData(rs.getString("plate_name"), rs.getString("identifier"), rs.getInt("time_marker"), rs.getFloat("norm"));
+      return new NormalizedData(rs.getString("plate_name"), rs.getString("identifier"), rs.getDouble("time_marker"), rs.getFloat("norm"));
     }
+  }
 
+  private class ProcessedDataExtractor implements ResultSetExtractor<List<NormalizedRow>> {
+
+    ProcessedDataRowMapper mapper = new ProcessedDataRowMapper();
+
+    @Override
+    public List<NormalizedRow> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+      Map<String, NormalizedRow> rows = new TreeMap<String, NormalizedRow>(new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+          return o1.compareTo(o2);
+        }
+      });
+
+      while (resultSet.next()) {
+        NormalizedData d = mapper.mapRow(resultSet, resultSet.getRow());
+        String keyName = d.getPlateName() + "-" + d.getGeneId();
+        if (!rows.containsKey(keyName)) {
+          rows.put(keyName, new NormalizedRow(d.getPlateName(), d.getGeneId()));
+        }
+        rows.get(keyName).getData().put(d.getTimeMarker(), d.getNormalized());
+      }
+
+      return new LinkedList<NormalizedRow>(rows.values());
+    }
   }
 
   private class RunRowMapper implements RowMapper<Run> {
@@ -314,20 +347,9 @@ public class DataDao {
   private class ZFactorRowMapper implements RowMapper<ZFactor> {
 
     public ZFactor mapRow(ResultSet rs, int rownum) throws SQLException {
-      return new ZFactor(rs.getString("plate_name"), rs.getInt("time_marker"), rs.getFloat("z_factor"));
+      return new ZFactor(rs.getString("plate_name"), rs.getDouble("time_marker"), rs.getFloat("z_factor"));
     }
 
   }
-
-	/*
-	 * private class RawDataRowMapper implements RowMapper<RawData> {
-	 * 
-	 * public RawData mapRow(ResultSet rs, int rownum) throws SQLException {
-	 * return new RawData(rs.getLong("id"), rs.getLong("plate_id"),
-	 * rs.getString("identifier"), rs.getInt("time_marker"), rs.getFloat("data"),
-	 * rs.getDate("create_date")); }
-	 * 
-	 * }
-	 */
 
 }

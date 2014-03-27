@@ -11,7 +11,7 @@ public class NormalizedData {
 
   }
 
-  public NormalizedData(String plateName, String geneId, int timeMarker, float normalized) {
+  public NormalizedData(String plateName, String geneId, double timeMarker, float normalized) {
     this.plateName = plateName;
     this.geneId = geneId;
     this.timeMarker = timeMarker;
