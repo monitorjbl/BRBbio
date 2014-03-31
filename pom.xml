@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.thundermoose</groupId>
   <artifactId>brbbio</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1-RC</version>
   <packaging>war</packaging>
 
   <properties>
@@ -22,8 +22,24 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <resources>
+            <resource>
+              <filtering>true</filtering>
+              <directory>src/main/resources</directory>
+              <includes>
+                <include>**/base-data.sql</include>
+              </includes>
+            </resource>
+          </resources>
         </configuration>
       </plugin>
       <plugin>
@@ -55,7 +71,7 @@
           </execution>
         </executions>
         <configuration>
-          <format>Built from revision {0} | Compiled on {1,date,MM/dd/yyyy}</format>
+          <format>Source code available on &lt;a href="https://github.com/monitorjbl/BRBbio"&gt;GitHub&lt;/a&gt; | Built from revision &lt;a href="https://github.com/monitorjbl/BRBbio/tree/{0}"&gt;{0}&lt;/a&gt; | Compiled on {1,date,MM/dd/yyyy}</format>
           <items>
             <item>scmVersion</item>
             <item>timestamp</item>
@@ -65,6 +81,28 @@
         </configuration>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.tomcat.maven</groupId>
+          <artifactId>tomcat7-maven-plugin</artifactId>
+          <version>2.1</version>
+          <executions>
+            <execution>
+              <id>tomcat-run</id>
+              <goals>
+                <goal>exec-war-only</goal>
+              </goals>
+              <phase>package</phase>
+              <configuration>
+                <path>/</path>
+                <finalName>brbbio-${project.version}.jar</finalName>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
   <scm>
@@ -73,6 +111,42 @@
     <url>https://github.com/monitorjbl/BRBbio.git</url>
     <tag>HEAD</tag>
   </scm>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.17</version>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.tomcat.maven</groupId>
+            <artifactId>tomcat7-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>develop</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.tomcat.maven</groupId>
+            <artifactId>tomcat7-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <dependencies>
     <!-- Spring 3 dependencies -->
@@ -102,6 +176,13 @@
       <version>${spring.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <!-- Spring Security -->
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
       <version>${spring.security.version}</version>
@@ -115,12 +196,6 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
       <version>${spring.security.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <version>${spring.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <!-- Jackson JSON Mapper -->
@@ -202,19 +277,27 @@
       <version>2.2</version>
     </dependency>
 
-    <!-- Testing dependencies -->
+    <!-- Embedded DB -->
     <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.2.9</version>
-      <scope>test</scope>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.3.175</version>
     </dependency>
+
+    <!-- Testing dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-collections</artifactId>
+      <version>r03</version>
+      <scope>test</scope>
+    </dependency>
+
 
   </dependencies>
 </project>

@@ -29,7 +29,7 @@ import com.thundermoose.bio.model.ZFactor;
 import com.thundermoose.bio.util.Utils;
 
 @Controller
-public class ViewData {
+public class ViewDataController {
 
   @Autowired
   private DataDao dao;

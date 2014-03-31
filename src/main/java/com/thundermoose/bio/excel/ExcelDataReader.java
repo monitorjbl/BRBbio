@@ -25,7 +25,6 @@ import com.thundermoose.bio.model.Plate;
 import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
 import com.thundermoose.bio.model.ViabilityData;
-import com.thundermoose.bio.util.Utils;
 
 public class ExcelDataReader {
 
@@ -55,7 +54,7 @@ public class ExcelDataReader {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void readRawData(String runName, InputStream file) throws IOException {
+  public void readRawData(String runName, String username, InputStream file) throws IOException {
     Workbook wb;
     try {
       wb = WorkbookFactory.create(file);
@@ -74,7 +73,7 @@ public class ExcelDataReader {
     }
 
     // create new run
-    long runId = dao.addRun(new Run(runName, false));
+    long runId = dao.addRun(new Run(runName, false), username);
 
     // map external to internal id
     Map<String, Long> plates = new HashMap<String, Long>();
@@ -134,16 +133,16 @@ public class ExcelDataReader {
 
   }
 
-  public void readLinkedViability(long runId, InputStream file) throws IOException {
-    readViability(file, runId, null);
+  public void readLinkedViability(long runId, String username, InputStream file) throws IOException {
+    readViability(file, runId, null, username);
   }
 
-  public void readIndependentViability(String runName, InputStream file) throws IOException {
-    readViability(file, null, runName);
+  public void readIndependentViability(String runName, String username, InputStream file) throws IOException {
+    readViability(file, null, runName, username);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  private void readViability(InputStream file, Long runId, String runName) throws IOException {
+  private void readViability(InputStream file, Long runId, String runName, String username) throws IOException {
     Workbook wb;
     try {
       wb = WorkbookFactory.create(file);
@@ -164,7 +163,7 @@ public class ExcelDataReader {
 
     // if this is an independent load, need to create a run
     if (runId == null) {
-      runId = dao.addRun(new Run(runName, true));
+      runId = dao.addRun(new Run(runName, true), username);
     }
 
     // map external to internal id
