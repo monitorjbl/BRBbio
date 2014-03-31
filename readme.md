@@ -42,6 +42,8 @@ standalone.user=root
 standalone.pass=root
 ```
 
+Currently, only MySQL has been tested and verified to work with this application. Other databases may as well, but there is exactly **zero** support for them at this time. 
+
 # Building
 
 This is for anyone that would like to play around with the source code. Building is very simple, but you'll need a couple of things before you get started:
