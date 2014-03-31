@@ -1,21 +1,44 @@
 <?xml  version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:context="http://www.springframework.org/schema/context" xmlns:jee="http://www.springframework.org/schema/jee" xmlns:lang="http://www.springframework.org/schema/lang"
-       xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-    <property name="url" value="jdbc:mysql://localhost:3306/hts"/>
-    <property name="username" value="root"/>
-    <property name="password" value="root"/>
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreResourceNotFound" value="true"/>
+    <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    <property name="locations">
+      <list>
+        <value>classpath:bio.config</value>
+        <value>file://${bio.conf:bio.config}</value>
+      </list>
+    </property>
   </bean>
+  <bean id="eventListenerBean" class="com.thundermoose.bio.context.Listener"/>
+
+  <bean id="standaloneDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="${standalone.driver}"/>
+    <property name="url" value="${standalone.jdbcUrl}"/>
+    <property name="username" value="${standalone.user}"/>
+    <property name="password" value="${standalone.pass}"/>
+  </bean>
+
+  <bean id="embeddedDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="org.h2.Driver"/>
+    <property name="url" value="jdbc:h2:${embedded.dataPath}/hts"/>
+  </bean>
+
+  <bean id="dataSource" class="com.thundermoose.bio.context.DataSourceRouter">
+    <property name="targetDataSources">
+      <map key-type="java.lang.String">
+        <entry key="standalone" value-ref="standaloneDataSource"/>
+        <entry key="embedded" value-ref="embeddedDataSource"/>
+      </map>
+    </property>
+  </bean>
+
   <bean id="jdbc" class="org.springframework.jdbc.core.JdbcTemplate">
     <constructor-arg ref="dataSource"/>
   </bean>
@@ -24,13 +47,6 @@
   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource"></property>
   </bean>
-
-  <!-- bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"> <property name="dataSource" ref="dataSource" /> <property name="configLocation"> 
-    <value>classpath:hibernate.cfg.xml</value> </property> <property name="hibernateProperties"> <props> <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop> 
-    <prop key="hibernate.show_sql">true</prop> </props> </property> </bean -->
-  <!--bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"> <property name="sessionFactory" ref="sessionFactory" /> 
-    </bean> <tx:annotation-driven / -->
-
   <!-- DAOs -->
   <bean id="dataDao" class="com.thundermoose.bio.dao.DataDao"/>
   <bean id="authDao" class="com.thundermoose.bio.dao.AuthDao"/>

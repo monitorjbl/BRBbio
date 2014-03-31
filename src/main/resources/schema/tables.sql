@@ -98,3 +98,8 @@ CREATE TABLE raw_data (
 ALTER TABLE raw_data ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
 
 ALTER TABLE raw_data ADD CONSTRAINT raw_data_uc_1 UNIQUE (plate_id,identifier,time_marker);
+
+CREATE TABLE hts_version_info (
+  property_name varchar(128),
+  property_value varchar(512)
+);

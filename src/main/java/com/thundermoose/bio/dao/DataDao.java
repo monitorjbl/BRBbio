@@ -115,18 +115,18 @@ public class DataDao {
   }
 
   private String convertRawDataFunction(long runId, String username, String function) {
-    String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
+    String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "a.raw_data");
     for (String r : getRawDataControlsForRun(runId, username)) {
-      func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
+      func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.control END");
     }
 
     return func;
   }
 
   private String convertViabilityFunction(long runId, String username, String function) {
-    String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "CASE WHEN a.type='raw' THEN a.data END");
+    String func = function.replaceAll("STD\\(", " STDDEV_SAMP(").replaceAll("rawData", "a.raw_data");
     for (String r : getViabilityControlsForRun(runId, username)) {
-      func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.data END");
+      func = func.replaceAll(r, "CASE WHEN a.type='" + r + "' THEN a.control END");
     }
 
     return func;
@@ -148,7 +148,7 @@ public class DataDao {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public long addRun(final Run run) {
+  public long addRun(final Run run, String username) {
     KeyHolder keyHolder = new GeneratedKeyHolder();
 
     // add new run
@@ -165,7 +165,7 @@ public class DataDao {
     long id = keyHolder.getKey().longValue();
 
     // set security
-    jdbc.update(INSERT_SECURITY, id, Utils.getCurrentUsername());
+    jdbc.update(INSERT_SECURITY, id, username);
 
     return id;
   }
@@ -253,27 +253,27 @@ public class DataDao {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public void loadRawDataExcel(String runName, List<String> controls, InputStream is) {
+  public void loadRawDataExcel(String username, String runName, List<String> controls, InputStream is) {
     try {
-      new ExcelDataReader(this, controls).readRawData(runName, is);
+      new ExcelDataReader(this, controls).readRawData(runName, username, is);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public void loadLinkedViabilityExcel(long runId, List<String> controls, InputStream is) {
+  public void loadLinkedViabilityExcel(String username, long runId, List<String> controls, InputStream is) {
     try {
-      new ExcelDataReader(this, controls).readLinkedViability(runId, is);
+      new ExcelDataReader(this, controls).readLinkedViability(runId, username, is);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public void loadIndependentViabilityExcel(String runName, List<String> controls, InputStream is) {
+  public void loadIndependentViabilityExcel(String username, String runName, List<String> controls, InputStream is) {
     try {
-      new ExcelDataReader(this, controls).readIndependentViability(runName, is);
+      new ExcelDataReader(this, controls).readIndependentViability(runName, username, is);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
