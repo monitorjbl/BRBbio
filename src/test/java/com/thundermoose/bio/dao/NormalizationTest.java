@@ -1,9 +1,10 @@
 package com.thundermoose.bio.dao;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.sql.SQLException;
@@ -14,13 +15,11 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.thundermoose.bio.model.NormalizedData;
 import org.apache.log4j.Logger;
-import org.h2.jdbcx.JdbcDataSource;
+import org.h2.store.FileLock;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.jdbc.JdbcTestUtils;
 
 import static org.junit.Assert.*;
 
@@ -47,19 +46,22 @@ public class NormalizationTest {
   }
 
   @BeforeClass
-  public static void createDao() throws SQLException, ClassNotFoundException, DataAccessException, IOException {
+  public static void createDao() throws Exception {
     TestUtils.initDb();
 
     // load test data
     dao = new DataDao();
     dao.setJdbc(new JdbcTemplate(TestUtils.getDataSource()));
+
+    long time = System.currentTimeMillis();
     dao.loadRawDataExcel("admin", "Test-Run", new ArrayList<String>() {
       {
         add("negativecontrol");
         add("Copb1_indi");
       }
     }, new FileInputStream(new File("src/test/resources/test_data.xlsx")));
-    log.info("data loaded");
+    time = System.currentTimeMillis() - time;
+    log.info("data loaded in " + time + "ms");
 
   }
 }

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.thundermoose</groupId>
   <artifactId>brbbio</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1-RC</version>
   <packaging>war</packaging>
 
   <properties>
@@ -31,7 +31,7 @@
         <artifactId>maven-resources-plugin</artifactId>
         <version>2.6</version>
         <configuration>
-          <webResources>
+          <resources>
             <resource>
               <filtering>true</filtering>
               <directory>src/main/resources</directory>
@@ -39,7 +39,7 @@
                 <include>**/base-data.sql</include>
               </includes>
             </resource>
-          </webResources>
+          </resources>
         </configuration>
       </plugin>
       <plugin>
@@ -71,7 +71,7 @@
           </execution>
         </executions>
         <configuration>
-          <format>Built from revision {0} | Compiled on {1,date,MM/dd/yyyy}</format>
+          <format>Source code available on &lt;a href="https://github.com/monitorjbl/BRBbio"&gt;GitHub&lt;/a&gt; | Built from revision &lt;a href="https://github.com/monitorjbl/BRBbio/tree/{0}"&gt;{0}&lt;/a&gt; | Compiled on {1,date,MM/dd/yyyy}</format>
           <items>
             <item>scmVersion</item>
             <item>timestamp</item>
@@ -96,6 +96,7 @@
               <phase>package</phase>
               <configuration>
                 <path>/</path>
+                <finalName>brbbio-${project.version}.jar</finalName>
               </configuration>
             </execution>
           </executions>
@@ -113,10 +114,29 @@
 
   <profiles>
     <profile>
-      <id>standalone</id>
+      <id>release</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.17</version>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.tomcat.maven</groupId>
+            <artifactId>tomcat7-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>develop</id>
       <build>
         <plugins>
           <plugin>
@@ -125,19 +145,6 @@
           </plugin>
         </plugins>
       </build>
-      <dependencies>
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-          <version>1.3.175</version>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>war</id>
-      <dependencies>
-
-      </dependencies>
     </profile>
   </profiles>
 
