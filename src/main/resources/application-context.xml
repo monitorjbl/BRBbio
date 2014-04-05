@@ -27,7 +27,7 @@
 
   <bean id="embeddedDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
     <property name="driverClassName" value="org.h2.Driver"/>
-    <property name="url" value="jdbc:h2:${embedded.dataPath}/hts"/>
+    <property name="url" value="jdbc:h2:${embedded.dataPath}/hts;DB_CLOSE_DELAY=1"/>
   </bean>
 
   <bean id="dataSource" class="com.thundermoose.bio.context.DataSourceRouter">

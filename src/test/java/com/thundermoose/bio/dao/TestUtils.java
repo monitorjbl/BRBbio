@@ -17,7 +17,7 @@ public class TestUtils {
 
   public static JdbcDataSource getDataSource() {
     JdbcDataSource ds = new JdbcDataSource();
-    ds.setURL("jdbc:h2:target/unittest");
+    ds.setURL("jdbc:h2:target/unittest;DB_CLOSE_DELAY=1");
     return ds;
   }
 
