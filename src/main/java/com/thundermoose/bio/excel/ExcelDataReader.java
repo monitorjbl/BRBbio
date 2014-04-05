@@ -2,10 +2,7 @@ package com.thundermoose.bio.excel;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -31,9 +28,10 @@ public class ExcelDataReader {
   private static final Logger logger = Logger.getLogger(ExcelDataReader.class);
 
   private static final String PLATE_ID = "AssayPlate";
-  private static final String DATA = "Data";
-  private static final String IDENTIFIER = "Identifier";
+  private static final String GENE_SYMBOL = "GeneSymbol";
+  private static final String GENE_ID = "EntrezGeneID";
   private static final String TIME_MARKER = "TimeMarker";
+  private static final String DATA = "Data";
 
   private final Map<String, String> controls;
 
@@ -68,8 +66,8 @@ public class ExcelDataReader {
     for (Cell cell : sheet.getRow(0)) {
       head.put(cell.getStringCellValue(), cell.getColumnIndex());
     }
-    if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(IDENTIFIER) || !head.containsKey(TIME_MARKER)) {
-      throw new RuntimeException("Missing required column");
+    if (findMissingColumns(head) != null) {
+      throw new RuntimeException("Missing required column [" + findMissingColumns(head) + "]");
     }
 
     // create new run
@@ -103,23 +101,26 @@ public class ExcelDataReader {
           time = row.getCell(index).getNumericCellValue();
         }
 
-        index = head.get(IDENTIFIER);
-        String ident = row.getCell(index).getStringCellValue();
+        index = head.get(GENE_ID);
+        String geneId = getStringFromCell(row.getCell(index));
+
+        index = head.get(GENE_SYMBOL);
+        String geneSymbol = row.getCell(index).getStringCellValue();
 
         index = head.get(DATA);
         float data = (float) row.getCell(index).getNumericCellValue();
 
         // track neg/pos
-        if (controls.containsKey(ident)) {
-          dao.addRawDataControl(new Control(-1, plateId, ident, time, data, new Date()));
-        } else if (ignored.containsKey(ident)) {
+        if (controls.containsKey(geneSymbol)) {
+          dao.addRawDataControl(new Control(-1, plateId, geneId, geneSymbol, time, data, new Date()));
+        } else if (ignored.containsKey(geneSymbol)) {
           // do nothing
         } else {
-          String d = plateId + "_" + ident + "_" + time;
+          String d = plateId + "_" + geneSymbol + "_" + time;
           if (!dupCheck.containsKey(d)) {
             dupCheck.put(d, 1);
             try {
-              dao.addRawData(new RawData(plateId, ident, time, data));
+              dao.addRawData(new RawData(plateId, geneId, geneSymbol, time, data));
             } catch (Exception e) {
               throw new DatabaseException("Duplicate data found");
             }
@@ -157,7 +158,7 @@ public class ExcelDataReader {
     for (Cell cell : sheet.getRow(0)) {
       head.put(cell.getStringCellValue(), cell.getColumnIndex());
     }
-    if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(IDENTIFIER)) {
+    if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(GENE_SYMBOL)) {
       throw new RuntimeException("Missing required column");
     }
 
@@ -190,23 +191,26 @@ public class ExcelDataReader {
         }
         long plateId = plates.get(plateName);
 
-        index = head.get(IDENTIFIER);
-        String ident = row.getCell(index).getStringCellValue();
+        index = head.get(GENE_ID);
+        String geneId = getStringFromCell(row.getCell(index));
+
+        index = head.get(GENE_SYMBOL);
+        String geneSymbol = row.getCell(index).getStringCellValue();
 
         index = head.get(DATA);
         float data = (float) row.getCell(index).getNumericCellValue();
 
         // track neg/pos
-        if (controls.containsKey(ident)) {
-          dao.addViabilityControl(new Control(plateId, ident, data, new Date()));
-        } else if (ignored.containsKey(ident)) {
+        if (controls.containsKey(geneSymbol)) {
+          dao.addViabilityControl(new Control(plateId, geneId, geneSymbol, data, new Date()));
+        } else if (ignored.containsKey(geneSymbol)) {
           // do nothing
         } else {
-          String d = plateId + "_" + ident;
+          String d = plateId + "_" + geneSymbol;
           if (!dupCheck.containsKey(d)) {
             dupCheck.put(d, 1);
             try {
-              dao.addViabilityData(new ViabilityData(plateId, ident, data));
+              dao.addViabilityData(new ViabilityData(plateId, geneId, geneSymbol, data));
             } catch (Exception e) {
               logger.error(e);
               throw new DatabaseException("Duplicate data found");
@@ -218,8 +222,32 @@ public class ExcelDataReader {
                 (row.getRowNum() + 1) + "[" + e.getMessage() + "]. Please check the data and try again.", e);
       }
     }
-
-
   }
 
+  String getStringFromCell(Cell c) {
+    if (c.getCellType() == Cell.CELL_TYPE_STRING) {
+      return c.getStringCellValue();
+    }
+    return Long.toString((long) c.getNumericCellValue());
+  }
+
+  String findMissingColumns(Map<String, Integer> head) {
+    String missing = "";
+    if (!head.containsKey(PLATE_ID)) {
+      missing += "," + PLATE_ID;
+    } else if (!head.containsKey(DATA)) {
+      missing += "," + DATA;
+    } else if (!head.containsKey(GENE_SYMBOL)) {
+      missing += "," + GENE_SYMBOL;
+    } else if (!head.containsKey(GENE_ID)) {
+      missing += "," + GENE_ID;
+    } else if (!head.containsKey(TIME_MARKER)) {
+      missing += "," + TIME_MARKER;
+    }
+
+    if (missing.length() > 0) {
+      return missing.substring(1);
+    }
+    return null;
+  }
 }

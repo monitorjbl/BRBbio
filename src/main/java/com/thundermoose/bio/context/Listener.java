@@ -14,6 +14,7 @@ import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -29,6 +30,11 @@ public class Listener implements ApplicationListener<ContextRefreshedEvent> {
 
   @Value("${embedded.use:true}")
   boolean useEmbedded;
+  @Value("${embedded.dataPath:@null}")
+  String embeddedPath;
+  @Value("${standalone.jdbcUrl}")
+  String standaloneUrl;
+
   @Autowired
   @Qualifier("dataSource")
   DataSource ds;
@@ -38,11 +44,15 @@ public class Listener implements ApplicationListener<ContextRefreshedEvent> {
     log.info("Context refresh");
     if (DataSourceRouter.getDataSourceKey() == null) {
       if (useEmbedded) {
+        log.info("Using embedded database");
         DataSourceRouter.setDataSourceKey("embedded");
+        log.info("Local storage dir is [" + new File(embeddedPath).getAbsolutePath() + "]");
       } else {
+        log.info("Using standalone database");
         DataSourceRouter.setDataSourceKey("standalone");
+        log.info("Remote URL is [" + standaloneUrl + "]");
       }
-      log.info("Using " + DataSourceRouter.getDataSourceKey() + " database");
+
 
       try {
         prepDatabase();
@@ -71,13 +81,13 @@ public class Listener implements ApplicationListener<ContextRefreshedEvent> {
     if (!tables.contains("hts_version_info")) {
       log.info("Database is uninitialized, creating schema. Default user is admin/admin.");
 
-      JdbcTestUtils.executeSqlScript(new JdbcTemplate(ds),  new ClassPathResource("schema/tables.sql"), true);
-      if(DataSourceRouter.getDataSourceKey().equals("embedded")){
-        JdbcTestUtils.executeSqlScript(new JdbcTemplate(ds),  new ClassPathResource("schema/h2-functions.sql"), true);
+      JdbcTestUtils.executeSqlScript(new JdbcTemplate(ds), new ClassPathResource("schema/tables.sql"), true);
+      if (DataSourceRouter.getDataSourceKey().equals("embedded")) {
+        JdbcTestUtils.executeSqlScript(new JdbcTemplate(ds), new ClassPathResource("schema/h2-functions.sql"), true);
       }
       JdbcTestUtils.executeSqlScript(new JdbcTemplate(ds), new ClassPathResource("schema/base-data.sql"), true);
     } else {
-      log.debug("Found tables: "+tables);
+      log.debug("Found tables: " + tables);
     }
   }
 }

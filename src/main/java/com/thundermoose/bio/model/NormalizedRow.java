@@ -12,6 +12,7 @@ public class NormalizedRow {
 
   private String plateName;
   private String geneId;
+  private String geneSymbol;
   private Map<Double, Float> data = new TreeMap<Double, Float>(new Comparator<Double>() {
     @Override
     public int compare(Double o1, Double o2) {
@@ -22,9 +23,10 @@ public class NormalizedRow {
   public NormalizedRow() {
   }
 
-  public NormalizedRow(String plateName, String geneId) {
+  public NormalizedRow(String plateName, String geneId, String geneSymbol) {
     this.plateName = plateName;
     this.geneId = geneId;
+    this.geneSymbol = geneSymbol;
   }
 
   public String getPlateName() {
@@ -41,6 +43,14 @@ public class NormalizedRow {
 
   public void setGeneId(String geneId) {
     this.geneId = geneId;
+  }
+
+  public String getGeneSymbol() {
+    return geneSymbol;
+  }
+
+  public void setGeneSymbol(String geneSymbol) {
+    this.geneSymbol = geneSymbol;
   }
 
   public Map<Double, Float> getData() {

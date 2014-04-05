@@ -3,11 +3,10 @@ package com.thundermoose.bio.model;
 import java.util.Date;
 
 public class RawData {
-
-
   private long id;
   private long plateId;
-  private String identifier;
+  private String geneId;
+  private String geneSymbol;
   private double timeMarker;
   private float data;
   private Date createDate;
@@ -16,18 +15,10 @@ public class RawData {
 
   }
 
-  public RawData(long id, long plateId, String identifier, double timeMarker, float data, Date createDate) {
-    this.id = id;
+  public RawData(long plateId, String geneId, String geneSymbol, double timeMarker, float data) {
     this.plateId = plateId;
-    this.identifier = identifier;
-    this.timeMarker = timeMarker;
-    this.data = data;
-    this.createDate = createDate;
-  }
-
-  public RawData(long plateId, String identifier, double timeMarker, float data) {
-    this.plateId = plateId;
-    this.identifier = identifier;
+    this.geneId = geneId;
+    this.geneSymbol = geneSymbol;
     this.timeMarker = timeMarker;
     this.data = data;
   }
@@ -48,12 +39,20 @@ public class RawData {
     this.plateId = plateId;
   }
 
-  public String getIdentifier() {
-    return identifier;
+  public String getGeneId() {
+    return geneId;
   }
 
-  public void setIdentifier(String identifier) {
-    this.identifier = identifier;
+  public void setGeneId(String geneId) {
+    this.geneId = geneId;
+  }
+
+  public String getGeneSymbol() {
+    return geneSymbol;
+  }
+
+  public void setGeneSymbol(String geneSymbol) {
+    this.geneSymbol = geneSymbol;
   }
 
   public double getTimeMarker() {

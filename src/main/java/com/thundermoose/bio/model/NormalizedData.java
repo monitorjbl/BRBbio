@@ -5,15 +5,17 @@ public class NormalizedData {
   private String plateName;
   private double timeMarker;
   private String geneId;
+  private String geneSymbol;
   private float normalized;
 
   public NormalizedData() {
 
   }
 
-  public NormalizedData(String plateName, String geneId, double timeMarker, float normalized) {
+  public NormalizedData(String plateName, String geneId, String geneSymbol, double timeMarker, float normalized) {
     this.plateName = plateName;
     this.geneId = geneId;
+    this.geneSymbol = geneSymbol;
     this.timeMarker = timeMarker;
     this.normalized = normalized;
   }
@@ -40,6 +42,14 @@ public class NormalizedData {
 
   public void setGeneId(String geneId) {
     this.geneId = geneId;
+  }
+
+  public String getGeneSymbol() {
+    return geneSymbol;
+  }
+
+  public void setGeneSymbol(String geneSymbol) {
+    this.geneSymbol = geneSymbol;
   }
 
   public float getNormalized() {

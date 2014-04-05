@@ -9,11 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.thundermoose.bio.model.NormalizedRow;
@@ -37,7 +35,6 @@ import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
 import com.thundermoose.bio.model.ViabilityData;
 import com.thundermoose.bio.model.ZFactor;
-import com.thundermoose.bio.util.Utils;
 
 public class DataDao {
 
@@ -53,10 +50,10 @@ public class DataDao {
 
   private static final String INSERT_RUN = "INSERT INTO runs (run_name, viability_only) VALUES(?,?)";
   private static final String INSERT_PLATE = "INSERT INTO plates (run_id,plate_name) VALUES(?,?)";
-  private static final String INSERT_RAW_DATA_CONTROL = "INSERT INTO raw_data_controls (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
-  private static final String INSERT_RAW_DATA = "INSERT INTO raw_data (plate_id,identifier,time_marker,data) VALUES(?,?,?,?)";
-  private static final String INSERT_VIABILITY_CONTROL = "INSERT INTO cell_viability_controls (plate_id,identifier,data) VALUES(?,?,?)";
-  private static final String INSERT_VIABILITY_DATA = "INSERT INTO cell_viability (plate_id,identifier,data) VALUES(?,?,?)";
+  private static final String INSERT_RAW_DATA_CONTROL = "INSERT INTO raw_data_controls (plate_id,gene_id,gene_symbol,time_marker,data) VALUES(?,?,?,?,?)";
+  private static final String INSERT_RAW_DATA = "INSERT INTO raw_data (plate_id,gene_id,gene_symbol,time_marker,data) VALUES(?,?,?,?,?)";
+  private static final String INSERT_VIABILITY_CONTROL = "INSERT INTO cell_viability_controls (plate_id,gene_id,gene_symbol,data) VALUES(?,?,?,?)";
+  private static final String INSERT_VIABILITY_DATA = "INSERT INTO cell_viability (plate_id,gene_id,gene_symbol,data) VALUES(?,?,?,?)";
   private static final String INSERT_SECURITY = "INSERT INTO run_security (run_id,user_id) VALUES(?,(SELECT id FROM users WHERE user_name = ?))";
 
   private static final String DELETE_VIABILITY_DATA = "DELETE FROM cell_viability WHERE plate_id IN (SELECT id FROM plates WHERE run_id = ?)";
@@ -194,9 +191,10 @@ public class DataDao {
       public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
         PreparedStatement ps = conn.prepareStatement(INSERT_RAW_DATA_CONTROL, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, control.getPlateId());
-        ps.setString(2, control.getIdentifier());
-        ps.setDouble(3, control.getTimeMarker());
-        ps.setFloat(4, control.getData());
+        ps.setString(2, control.getGeneId());
+        ps.setString(3, control.getGeneSymbol());
+        ps.setDouble(4, control.getTimeMarker());
+        ps.setFloat(5, control.getData());
         return ps;
       }
 
@@ -211,9 +209,10 @@ public class DataDao {
       public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
         PreparedStatement ps = conn.prepareStatement(INSERT_RAW_DATA, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, rawData.getPlateId());
-        ps.setString(2, rawData.getIdentifier());
-        ps.setDouble(3, rawData.getTimeMarker());
-        ps.setFloat(4, rawData.getData());
+        ps.setString(2, rawData.getGeneId());
+        ps.setString(3, rawData.getGeneSymbol());
+        ps.setDouble(4, rawData.getTimeMarker());
+        ps.setFloat(5, rawData.getData());
         return ps;
       }
 
@@ -227,8 +226,9 @@ public class DataDao {
       public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
         PreparedStatement ps = conn.prepareStatement(INSERT_VIABILITY_DATA, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, rawData.getPlateId());
-        ps.setString(2, rawData.getIdentifier());
-        ps.setFloat(3, rawData.getData());
+        ps.setString(2, rawData.getGeneId());
+        ps.setString(3, rawData.getGeneSymbol());
+        ps.setFloat(4, rawData.getData());
         return ps;
       }
 
@@ -243,8 +243,9 @@ public class DataDao {
       public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
         PreparedStatement ps = conn.prepareStatement(INSERT_VIABILITY_CONTROL, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, control.getPlateId());
-        ps.setString(2, control.getIdentifier());
-        ps.setFloat(3, control.getData());
+        ps.setString(2, control.getGeneId());
+        ps.setString(3, control.getGeneSymbol());
+        ps.setFloat(4, control.getData());
         return ps;
       }
 
@@ -298,7 +299,7 @@ public class DataDao {
   private class ProcessedDataRowMapper implements RowMapper<NormalizedData> {
     @Override
     public NormalizedData mapRow(ResultSet rs, int rownum) throws SQLException {
-      return new NormalizedData(rs.getString("plate_name"), rs.getString("identifier"), rs.getDouble("time_marker"), rs.getFloat("norm"));
+      return new NormalizedData(rs.getString("plate_name"), rs.getString("gene_id"), rs.getString("gene_symbol"), rs.getDouble("time_marker"), rs.getFloat("norm"));
     }
   }
 
@@ -319,12 +320,12 @@ public class DataDao {
         NormalizedData d = mapper.mapRow(resultSet, resultSet.getRow());
         String keyName = d.getPlateName() + "-" + d.getGeneId();
         if (!rows.containsKey(keyName)) {
-          rows.put(keyName, new NormalizedRow(d.getPlateName(), d.getGeneId()));
+          rows.put(keyName, new NormalizedRow(d.getPlateName(), d.getGeneId(), d.getGeneSymbol()));
         }
         rows.get(keyName).getData().put(d.getTimeMarker(), d.getNormalized());
       }
 
-      return new LinkedList<NormalizedRow>(rows.values());
+      return new LinkedList<>(rows.values());
     }
   }
 

@@ -4,80 +4,91 @@ import java.util.Date;
 
 public class Control {
 
-	private long id;
-	private long plateId;
-	private String identifier;
-	private double timeMarker;
-	private float data;
+  private long id;
+  private long plateId;
+  private String geneId;
+  private String geneSymbol;
+  private double timeMarker;
+  private float data;
 
-	private Date createDate;
+  private Date createDate;
 
-	public Control() {
+  public Control() {
 
-	}
+  }
 
-	public Control(long id, long plateId, String identifier, double timeMarker, float data, Date createDate) {
-		this.id = id;
-		this.plateId = plateId;
-		this.identifier = identifier;
-		this.timeMarker = timeMarker;
-		this.data = data;
-		this.createDate = createDate;
-	}
-	
-	public Control(long plateId, String identifier, float data, Date createDate) {
-		this.plateId = plateId;
-		this.identifier = identifier;
-		this.data = data;
-		this.createDate = createDate;
-	}
+  public Control(long id, long plateId, String geneId, String geneSymbol, double timeMarker, float data, Date createDate) {
+    this.id = id;
+    this.plateId = plateId;
+    this.geneId = geneId;
+    this.geneSymbol = geneSymbol;
+    this.timeMarker = timeMarker;
+    this.data = data;
+    this.createDate = createDate;
+  }
 
-	public long getId() {
-		return id;
-	}
+  public Control(long plateId, String geneId, String geneSymbol, float data, Date createDate) {
+    this.plateId = plateId;
+    this.geneId = geneId;
+    this.geneSymbol = geneSymbol;
+    this.data = data;
+    this.createDate = createDate;
+  }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+  public long getId() {
+    return id;
+  }
 
-	public long getPlateId() {
-		return plateId;
-	}
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	public void setPlateId(long plateId) {
-		this.plateId = plateId;
-	}
+  public long getPlateId() {
+    return plateId;
+  }
 
-	public String getIdentifier() {
-		return identifier;
-	}
+  public void setPlateId(long plateId) {
+    this.plateId = plateId;
+  }
 
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
+  public String getGeneId() {
+    return geneId;
+  }
 
-	public double getTimeMarker() {
-		return timeMarker;
-	}
+  public void setGeneId(String geneId) {
+    this.geneId = geneId;
+  }
 
-	public void setTimeMarker(double timeMarker) {
-		this.timeMarker = timeMarker;
-	}
+  public String getGeneSymbol() {
+    return geneSymbol;
+  }
 
-	public float getData() {
-		return data;
-	}
+  public void setGeneSymbol(String geneSymbol) {
+    this.geneSymbol = geneSymbol;
+  }
 
-	public void setData(float data) {
-		this.data = data;
-	}
+  public double getTimeMarker() {
+    return timeMarker;
+  }
 
-	public Date getCreateDate() {
-		return createDate;
-	}
+  public void setTimeMarker(double timeMarker) {
+    this.timeMarker = timeMarker;
+  }
 
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
+  public float getData() {
+    return data;
+  }
+
+  public void setData(float data) {
+    this.data = data;
+  }
+
+  public Date getCreateDate() {
+    return createDate;
+  }
+
+  public void setCreateDate(Date createDate) {
+    this.createDate = createDate;
+  }
 
 }

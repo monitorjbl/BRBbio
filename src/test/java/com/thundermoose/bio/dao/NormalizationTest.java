@@ -34,7 +34,7 @@ public class NormalizationTest {
     NormalizedData agk = Iterables.find(data, new Predicate<NormalizedData>() {
       @Override
       public boolean apply(NormalizedData d) {
-        return d.getGeneId().equals("Agk") && d.getTimeMarker() == 0;
+        return d.getGeneSymbol().equals("Agk") && d.getTimeMarker() == 0;
       }
     });
     assertNotNull(agk);
