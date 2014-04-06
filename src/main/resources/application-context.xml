@@ -47,11 +47,5 @@
   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource"></property>
   </bean>
-  <!-- DAOs -->
-  <bean id="dataDao" class="com.thundermoose.bio.dao.DataDao"/>
-  <bean id="authDao" class="com.thundermoose.bio.dao.AuthDao"/>
-
-  <!-- Managers -->
-  <bean id="authManager" class="com.thundermoose.bio.managers.AuthManager"/>
 
 </beans>

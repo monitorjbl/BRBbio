@@ -8,7 +8,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.thundermoose.bio.auth.User;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AuthDao {
 
 	private static final String GET_USER = "SELECT * FROM users ";

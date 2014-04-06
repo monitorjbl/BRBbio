@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thundermoose.bio.managers.ExcelExportManager;
+import com.thundermoose.bio.managers.TsvExportManager;
 import com.thundermoose.bio.model.NormalizedRow;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -36,6 +37,8 @@ public class ViewDataController {
   private DataDao dao;
   @Autowired
   private ExcelExportManager excelManager;
+  @Autowired
+  private TsvExportManager tsvManager;
 
   @RequestMapping(value = "/viewNormalizedData")
   public ModelAndView normalizedDataUi() {
@@ -66,51 +69,44 @@ public class ViewDataController {
   }
 
   @RequestMapping(value = "/getRuns")
-  public
   @ResponseBody
-  List<Run> getRuns(@RequestParam boolean includeViability) {
+  public List<Run> getRuns(@RequestParam boolean includeViability) {
     return dao.getRuns(includeViability, Utils.getCurrentUsername());
   }
 
   @RequestMapping(value = "/deleteRunById")
-  public
   @ResponseBody
-  void deleteRun(@RequestParam long runId) {
+  public void deleteRun(@RequestParam long runId) {
     dao.deleteRun(runId, Utils.getCurrentUsername());
   }
 
   @RequestMapping(value = "/getNormalizedData")
-  public
   @ResponseBody
-  List<NormalizedData> getNormalizedData(@RequestParam long runId, @RequestParam String func) {
+  public List<NormalizedData> getNormalizedData(@RequestParam long runId, @RequestParam String func) {
     return dao.getNormalizedDataByRunId(runId, Utils.getCurrentUsername(), func);
   }
 
   @RequestMapping(value = "/getViabilityData")
-  public
   @ResponseBody
-  List<NormalizedData> getViabilityData(@RequestParam long runId, @RequestParam String func) {
+  public List<NormalizedData> getViabilityData(@RequestParam long runId, @RequestParam String func) {
     return dao.getViabilityByRunId(runId, Utils.getCurrentUsername(), func);
   }
 
   @RequestMapping(value = "/getZFactorData")
-  public
   @ResponseBody
-  List<ZFactor> getZFactors(@RequestParam long runId, @RequestParam String func) {
+  public List<ZFactor> getZFactors(@RequestParam long runId, @RequestParam String func) {
     return dao.getZFactorsByRunId(runId, Utils.getCurrentUsername(), func);
   }
 
   @RequestMapping(value = "/getRawDataControlsForRun")
-  public
   @ResponseBody
-  List<String> getRawDataControlsForRun(@RequestParam long runId) {
+  public List<String> getRawDataControlsForRun(@RequestParam(value = "runId") long runId) {
     return dao.getRawDataControlsForRun(runId, Utils.getCurrentUsername());
   }
 
   @RequestMapping(value = "/getViabilityControlsForRun")
-  public
   @ResponseBody
-  List<String> getViabilityControlsForRun(@RequestParam long runId) {
+  public List<String> getViabilityControlsForRun(@RequestParam(value = "runId") long runId) {
     return dao.getViabilityControlsForRun(runId, Utils.getCurrentUsername());
   }
 
@@ -118,149 +114,40 @@ public class ViewDataController {
   public void getNormalizedDataExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
     long runId = Long.parseLong(request.getParameter("runId"));
     String function = request.getParameter("func");
-    List<NormalizedRow> ex = dao.getNormalizedRowDataByRunId(runId, Utils.getCurrentUsername(), function);
-    @SuppressWarnings("serial")
-    List<String> headers = new ArrayList<String>() {
-      {
-        add("Plate Name");
-        add("Entrez Gene ID");
-        add("Gene Symbol");
-      }
-    };
-
-    List<Double> markers = dao.getTimeMarkers(runId, Utils.getCurrentUsername());
-    for (Double d : markers) {
-      headers.add(d + "hr");
-    }
-
-    Workbook wb = new XSSFWorkbook();
-    Sheet sheet = wb.createSheet();
-    Row headerRow = sheet.createRow(0);
-
-    //write headers
-    for (String h : headers) {
-      int in = headerRow.getLastCellNum();
-      headerRow.createCell(in >= 0 ? in : 0).setCellValue(h);
-    }
-
-    for (NormalizedRow dt : ex) {
-      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-      row.createCell(0).setCellValue(dt.getPlateName());
-      row.createCell(1).setCellValue(dt.getGeneId());
-      row.createCell(2).setCellValue(dt.getGeneSymbol());
-      for (Double d : markers) {
-        if (dt.getData().get(d) != null) {
-          row.createCell(row.getLastCellNum()).setCellValue(dt.getData().get(d));
-        } else {
-          row.createCell(row.getLastCellNum());
-        }
-      }
-    }
+    String username = Utils.getCurrentUsername();
 
     response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_normalized.xlsx\"");
-    wb.write(response.getOutputStream());
+    excelManager.exportNormalizedData(username, runId, function, response.getOutputStream());
   }
 
   @RequestMapping(value = "/getNormalizedDataTsv")
   public void getNormalizedDataTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
     long runId = Long.parseLong(request.getParameter("runId"));
     String function = request.getParameter("func");
-    List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, Utils.getCurrentUsername(), function);
+    String username = Utils.getCurrentUsername();
 
-    String headers = "Plate Name\tEntrez Gene ID\tGene Symbol\t";
-    Map<String, String> rowmap = new TreeMap<String, String>();
-
-    for (NormalizedData dt : ex) {
-      if (!headers.contains(dt.getTimeMarker() + "hr")) {
-        headers += dt.getTimeMarker() + "hr\t";
-      }
-
-      String key = dt.getPlateName() + "_" + dt.getGeneSymbol();
-      if (!rowmap.containsKey(key)) {
-        String row = dt.getPlateName() + "\t" + dt.getGeneId() + "\t" + dt.getGeneSymbol() + "\t";
-        rowmap.put(key, row);
-      }
-      rowmap.put(key, rowmap.get(key) + dt.getNormalized() + "\t");
-    }
-
-    StringBuilder tsv = new StringBuilder();
-    tsv.append(headers + "\n");
-    for (String s : rowmap.keySet()) {
-      tsv.append(rowmap.get(s) + "\n");
-    }
-    response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_normalized.tsv\"");
-    response.getOutputStream().write(tsv.toString().getBytes());
+    response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, username).getRunName() + "_normalized.tsv\"");
+    tsvManager.exportNormalizedData(username, runId, function, response.getOutputStream());
   }
 
   @RequestMapping(value = "/getZFactorExcel")
   public void getZFactorExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
     long runId = Long.parseLong(request.getParameter("runId"));
     String function = request.getParameter("func");
-    List<ZFactor> ex = dao.getZFactorsByRunId(runId, Utils.getCurrentUsername(), function);
-    @SuppressWarnings("serial")
-    List<String> headers = new ArrayList<String>() {
-      {
-        add("Plate Name");
-      }
-    };
-    Map<String, Row> rowmap = new HashMap<String, Row>();
-
-    Workbook wb = new XSSFWorkbook();
-    Sheet sheet = wb.createSheet();
-    Row headerRow = sheet.createRow(0);
-
-    for (ZFactor dt : ex) {
-      if (!headers.contains(dt.getTimeMarker() + "hr")) {
-        headers.add(dt.getTimeMarker() + "hr");
-      }
-
-      String key = dt.getPlateName();
-      if (!rowmap.containsKey(key)) {
-        Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-        row.createCell(0).setCellValue(dt.getPlateName());
-        rowmap.put(key, row);
-      }
-      Row row = rowmap.get(key);
-      row.createCell(row.getLastCellNum()).setCellValue(dt.getzFactor());
-    }
-
-    for (String h : headers) {
-      int in = headerRow.getLastCellNum();
-      headerRow.createCell(in >= 0 ? in : 0).setCellValue(h);
-    }
+    String username = Utils.getCurrentUsername();
 
     response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_zfactor.xlsx\"");
-    wb.write(response.getOutputStream());
+    excelManager.exportZFactorData(username, runId, function, response.getOutputStream());
   }
 
   @RequestMapping(value = "/getZFactorTsv")
   public void getZFactorTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
     long runId = Long.parseLong(request.getParameter("runId"));
     String function = request.getParameter("func");
-    List<ZFactor> ex = dao.getZFactorsByRunId(runId, Utils.getCurrentUsername(), function);
+    String username = Utils.getCurrentUsername();
 
-    String headers = "Plate Name\t";
-    Map<String, String> rowmap = new TreeMap<String, String>();
-
-    for (ZFactor dt : ex) {
-      if (!headers.contains(dt.getTimeMarker() + "hr")) {
-        headers += dt.getTimeMarker() + "hr\t";
-      }
-
-      String key = dt.getPlateName();
-      if (!rowmap.containsKey(key)) {
-        String row = dt.getPlateName() + "\t";
-        rowmap.put(key, row);
-      }
-      rowmap.put(key, rowmap.get(key) + dt.getzFactor() + "\t");
-    }
-
-    String tsv = headers + "\n";
-    for (String s : rowmap.keySet()) {
-      tsv += rowmap.get(s) + "\n";
-    }
     response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_zfactor.tsv\"");
-    response.getOutputStream().write(tsv.getBytes());
+    tsvManager.exportZFactorData(username, runId, function, response.getOutputStream());
   }
 
   @RequestMapping(value = "/getViabilityDataExcel")
@@ -269,63 +156,17 @@ public class ViewDataController {
     String function = request.getParameter("func");
     String username = Utils.getCurrentUsername();
 
-    excelManager.exportViabilityData(username, runId, function);
-    List<NormalizedData> ex = dao.getViabilityByRunId(runId, Utils.getCurrentUsername(), function);
-
-    @SuppressWarnings("serial")
-    List<String> headers = new ArrayList<String>() {
-      {
-        add("Plate Name");
-        add("Entrez Gene ID");
-        add("Gene Symbol");
-        add("Viability");
-      }
-    };
-
-    Workbook wb = new XSSFWorkbook();
-    Sheet sheet = wb.createSheet();
-    Row headerRow = sheet.createRow(0);
-
-    for (NormalizedData dt : ex) {
-      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-      row.createCell(0).setCellValue(dt.getPlateName());
-      row.createCell(1).setCellValue(dt.getGeneId());
-      row.createCell(2).setCellValue(dt.getGeneSymbol());
-      row.createCell(3).setCellValue(dt.getNormalized());
-    }
-
-    for (String h : headers) {
-      int in = headerRow.getLastCellNum();
-      headerRow.createCell(in >= 0 ? in : 0).setCellValue(h);
-    }
-
     response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_viability.xlsx\"");
-    wb.write(response.getOutputStream());
+    excelManager.exportViabilityData(username, runId, function, response.getOutputStream());
   }
 
   @RequestMapping(value = "/getViabilityDataTsv")
   public void getViabilityDataTsv(HttpServletRequest request, HttpServletResponse response) throws IOException {
     long runId = Long.parseLong(request.getParameter("runId"));
     String function = request.getParameter("func");
-    List<NormalizedData> ex = dao.getViabilityByRunId(runId, Utils.getCurrentUsername(), function);
+    String username = Utils.getCurrentUsername();
 
-    String headers = "Plate Name\tGene\tViability";
-    Map<String, String> rowmap = new TreeMap<String, String>();
-
-    for (NormalizedData dt : ex) {
-      String key = dt.getPlateName() + "_" + dt.getGeneSymbol();
-      if (!rowmap.containsKey(key)) {
-        String row = dt.getPlateName() + "\t" + dt.getGeneId() + "\t" + dt.getGeneSymbol() + "\t";
-        rowmap.put(key, row);
-      }
-      rowmap.put(key, rowmap.get(key) + dt.getNormalized() + "\t");
-    }
-
-    String tsv = headers + "\n";
-    for (String s : rowmap.keySet()) {
-      tsv += rowmap.get(s) + "\n";
-    }
     response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_viability.tsv\"");
-    response.getOutputStream().write(tsv.getBytes());
+    tsvManager.exportViabilityData(username, runId, function, response.getOutputStream());
   }
 }

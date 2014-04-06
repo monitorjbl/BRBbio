@@ -17,7 +17,9 @@ import com.thundermoose.bio.auth.User;
 import com.thundermoose.bio.dao.AuthDao;
 import com.thundermoose.bio.exceptions.UserNotFoundException;
 import com.thundermoose.bio.util.Utils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AuthManager {
 
 	private static final Logger logger = Logger.getLogger(AuthManager.class);

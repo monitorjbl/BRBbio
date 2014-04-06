@@ -25,6 +25,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ import com.thundermoose.bio.model.Run;
 import com.thundermoose.bio.model.ViabilityData;
 import com.thundermoose.bio.model.ZFactor;
 
+@Component
 public class DataDao {
 
   private static final String RUN_SQL = "sql/run.sql";
