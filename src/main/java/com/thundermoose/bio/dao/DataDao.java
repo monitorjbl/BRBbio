@@ -14,9 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.thundermoose.bio.exceptions.NotFoundException;
 import com.thundermoose.bio.model.NormalizedRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -76,7 +78,11 @@ public class DataDao {
   }
 
   public Plate getPlateByName(long runId, String plateName) {
-    return jdbc.queryForObject(read(PLATE_SQL) + " WHERE run_id=? AND plate_name=?", new Object[]{runId, plateName}, new PlateRowMapper());
+    try {
+      return jdbc.queryForObject(read(PLATE_SQL) + " WHERE run_id=? AND plate_name=?", new Object[]{runId, plateName}, new PlateRowMapper());
+    } catch (EmptyResultDataAccessException e) {
+      throw new NotFoundException("Plate [" + plateName + "] not found");
+    }
   }
 
   public Run getRunById(long runId, String username) {

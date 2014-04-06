@@ -66,8 +66,8 @@ public class ExcelDataReader {
     for (Cell cell : sheet.getRow(0)) {
       head.put(cell.getStringCellValue(), cell.getColumnIndex());
     }
-    if (findMissingColumns(head) != null) {
-      throw new RuntimeException("Missing required column [" + findMissingColumns(head) + "]");
+    if (findMissingColumns(head, true) != null) {
+      throw new RuntimeException("Missing required column [" + findMissingColumns(head, true) + "]");
     }
 
     // create new run
@@ -128,7 +128,7 @@ public class ExcelDataReader {
         }
       } catch (Exception e) {
         throw new RuntimeException("Error at cell " + CellReference.convertNumToColString(index) +
-                (row.getRowNum() + 1) + " [" + e.getMessage() + "]. Please check the data and try again.", e);
+                (row.getRowNum() + 1) + " (" + e.getMessage() + "). Please check the data and try again.", e);
       }
     }
 
@@ -158,8 +158,8 @@ public class ExcelDataReader {
     for (Cell cell : sheet.getRow(0)) {
       head.put(cell.getStringCellValue(), cell.getColumnIndex());
     }
-    if (!head.containsKey(PLATE_ID) || !head.containsKey(DATA) || !head.containsKey(GENE_SYMBOL)) {
-      throw new RuntimeException("Missing required column");
+    if (findMissingColumns(head, false) != null) {
+      throw new RuntimeException("Missing required column  [" + findMissingColumns(head, false) + "]");
     }
 
     // if this is an independent load, need to create a run
@@ -219,7 +219,7 @@ public class ExcelDataReader {
         }
       } catch (Exception e) {
         throw new RuntimeException("Error at cell " + CellReference.convertNumToColString(index) +
-                (row.getRowNum() + 1) + "[" + e.getMessage() + "]. Please check the data and try again.", e);
+                (row.getRowNum() + 1) + " (" + e.getMessage() + "). Please check the data and try again.", e);
       }
     }
   }
@@ -231,7 +231,7 @@ public class ExcelDataReader {
     return Long.toString((long) c.getNumericCellValue());
   }
 
-  String findMissingColumns(Map<String, Integer> head) {
+  String findMissingColumns(Map<String, Integer> head, boolean includeTime) {
     String missing = "";
     if (!head.containsKey(PLATE_ID)) {
       missing += "," + PLATE_ID;
@@ -241,7 +241,7 @@ public class ExcelDataReader {
       missing += "," + GENE_SYMBOL;
     } else if (!head.containsKey(GENE_ID)) {
       missing += "," + GENE_ID;
-    } else if (!head.containsKey(TIME_MARKER)) {
+    } else if (!head.containsKey(TIME_MARKER) && includeTime) {
       missing += "," + TIME_MARKER;
     }
 

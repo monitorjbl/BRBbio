@@ -1,133 +1,133 @@
-app.controller('Main', function($scope, $rootScope, $http, $location) {
+app.controller('Main', function ($scope, $rootScope, $http, $location) {
   $scope.init = false;
-  $scope.getUserDetails = function() {
+  $scope.getUserDetails = function () {
     $http({
-      url : 'b/auth/getInfo',
-      method : 'GET'
-    }).success(function(response) {
+      url: 'b/auth/getInfo',
+      method: 'GET'
+    }).success(function (response) {
       $scope.init = true;
       $scope.auth = response;
-    }).error(function(response) {
+    }).error(function (response) {
       $scope.auth = undefined;
       $scope.init = true;
     });
   };
   $scope.getUserDetails();
 
-  $rootScope.$on('loggedOut', function(event, e) {
+  $rootScope.$on('loggedOut', function (event, e) {
     $scope.auth = undefined;
   });
 
-  $rootScope.$on('loggedIn', function(event, e) {
+  $rootScope.$on('loggedIn', function (event, e) {
     console.log('login');
     $scope.getUserDetails();
   });
 
-  $scope.login = function() {
+  $scope.login = function () {
     $scope.error = '';
     $http({
-      url : 'j_spring_security_check',
-      method : 'POST',
-      headers : {
-        'Content-Type' : 'application/x-www-form-urlencoded'
+      url: 'j_spring_security_check',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
-      data : $('form.loginForm').serialize()
-    }).success(function(response) {
+      data: $('form.loginForm').serialize()
+    }).success(function (response) {
       $scope.auth = response;
-    }).error(function(response) {
+    }).error(function (response) {
       $scope.error = 'Unable to login';
     });
   };
 
 });
 
-app.controller('Nav', function($scope, $rootScope, $http, $location) {
+app.controller('Nav', function ($scope, $rootScope, $http, $location) {
 
 });
 
-app.controller('PasswordUpdate', function($scope, $http, $location, $element) {
-  $scope.invalid = function() {
+app.controller('PasswordUpdate', function ($scope, $http, $location, $element) {
+  $scope.invalid = function () {
     return $scope.newPassword == '' || $scope.newPassword != $scope.repeatPassword;
   };
-  $scope.updatePassword = function() {
+  $scope.updatePassword = function () {
     $http({
-      url : 'b/auth/updatePassword',
-      method : 'POST',
-      headers : {
-        'Content-Type' : 'application/x-www-form-urlencoded'
+      url: 'b/auth/updatePassword',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
-      data : $element.children('form').serialize()
-    }).success(function(response) {
+      data: $element.children('form').serialize()
+    }).success(function (response) {
       $location.path('/');
-    }).error(function(response) {
+    }).error(function (response) {
       $scope.error = response.message;
     });
   };
 });
 
-app.controller('UserCreate', function($scope, $rootScope, $location, $http, $element) {
-  $scope.invalid = function() {
+app.controller('UserCreate', function ($scope, $rootScope, $location, $http, $element) {
+  $scope.invalid = function () {
     return $scope.rptPassword == '' || $scope.password != $scope.rptPassword;
   };
-  $scope.updatePassword = function() {
+  $scope.updatePassword = function () {
     $http({
-      url : 'b/auth/createUser',
-      method : 'POST',
-      headers : {
-        'Content-Type' : 'application/x-www-form-urlencoded'
+      url: 'b/auth/createUser',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
-      data : $element.children('form').serialize()
-    }).success(function(response) {
+      data: $element.children('form').serialize()
+    }).success(function (response) {
       $rootScope.$broadcast('loggedIn');
       $location.path('/');
-    }).error(function(response) {
+    }).error(function (response) {
     });
   };
 });
 
-app.controller('RawCtrl', function($scope, $location, $http) {
-  $scope.updateFilename = function(ele) {
+app.controller('RawCtrl', function ($scope, $location, $http) {
+  $scope.updateFilename = function (ele) {
     $scope.filename = ele.value.substring(ele.value.lastIndexOf('\\') + 1);
     $scope.$apply();
   };
 
   $scope.controls = [];
-  $scope.addControl = function() {
+  $scope.addControl = function () {
     $scope.controls.push({
-      val : ''
+      val: ''
     });
   };
-  $scope.remove = function(item) {
+  $scope.remove = function (item) {
     var index = $scope.controls.indexOf(item);
     $scope.controls.splice(index, 1);
   };
 
-  $scope.getRun = function(id) {
+  $scope.getRun = function (id) {
     $http.get('b/getRawDataControlsForRun', {
-      params : {
-        runId : id
+      params: {
+        runId: id
       }
-    }).success(function(data) {
+    }).success(function (data) {
       $scope.controls = [];
-      angular.forEach(data, function(val) {
+      angular.forEach(data, function (val) {
         $scope.controls.push({
-          val : val
+          val: val
         });
       });
     });
   };
 
-  $scope.upload = function() {
+  $scope.upload = function () {
     $scope.uploadForm();
   };
 
-  $scope.deleteRun = function() {
+  $scope.deleteRun = function () {
     if (confirm('Are you sure you want to delete this run? This cannot be undone.')) {
       $http.get('b/deleteRunById', {
-        params : {
-          runId : $scope.run
+        params: {
+          runId: $scope.run
         }
-      }).success(function() {
+      }).success(function () {
         $location.path('/');
         // $scope.$apply();
       });
@@ -135,7 +135,7 @@ app.controller('RawCtrl', function($scope, $location, $http) {
   };
 });
 
-app.controller('DisplayController', function($scope, $location, $http) {
+app.controller('DisplayController', function ($scope, $location, $http) {
   $scope.hours = [];
   $scope.rows = [];
   $scope.controls = [];
@@ -144,48 +144,48 @@ app.controller('DisplayController', function($scope, $location, $http) {
   $scope.loaded = false;
   $scope.run = -1;
 
-  $scope.encodeUrl = function(str) {
+  $scope.encodeUrl = function (str) {
     return encodeURIComponent(str);
   };
 
-  $scope.getRawControls = function() {
+  $scope.getRawControls = function () {
     $scope.loaded = false;
     $scope.loadError = '';
     $http.get('b/getRawDataControlsForRun', {
-      params : {
-        runId : $scope.run
+      params: {
+        runId: $scope.run
       }
-    }).success(function(data) {
+    }).success(function (data) {
       $scope.controls = data;
       $scope.showingData = false;
       $scope.hours = [];
       $scope.rows = [];
-      if($scope.controls.length == 0){
+      if ($scope.controls.length == 0) {
         $scope.loadError = 'No controls found';
       }
     });
   };
 
-  $scope.getViabilityControls = function() {
+  $scope.getViabilityControls = function () {
     $scope.loaded = false;
     $scope.loadError = '';
     $http.get('b/getViabilityControlsForRun', {
-      params : {
-        runId : $scope.run
+      params: {
+        runId: $scope.run
       }
-    }).success(function(data) {
+    }).success(function (data) {
       $scope.controls = data;
       $scope.showingData = false;
       $scope.hours = [];
       $scope.rows = [];
-      if($scope.controls.length == 0){
+      if ($scope.controls.length == 0) {
         $scope.loadError = 'No controls found';
       }
     });
   };
 
-  
-  $scope.getNormalizedData = function() {
+
+  $scope.getNormalizedData = function () {
     $scope.loadError = '';
     $scope.showingData = false;
     $scope.loading = true;
@@ -193,21 +193,22 @@ app.controller('DisplayController', function($scope, $location, $http) {
     $scope.rows = [];
 
     $http.get('b/getNormalizedData', {
-      params : {
-        runId : $scope.run,
-        func : $scope.func
+      params: {
+        runId: $scope.run,
+        func: $scope.func
       }
-    }).success(function(data) {
+    }).success(function (data) {
       var time = {};
       var tableRows = {};
 
-      $.each(data, function() {
+      $.each(data, function () {
         var key = this.plateName + '_' + this.geneId;
         if (tableRows[key] == undefined) {
           tableRows[key] = {
-            plate : this.plateName,
-            gene : this.geneId,
-            data : []
+            plate: this.plateName,
+            geneId: this.geneId,
+            geneSymbol: this.geneSymbol,
+            data: []
           };
           $scope.rows.push(tableRows[key]);
         }
@@ -222,14 +223,14 @@ app.controller('DisplayController', function($scope, $location, $http) {
       $scope.showingData = true;
       $scope.loading = false;
       $scope.loaded = true;
-    }).error(function(data) {
+    }).error(function (data) {
       $scope.loading = false;
       $scope.loadError = 'Failed to retrieve data :(';
-      console.log("Något gick fel");
+      console.log("Nï¿½got gick fel");
     });
   };
 
-  $scope.getZFactor = function() {
+  $scope.getZFactor = function () {
     $scope.loadError = '';
     $scope.showingData = false;
     $scope.loading = true;
@@ -237,20 +238,20 @@ app.controller('DisplayController', function($scope, $location, $http) {
     $scope.rows = [];
 
     $http.get('b/getZFactorData', {
-      params : {
-        runId : $scope.run,
-        func : $scope.func
+      params: {
+        runId: $scope.run,
+        func: $scope.func
       }
-    }).success(function(data) {
+    }).success(function (data) {
       var time = {};
       var tableRows = {};
 
-      $.each(data, function() {
+      $.each(data, function () {
         var key = this.plateName + '_' + this.geneId;
         if (tableRows[key] == undefined) {
           tableRows[key] = {
-            plate : this.plateName,
-            data : []
+            plate: this.plateName,
+            data: []
           };
           $scope.rows.push(tableRows[key]);
         }
@@ -269,9 +270,9 @@ app.controller('DisplayController', function($scope, $location, $http) {
       var d = [];
       var plates = [];
       var count = 0;
-      $.each(tableRows, function() {
+      $.each(tableRows, function () {
         plates.push(this.plate);
-        $.each(this.data, function(i, j) {
+        $.each(this.data, function (i, j) {
           if (i >= d.length) {
             d.push([]);
           }
@@ -281,103 +282,101 @@ app.controller('DisplayController', function($scope, $location, $http) {
       });
 
       var series = [];
-      $.each($scope.hours, function(i, j) {
+      $.each($scope.hours, function (i, j) {
         series.push({
-          name : j,
-          data : d[i]
+          name: j,
+          data: d[i]
         });
       });
 
       $('#chart').highcharts({
-        chart : {
-          type : 'scatter',
-          zoomType : 'xy',
-          events : {
-            load : function(event) {
-              setTimeout(function() {
+        chart: {
+          type: 'scatter',
+          zoomType: 'xy',
+          events: {
+            load: function (event) {
+              setTimeout(function () {
                 $('#chart').highcharts().setSize($('#chart').width(), $('#chart').height());
               }, 150);
             }
           }
         },
-        turboThreshold : 0,
-        title : {
-          text : 'ZFactors by plate and time'
+        turboThreshold: 0,
+        title: {
+          text: 'ZFactors by plate and time'
         },
-        subtitle : {
-          text : 'Source'
+        subtitle: {
+          text: 'Source'
         },
-        xAxis : {
-          title : {
-            enabled : true,
-            text : 'Plate'
+        xAxis: {
+          title: {
+            enabled: true,
+            text: 'Plate'
           },
-          format : {
-            type : "category"
+          format: {
+            type: "category"
           },
-          categories : plates,
-          labels : {
-            rotation : -45,
-            align : 'right',
-            style : {
-              fontSize : '9px',
-              fontFamily : 'Verdana, sans-serif'
+          categories: plates,
+          labels: {
+            rotation: -45,
+            align: 'right',
+            style: {
+              fontSize: '9px',
+              fontFamily: 'Verdana, sans-serif'
             }
           }
         },
-        yAxis : {
-          title : {
-            text : 'ZFactor'
+        yAxis: {
+          title: {
+            text: 'ZFactor'
           },
-          max : 1,
-          min : 0
+          max: 1,
+          min: 0
         },
-        legend : {
-          layout : 'vertical',
-          align : 'left',
-          verticalAlign : 'top',
-          x : 100,
-          y : 70,
-          floating : true,
-          backgroundColor : '#FFFFFF',
-          borderWidth : 1
+        legend: {
+          layout: 'vertical',
+          align: 'left',
+          verticalAlign: 'top',
+          x: 100,
+          y: 70,
+          floating: true,
+          backgroundColor: '#FFFFFF',
+          borderWidth: 1
         },
-        plotOptions : {
-          scatter : {
-            marker : {
-              radius : 5,
-              states : {
-                hover : {
-                  enabled : true,
-                  lineColor : 'rgb(100,100,100)'
+        plotOptions: {
+          scatter: {
+            marker: {
+              radius: 5,
+              states: {
+                hover: {
+                  enabled: true,
+                  lineColor: 'rgb(100,100,100)'
                 }
               }
             },
-            states : {
-              hover : {
-                marker : {
-                  enabled : false
+            states: {
+              hover: {
+                marker: {
+                  enabled: false
                 }
               }
             },
-            tooltip : {
-              headerFormat : '<b>{series.name}</b><br>',
-              pointFormat : '{point.category}, {point.y}'
+            tooltip: {
+              headerFormat: '<b>{series.name}</b><br>',
+              pointFormat: '{point.category}, {point.y}'
             }
           }
         },
 
-        series : series
+        series: series
       });
-    }).error(function(data) {
+    }).error(function (data) {
       $scope.loading = false;
       $scope.loadError = 'Failed to retrieve data :(';
-      console.log("Något gick fel");
     });
-    // $('#chart').highcharts().setSize($('#chart').width(),$('#chart').height());
   };
 
-  $scope.getViabilityData = function() {
+  $scope.getViabilityData = function () {
     $scope.loadError = '';
     $scope.showingData = false;
     $scope.loading = true;
@@ -385,26 +384,26 @@ app.controller('DisplayController', function($scope, $location, $http) {
     $scope.rows = [];
 
     $http.get('b/getViabilityData', {
-      params : {
-        runId : $scope.run,
-        func : $scope.func
+      params: {
+        runId: $scope.run,
+        func: $scope.func
       }
-    }).success(function(data) {
-      $.each(data, function() {
+    }).success(function (data) {
+      $.each(data, function () {
         $scope.rows.push({
-          plate : this.plateName,
-          gene : this.geneId,
-          data : this.normalized
+          plate: this.plateName,
+          geneId: this.geneId,
+          geneSymbol: this.geneSymbol,
+          data: this.normalized
         });
       });
 
       $scope.showingData = true;
       $scope.loading = false;
       $scope.loaded = true;
-    }).error(function(data) {
+    }).error(function (data) {
       $scope.loading = false;
       $scope.loadError = 'Failed to retrieve data :(';
-      console.log("Något gick fel");
     });
   };
 });

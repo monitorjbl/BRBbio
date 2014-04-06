@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.thundermoose.bio.managers.ExcelExportManager;
 import com.thundermoose.bio.model.NormalizedRow;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -33,6 +34,8 @@ public class ViewDataController {
 
   @Autowired
   private DataDao dao;
+  @Autowired
+  private ExcelExportManager excelManager;
 
   @RequestMapping(value = "/viewNormalizedData")
   public ModelAndView normalizedDataUi() {
@@ -120,7 +123,8 @@ public class ViewDataController {
     List<String> headers = new ArrayList<String>() {
       {
         add("Plate Name");
-        add("Gene");
+        add("Entrez Gene ID");
+        add("Gene Symbol");
       }
     };
 
@@ -143,6 +147,7 @@ public class ViewDataController {
       Row row = sheet.createRow(sheet.getLastRowNum() + 1);
       row.createCell(0).setCellValue(dt.getPlateName());
       row.createCell(1).setCellValue(dt.getGeneId());
+      row.createCell(2).setCellValue(dt.getGeneSymbol());
       for (Double d : markers) {
         if (dt.getData().get(d) != null) {
           row.createCell(row.getLastCellNum()).setCellValue(dt.getData().get(d));
@@ -162,7 +167,7 @@ public class ViewDataController {
     String function = request.getParameter("func");
     List<NormalizedData> ex = dao.getNormalizedDataByRunId(runId, Utils.getCurrentUsername(), function);
 
-    String headers = "Plate Name\tGene\t";
+    String headers = "Plate Name\tEntrez Gene ID\tGene Symbol\t";
     Map<String, String> rowmap = new TreeMap<String, String>();
 
     for (NormalizedData dt : ex) {
@@ -170,20 +175,21 @@ public class ViewDataController {
         headers += dt.getTimeMarker() + "hr\t";
       }
 
-      String key = dt.getPlateName() + "_" + dt.getGeneId();
+      String key = dt.getPlateName() + "_" + dt.getGeneSymbol();
       if (!rowmap.containsKey(key)) {
-        String row = dt.getPlateName() + "\t" + dt.getGeneId() + "\t";
+        String row = dt.getPlateName() + "\t" + dt.getGeneId() + "\t" + dt.getGeneSymbol() + "\t";
         rowmap.put(key, row);
       }
       rowmap.put(key, rowmap.get(key) + dt.getNormalized() + "\t");
     }
 
-    String tsv = headers + "\n";
+    StringBuilder tsv = new StringBuilder();
+    tsv.append(headers + "\n");
     for (String s : rowmap.keySet()) {
-      tsv += rowmap.get(s) + "\n";
+      tsv.append(rowmap.get(s) + "\n");
     }
     response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_normalized.tsv\"");
-    response.getOutputStream().write(tsv.getBytes());
+    response.getOutputStream().write(tsv.toString().getBytes());
   }
 
   @RequestMapping(value = "/getZFactorExcel")
@@ -261,13 +267,17 @@ public class ViewDataController {
   public void getViabilityExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
     long runId = Long.parseLong(request.getParameter("runId"));
     String function = request.getParameter("func");
+    String username = Utils.getCurrentUsername();
+
+    excelManager.exportViabilityData(username, runId, function);
     List<NormalizedData> ex = dao.getViabilityByRunId(runId, Utils.getCurrentUsername(), function);
 
     @SuppressWarnings("serial")
     List<String> headers = new ArrayList<String>() {
       {
         add("Plate Name");
-        add("Gene");
+        add("Entrez Gene ID");
+        add("Gene Symbol");
         add("Viability");
       }
     };
@@ -280,7 +290,8 @@ public class ViewDataController {
       Row row = sheet.createRow(sheet.getLastRowNum() + 1);
       row.createCell(0).setCellValue(dt.getPlateName());
       row.createCell(1).setCellValue(dt.getGeneId());
-      row.createCell(2).setCellValue(dt.getNormalized());
+      row.createCell(2).setCellValue(dt.getGeneSymbol());
+      row.createCell(3).setCellValue(dt.getNormalized());
     }
 
     for (String h : headers) {
@@ -302,9 +313,9 @@ public class ViewDataController {
     Map<String, String> rowmap = new TreeMap<String, String>();
 
     for (NormalizedData dt : ex) {
-      String key = dt.getPlateName() + "_" + dt.getGeneId();
+      String key = dt.getPlateName() + "_" + dt.getGeneSymbol();
       if (!rowmap.containsKey(key)) {
-        String row = dt.getPlateName() + "\t" + dt.getGeneId() + "\t";
+        String row = dt.getPlateName() + "\t" + dt.getGeneId() + "\t" + dt.getGeneSymbol() + "\t";
         rowmap.put(key, row);
       }
       rowmap.put(key, rowmap.get(key) + dt.getNormalized() + "\t");

@@ -1,7 +1,7 @@
 SELECT pl.plate_name, a.time_marker, #function# as z_factor 
 FROM plates pl
 	JOIN (
-		SELECT c.plate_id, c.gene_symbol, c.time_marker, c.data as control, c.identifier as type
+		SELECT c.plate_id, c.gene_symbol, c.time_marker, c.data as control, c.gene_symbol as type
 			FROM raw_data_controls c
 	) a ON a.plate_id = pl.id
 	JOIN user_security rs ON rs.run_id = pl.run_id
