@@ -1,12 +1,23 @@
 package com.thundermoose.bio.util;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.google.common.io.Resources;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class Utils {
+  public static String read(String file) {
+    try {
+      return Resources.toString(Resources.getResource(file), Charset.defaultCharset());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 	public static String getCurrentUsername() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return auth.getName();

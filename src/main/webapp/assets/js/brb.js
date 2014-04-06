@@ -35,6 +35,8 @@ var app = angular.module('bio', []).config(function($routeProvider) {
     templateUrl : 'b/viewZFactor'
   }).when('/viewViability', {
     templateUrl : 'b/viewViability'
+  }).when('/homologues', {
+    templateUrl : 'homologues.html'
   }).otherwise({
     redirectTo : '/'
   });

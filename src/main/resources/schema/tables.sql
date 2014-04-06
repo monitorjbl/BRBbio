@@ -75,7 +75,7 @@ CREATE TABLE raw_data (
 
 ALTER TABLE raw_data ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
 
-ALTER TABLE raw_data ADD CONSTRAINT raw_data_uc_1 UNIQUE (plate_id,identifier,time_marker);
+ALTER TABLE raw_data ADD CONSTRAINT raw_data_uc_1 UNIQUE (plate_id,gene_symbol,time_marker);
 
 CREATE TABLE cell_viability_controls (
   id bigint AUTO_INCREMENT NOT NULL,
@@ -101,9 +101,22 @@ CREATE TABLE cell_viability (
 
 ALTER TABLE cell_viability ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
 
-ALTER TABLE cell_viability ADD CONSTRAINT cell_viability_uc_1 UNIQUE (plate_id,identifier);
+ALTER TABLE cell_viability ADD CONSTRAINT cell_viability_uc_1 UNIQUE (plate_id,gene_symbol);
 
 CREATE TABLE hts_version_info (
   property_name varchar(128),
   property_value varchar(512)
+);
+
+CREATE TABLE ncbi_taxonomy (
+  id varchar(128),
+  name varchar(512),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE ncbi_homologue (
+  taxonomy_id varchar(128),
+  gene_id varchar(128),
+  gene_symbol varchar(128),
+  PRIMARY KEY (taxonomy_id,gene_id)
 );

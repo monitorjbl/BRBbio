@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
   http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-  <display-name>Spring MVC Application</display-name>
+  <display-name>BRBBio</display-name>
 
   <servlet>
     <servlet-name>mvc-dispatcher</servlet-name>
@@ -22,7 +22,6 @@
     <filter-name>springSecurityFilterChain</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
   </filter>
-
   <filter-mapping>
     <filter-name>springSecurityFilterChain</filter-name>
     <url-pattern>/*</url-pattern>
@@ -32,8 +31,6 @@
     <param-name>contextConfigLocation</param-name>
     <param-value>
       classpath:servlet.xml
-      classpath:security.xml 
-      classpath:application-context.xml
     </param-value>
   </context-param>
   <servlet-mapping>

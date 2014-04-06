@@ -135,6 +135,52 @@ app.controller('RawCtrl', function ($scope, $location, $http) {
   };
 });
 
+app.controller('HomologueController', function ($scope, $location, $http) {
+  $scope.getSpecies = function () {
+    $http.get('b/ncbi/getTaxonomies').success(function (data) {
+      $scope.species = [
+        {id: -1, name: '[-Select-]'}
+      ];
+      $scope.species = $scope.species.concat(data);
+      $scope.taxonomyId = -1;
+    }).error(function (data) {
+
+    });
+  };
+  $scope.getRuns = function () {
+    $http.get('b/getRuns?includeViability=false').success(function (data) {
+      $scope.runs = [
+        {id: -1, runName: '[-Select-]'}
+      ];
+      $scope.runs = $scope.runs.concat(data);
+      $scope.runId = -1;
+    }).error(function (data) {
+
+    });
+  };
+  $scope.getHomologues = function (runId, taxonomyId) {
+    $scope.loading = true;
+    $http.get('b/ncbi/getHomologue', {
+      params: {
+        runId: runId,
+        taxonomyId: taxonomyId
+      }
+    }).success(function (data) {
+      $scope.rows = data;
+
+      $scope.showingData = true;
+      $scope.loading = false;
+      $scope.loaded = true;
+    }).error(function (data) {
+      $scope.loading = false;
+      $scope.loadError = 'Failed to retrieve data :(';
+    });
+  };
+
+  $scope.getSpecies();
+  $scope.getRuns();
+});
+
 app.controller('DisplayController', function ($scope, $location, $http) {
   $scope.hours = [];
   $scope.rows = [];
@@ -226,7 +272,6 @@ app.controller('DisplayController', function ($scope, $location, $http) {
     }).error(function (data) {
       $scope.loading = false;
       $scope.loadError = 'Failed to retrieve data :(';
-      console.log("N�got gick fel");
     });
   };
 

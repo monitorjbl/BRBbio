@@ -1,0 +1,60 @@
+<style>
+  td, th {
+    text-align: left;
+  }
+</style>
+<div class="container" ng-controller="HomologueController">
+  <div id="selectBox">
+    <h3>Show Homologues</h3>
+
+    <table>
+      <tr>
+        <td>Run</td>
+        <td>
+          <select ng-model="runId" ng-options="opt.id as opt.runName for opt in runs">
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Species</td>
+        <td>
+          <select ng-model="taxonomyId" ng-options="opt.id as opt.name for opt in species">
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <button class="btn" ng-click="getHomologues(runId, taxonomyId)">Process</button>
+        </td>
+        <td><img class="loading" src="assets/img/loader.gif" ng-show="loading"/><span
+                class="failure">{{loadError}}</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <br/>
+
+  <div class="row">
+    <div id="processed" class="span8">
+      <table ng-show="showingData" class="table table-striped">
+        <thead>
+        <tr>
+          <th>Gene ID</th>
+          <th>Gene Symbol</th>
+          <th>Homologue ID</th>
+          <th>Homologue Symbol</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="row in rows">
+          <td>{{row.geneId}}</td>
+          <td>{{row.geneSymbol}}</td>
+          <td>{{row.homologueId}}</td>
+          <td>{{row.homologueSymbol}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -2,7 +2,6 @@ package com.thundermoose.bio.dao;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.io.Resources;
 import com.thundermoose.bio.excel.ExcelDataReader;
 import com.thundermoose.bio.model.Control;
 import com.thundermoose.bio.model.Plate;
@@ -38,6 +36,8 @@ import com.thundermoose.bio.model.RawData;
 import com.thundermoose.bio.model.Run;
 import com.thundermoose.bio.model.ViabilityData;
 import com.thundermoose.bio.model.ZFactor;
+
+import static com.thundermoose.bio.util.Utils.read;
 
 @Component
 public class DataDao {
@@ -74,7 +74,7 @@ public class DataDao {
   public List<Run> getRuns(boolean includeViability, String username) {
     String sql = read(RUN_SQL);
     if (!includeViability) {
-      sql += " and viability_only = false";
+      sql = sql.replaceAll("#CLAUSE#", " and viability_only = false");
     }
     return jdbc.query(sql, new Object[]{username}, new RunRowMapper());
   }
@@ -88,7 +88,7 @@ public class DataDao {
   }
 
   public Run getRunById(long runId, String username) {
-    return jdbc.queryForObject(read(RUN_SQL) + " AND id = ?", new Object[]{username, runId}, new RunRowMapper());
+    return jdbc.queryForObject(read(RUN_SQL).replaceAll("#CLAUSE#", " AND id = ?"), new Object[]{username, runId}, new RunRowMapper());
   }
 
   public List<Double> getTimeMarkers(long runId, String username) {
@@ -294,14 +294,6 @@ public class DataDao {
 
   public void setJdbc(JdbcTemplate jdbc) {
     this.jdbc = jdbc;
-  }
-
-  private String read(String file) {
-    try {
-      return Resources.toString(Resources.getResource(file), Charset.defaultCharset());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private class ProcessedDataRowMapper implements RowMapper<NormalizedData> {

@@ -1,22 +1,15 @@
 package com.thundermoose.bio.controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.thundermoose.bio.dao.NcbiDao;
 import com.thundermoose.bio.managers.ExcelExportManager;
 import com.thundermoose.bio.managers.TsvExportManager;
-import com.thundermoose.bio.model.NormalizedRow;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.thundermoose.bio.model.Taxonomy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -169,4 +162,5 @@ public class ViewDataController {
     response.setHeader("Content-Disposition", "attachment; filename=\"" + dao.getRunById(runId, Utils.getCurrentUsername()).getRunName() + "_viability.tsv\"");
     tsvManager.exportViabilityData(username, runId, function, response.getOutputStream());
   }
+
 }
