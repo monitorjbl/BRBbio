@@ -152,6 +152,11 @@
       <artifactId>spring-test</artifactId>
       <version>${spring.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
 
     <!-- Spring Security -->
     <dependency>
@@ -168,6 +173,13 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
       <version>${spring.security.version}</version>
+    </dependency>
+
+    <!-- Quartz scheduler -->
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+      <version>2.2.1</version>
     </dependency>
 
     <!-- Jackson JSON Mapper -->
@@ -221,8 +233,8 @@
     <!-- Utility -->
     <dependency>
       <groupId>com.google.guava</groupId>
-      <artifactId>guava-io</artifactId>
-      <version>r03</version>
+      <artifactId>guava</artifactId>
+      <version>15.0</version>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>

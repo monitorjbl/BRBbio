@@ -103,9 +103,10 @@ ALTER TABLE cell_viability ADD FOREIGN KEY (plate_id) REFERENCES plates(id);
 
 ALTER TABLE cell_viability ADD CONSTRAINT cell_viability_uc_1 UNIQUE (plate_id,gene_symbol);
 
-CREATE TABLE hts_version_info (
-  property_name varchar(128),
-  property_value varchar(512)
+CREATE TABLE hts_system_info (
+  property_key varchar(128),
+  property_value varchar(1024),
+  PRIMARY KEY (property_key)
 );
 
 CREATE TABLE ncbi_taxonomy (

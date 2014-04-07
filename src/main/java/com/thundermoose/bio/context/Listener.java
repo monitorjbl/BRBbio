@@ -1,6 +1,8 @@
 package com.thundermoose.bio.context;
 
+import com.thundermoose.bio.cron.CronScheduler;
 import org.apache.log4j.Logger;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,10 +40,12 @@ public class Listener implements ApplicationListener<ContextRefreshedEvent> {
   @Autowired
   @Qualifier("dataSource")
   DataSource ds;
+  @Autowired
+  CronScheduler scheduler;
 
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    log.info("Context refresh");
+    log.trace("Context refresh");
     if (DataSourceRouter.getDataSourceKey() == null) {
       if (useEmbedded) {
         log.info("Using embedded database");
@@ -53,12 +57,10 @@ public class Listener implements ApplicationListener<ContextRefreshedEvent> {
         log.info("Remote URL is [" + standaloneUrl + "]");
       }
 
-
       try {
         prepDatabase();
-      } catch (MetaDataAccessException e) {
-        throw new RuntimeException(e);
-      } catch (SQLException e) {
+        scheduleJobs();
+      } catch (MetaDataAccessException | SQLException | SchedulerException e) {
         throw new RuntimeException(e);
       }
     }
@@ -78,7 +80,7 @@ public class Listener implements ApplicationListener<ContextRefreshedEvent> {
       c.close();
     }
 
-    if (!tables.contains("hts_version_info")) {
+    if (!tables.contains("hts_system_info")) {
       log.info("Database is uninitialized, creating schema. Default user is admin/admin.");
 
       JdbcTestUtils.executeSqlScript(new JdbcTemplate(ds), new ClassPathResource("schema/tables.sql"), true);
@@ -89,5 +91,9 @@ public class Listener implements ApplicationListener<ContextRefreshedEvent> {
     } else {
       log.debug("Found tables: " + tables);
     }
+  }
+
+  private void scheduleJobs() throws SchedulerException {
+    scheduler.init();
   }
 }

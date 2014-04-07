@@ -25,7 +25,7 @@ public class NcbiDao {
   public static final String DELETE_HOMOLOGUES = "DELETE FROM ncbi_homologue";
   public static final String INSERT_TAXONOMY = "INSERT INTO ncbi_taxonomy (id,name) VALUES(?,?)";
   public static final String INSERT_HOMOLOGUE = "INSERT INTO ncbi_homologue (taxonomy_id,gene_id,gene_symbol) VALUES(?,?,?)";
-  public static final String GET_ALL_TAXONOMY = "SELECT * FROM ncbi_taxonomy ORDER BY name";
+  public static final String GET_ALL_TAXONOMY = "SELECT * FROM ncbi_taxonomy #CLAUSE# ORDER BY name";
   public static final String GET_HOMOLOGUES = "sql/homologues.sql";
 
   @Autowired
@@ -52,13 +52,17 @@ public class NcbiDao {
   }
 
   public List<Taxonomy> getAllTaxonomies() {
-    return jdbc.query(GET_ALL_TAXONOMY, new TaxonomyRowMapper());
+    return jdbc.query(GET_ALL_TAXONOMY.replaceAll("#CLAUSE#", ""), new TaxonomyRowMapper());
   }
 
   public List<Homologue> getHomologues(long runId, String taxonomyId) {
     return jdbc.query(read(GET_HOMOLOGUES), new Object[]{runId, taxonomyId}, new HomologueRowMapper());
   }
 
+  public Taxonomy getTaxonomy(String taxonomyId) {
+    return jdbc.queryForObject(GET_ALL_TAXONOMY.replaceAll("#CLAUSE#", "WHERE id = ?"), new TaxonomyRowMapper(), taxonomyId);
+  }
+  
   private class TaxonomyRowMapper implements RowMapper<Taxonomy> {
     @Override
     public Taxonomy mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -135,8 +135,8 @@ app.controller('RawCtrl', function ($scope, $location, $http) {
   };
 });
 
-app.controller('HomologueController', function ($scope, $location, $http) {
-  $scope.getSpecies = function () {
+app.controller('HomologueController', function ($scope, $location, $http, $filter) {
+  var getSpecies = function () {
     $http.get('b/ncbi/getTaxonomies').success(function (data) {
       $scope.species = [
         {id: -1, name: '[-Select-]'}
@@ -147,7 +147,7 @@ app.controller('HomologueController', function ($scope, $location, $http) {
 
     });
   };
-  $scope.getRuns = function () {
+  var getRuns = function () {
     $http.get('b/getRuns?includeViability=false').success(function (data) {
       $scope.runs = [
         {id: -1, runName: '[-Select-]'}
@@ -158,6 +158,17 @@ app.controller('HomologueController', function ($scope, $location, $http) {
 
     });
   };
+  var getLastUpdatedTime = function () {
+    $http.get('b/ncbi/lastLoadTime').success(function (data) {
+      if (data == '') {
+        $scope.lastUpdated = "Updating now...";
+      } else {
+        $scope.lastUpdated = $filter('date')(data,'MM-dd-yyyy hh:mm:ss');
+      }
+    }).error(function (data) {
+
+    });
+  }
   $scope.getHomologues = function (runId, taxonomyId) {
     $scope.loading = true;
     $http.get('b/ncbi/getHomologue', {
@@ -177,8 +188,10 @@ app.controller('HomologueController', function ($scope, $location, $http) {
     });
   };
 
-  $scope.getSpecies();
-  $scope.getRuns();
+
+  getSpecies();
+  getRuns();
+  getLastUpdatedTime();
 });
 
 app.controller('DisplayController', function ($scope, $location, $http) {

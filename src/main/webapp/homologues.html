@@ -27,13 +27,27 @@
         <td>
           <button class="btn" ng-click="getHomologues(runId, taxonomyId)">Process</button>
         </td>
-        <td><img class="loading" src="assets/img/loader.gif" ng-show="loading"/><span
-                class="failure">{{loadError}}</span>
+        <td><a id="excel" href="b/ncbi/getHomologueExcel?runId={{runId}}&taxonomyId={{taxonomyId}}"><img
+                src="assets/img/excel.png"></a>
+          <a id="tsv" href="b/ncbi/getHomologueTsv?runId={{runId}}&taxonomyId={{taxonomyId}}"><img
+                  src="assets/img/tsv.png"></a>
+          <img class="loading" src="assets/img/loader.gif" ng-show="loading"/><span class="failure">{{loadError}}</span>
         </td>
       </tr>
     </table>
   </div>
   <br/>
+
+  <div id="legend">
+    <h4>Information</h4>
+    Compare your gene data to a set of known homologues from NCBI's HomoloGene database.
+    <div style="padding-left:5px;">
+      <dl>
+        <dt>Last updated on</dt>
+        <dd>{{lastUpdated}}</dd>
+      </dl>
+    </div>
+  </div>
 
   <div class="row">
     <div id="processed" class="span8">
