@@ -1,12 +1,3 @@
-CREATE TABLE runs (
-  id bigint NOT NULL AUTO_INCREMENT,
-  run_name varchar(128) NOT NULL,
-  viability_only boolean NOT NULL,  
-  create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  created_by bigint,
-  PRIMARY KEY (id)
-);
-
 CREATE TABLE users (
   id bigint AUTO_INCREMENT NOT NULL,
   user_name varchar(128) NOT NULL,
@@ -20,6 +11,15 @@ CREATE TABLE users (
 );
 
 CREATE UNIQUE INDEX users_name ON users(user_name);
+
+CREATE TABLE runs (
+  id bigint NOT NULL AUTO_INCREMENT,
+  run_name varchar(128) NOT NULL,
+  viability_only boolean NOT NULL,
+  create_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  created_by bigint,
+  PRIMARY KEY (id)
+);
 
 CREATE TABLE run_security (
   run_id bigint,

@@ -1,5 +1,3 @@
-insert into hts_system_info values('revision','${scmVersion}');
-insert into hts_system_info values('time','${timestamp}');
 insert into hts_system_info values('version','${project.version}');
 
 insert into users (user_name,first_name,last_name,password_hash,active,admin)
