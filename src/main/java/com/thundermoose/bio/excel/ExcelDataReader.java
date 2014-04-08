@@ -105,7 +105,7 @@ public class ExcelDataReader {
         String geneId = getStringFromCell(row.getCell(index));
 
         index = head.get(GENE_SYMBOL);
-        String geneSymbol = row.getCell(index).getStringCellValue();
+        String geneSymbol = getStringFromCell(row.getCell(index));
 
         index = head.get(DATA);
         float data = (float) row.getCell(index).getNumericCellValue();
@@ -195,7 +195,7 @@ public class ExcelDataReader {
         String geneId = getStringFromCell(row.getCell(index));
 
         index = head.get(GENE_SYMBOL);
-        String geneSymbol = row.getCell(index).getStringCellValue();
+        String geneSymbol = getStringFromCell(row.getCell(index));
 
         index = head.get(DATA);
         float data = (float) row.getCell(index).getNumericCellValue();
