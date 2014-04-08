@@ -85,10 +85,10 @@ public class NcbiManager {
     List<Homologue> ex = dao.getHomologues(runId, taxonomyId);
 
     StringBuilder tsv = new StringBuilder();
-    tsv.append("Gene ID\tGene Symbol\tHomologue ID\tHomologue Symbol\t");
+    tsv.append("Gene ID\tGene Symbol\tHomologue ID\tHomologue Symbol\n");
 
     for (Homologue dt : ex) {
-      tsv.append(dt.getGeneId() + "\t" + dt.getGeneSymbol() + "\t" + dt.getHomologueId() + "\t" + dt.getHomologueSymbol() + "\t");
+      tsv.append(dt.getGeneId() + "\t" + dt.getGeneSymbol() + "\t" + dt.getHomologueId() + "\t" + dt.getHomologueSymbol() + "\n");
     }
 
     out.write(tsv.toString().getBytes());
