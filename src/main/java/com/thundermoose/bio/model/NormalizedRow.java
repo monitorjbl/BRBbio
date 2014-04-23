@@ -13,12 +13,7 @@ public class NormalizedRow {
   private String plateName;
   private String geneId;
   private String geneSymbol;
-  private Map<Double, Float> data = new TreeMap<Double, Float>(new Comparator<Double>() {
-    @Override
-    public int compare(Double o1, Double o2) {
-      return (int) (o1 - o2);
-    }
-  });
+  private Map<Double, Float> data = new TreeMap<>();
 
   public NormalizedRow() {
   }

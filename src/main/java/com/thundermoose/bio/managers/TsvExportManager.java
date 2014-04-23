@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -40,13 +41,11 @@ public class TsvExportManager {
       rowmap.put(key, rowmap.get(key) + dt.getNormalized() + "\t");
     }
 
-    StringBuilder tsv = new StringBuilder();
+    PrintWriter tsv = new PrintWriter(out);
     tsv.append(headers + "\n");
     for (String s : rowmap.keySet()) {
       tsv.append(rowmap.get(s) + "\n");
     }
-
-    out.write(tsv.toString().getBytes());
   }
 
   public void exportZFactorData(String username, long runId, String function, OutputStream out) throws IOException {
@@ -68,13 +67,11 @@ public class TsvExportManager {
       rowmap.put(key, rowmap.get(key) + dt.getzFactor() + "\t");
     }
 
-    StringBuilder tsv = new StringBuilder();
+    PrintWriter tsv = new PrintWriter(out);
     tsv.append(headers + "\n");
     for (String s : rowmap.keySet()) {
       tsv.append(rowmap.get(s) + "\n");
     }
-
-    out.write(tsv.toString().getBytes());
   }
 
   public void exportViabilityData(String username, long runId, String function, OutputStream out) throws IOException {
@@ -92,12 +89,10 @@ public class TsvExportManager {
       rowmap.put(key, rowmap.get(key) + dt.getNormalized() + "\t");
     }
 
-    StringBuilder tsv = new StringBuilder();
+    PrintWriter tsv = new PrintWriter(out);
     tsv.append(headers + "\n");
     for (String s : rowmap.keySet()) {
       tsv.append(rowmap.get(s) + "\n");
     }
-
-    out.write(tsv.toString().getBytes());
   }
 }

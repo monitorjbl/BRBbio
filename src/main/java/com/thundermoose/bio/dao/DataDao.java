@@ -75,6 +75,8 @@ public class DataDao {
     String sql = read(RUN_SQL);
     if (!includeViability) {
       sql = sql.replaceAll("#CLAUSE#", " and viability_only = false");
+    } else {
+      sql = sql.replaceAll("#CLAUSE#", "");
     }
     return jdbc.query(sql, new Object[]{username}, new RunRowMapper());
   }

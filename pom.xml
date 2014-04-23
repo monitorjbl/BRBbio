@@ -215,7 +215,7 @@
     <dependency>
       <groupId>com.thundermoose</groupId>
       <artifactId>xlsx-streamer</artifactId>
-      <version>0.2</version>
+      <version>0.2.1</version>
     </dependency>
 
     <!-- Servlet API -->

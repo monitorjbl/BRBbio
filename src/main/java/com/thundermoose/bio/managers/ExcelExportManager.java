@@ -8,6 +8,7 @@ import com.thundermoose.bio.util.Utils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,7 +45,7 @@ public class ExcelExportManager {
       headers.add(d + "hr");
     }
 
-    Workbook wb = new XSSFWorkbook();
+    Workbook wb = new SXSSFWorkbook();
     Sheet sheet = wb.createSheet();
     Row headerRow = sheet.createRow(0);
 
