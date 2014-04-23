@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import com.thundermoose.xlsx.StreamingReader;
 import org.apache.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -24,7 +25,6 @@ import com.thundermoose.bio.model.Run;
 import com.thundermoose.bio.model.ViabilityData;
 
 public class ExcelDataReader {
-
   private static final Logger logger = Logger.getLogger(ExcelDataReader.class);
 
   private static final String PLATE_ID = "AssayPlate";
@@ -33,7 +33,8 @@ public class ExcelDataReader {
   private static final String TIME_MARKER = "TimeMarker";
   private static final String DATA = "Data";
 
-  private final Map<String, String> controls;
+  private static final int BUFFER_SIZE = 4096;
+  private static final int ROW_CACHE_SIZE = 100;
 
   @SuppressWarnings("serial")
   private final Map<String, String> ignored = new HashMap<String, String>() {
@@ -41,7 +42,11 @@ public class ExcelDataReader {
     }
   };
 
-  private DataDao dao;
+  DataDao dao;
+  Map<String, String> controls;
+
+  ExcelDataReader() {
+  }
 
   public ExcelDataReader(DataDao dao, List<String> controls) {
     this.dao = dao;
@@ -53,23 +58,13 @@ public class ExcelDataReader {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void readRawData(String runName, String username, InputStream file) throws IOException {
-    Workbook wb;
-    try {
-      wb = WorkbookFactory.create(file);
-    } catch (InvalidFormatException e1) {
-      throw new RuntimeException(e1);
-    }
 
-    Sheet sheet = wb.getSheetAt(0);
+    StreamingReader reader = StreamingReader.builder()
+            .bufferSize(BUFFER_SIZE)
+            .rowCacheSize(ROW_CACHE_SIZE)
+            .read(file);
 
     Map<String, Integer> head = new HashMap<String, Integer>();
-    for (Cell cell : sheet.getRow(0)) {
-      head.put(cell.getStringCellValue(), cell.getColumnIndex());
-    }
-    if (findMissingColumns(head, true) != null) {
-      throw new RuntimeException("Missing required column [" + findMissingColumns(head, true) + "]");
-    }
-
     // create new run
     long runId = dao.addRun(new Run(runName, false), username);
 
@@ -77,8 +72,14 @@ public class ExcelDataReader {
     Map<String, Long> plates = new HashMap<String, Long>();
     Map<String, Integer> dupCheck = new HashMap<String, Integer>();
 
-    for (Row row : sheet) {
+    for (Row row : reader) {
       if (row.getRowNum() == 0 || row.getCell(0) == null) {
+        for (Cell cell : row) {
+          head.put(cell.getStringCellValue(), cell.getColumnIndex());
+        }
+        if (findMissingColumns(head, true) != null) {
+          throw new RuntimeException("Missing required column [" + findMissingColumns(head, true) + "]");
+        }
         continue;
       }
 
@@ -122,8 +123,10 @@ public class ExcelDataReader {
             try {
               dao.addRawData(new RawData(plateId, geneId, geneSymbol, time, data));
             } catch (Exception e) {
-              throw new DatabaseException("Duplicate data found");
+              throw new DatabaseException("Duplicate data found in database at row " + (row.getRowNum() + 1) + ", unable to ignore");
             }
+          } else {
+            logger.debug("Ignoring duplicate at row " + (row.getRowNum() + 1));
           }
         }
       } catch (Exception e) {
@@ -144,24 +147,12 @@ public class ExcelDataReader {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   private void readViability(InputStream file, Long runId, String runName, String username) throws IOException {
-    Workbook wb;
-    try {
-      wb = WorkbookFactory.create(file);
-    } catch (InvalidFormatException e1) {
-      throw new RuntimeException(e1);
-    }
-
-
-    Sheet sheet = wb.getSheetAt(0);
+    StreamingReader reader = StreamingReader.builder()
+            .bufferSize(BUFFER_SIZE)
+            .rowCacheSize(ROW_CACHE_SIZE)
+            .read(file);
 
     Map<String, Integer> head = new HashMap<String, Integer>();
-    for (Cell cell : sheet.getRow(0)) {
-      head.put(cell.getStringCellValue(), cell.getColumnIndex());
-    }
-    if (findMissingColumns(head, false) != null) {
-      throw new RuntimeException("Missing required column  [" + findMissingColumns(head, false) + "]");
-    }
-
     // if this is an independent load, need to create a run
     if (runId == null) {
       runId = dao.addRun(new Run(runName, true), username);
@@ -171,8 +162,14 @@ public class ExcelDataReader {
     Map<String, Long> plates = new HashMap<String, Long>();
     Map<String, Integer> dupCheck = new HashMap<String, Integer>();
 
-    for (Row row : sheet) {
+    for (Row row : reader) {
       if (row.getRowNum() == 0 || row.getCell(0) == null) {
+        for (Cell cell : row) {
+          head.put(cell.getStringCellValue(), cell.getColumnIndex());
+        }
+        if (findMissingColumns(head, false) != null) {
+          throw new RuntimeException("Missing required column  [" + findMissingColumns(head, false) + "]");
+        }
         continue;
       }
 

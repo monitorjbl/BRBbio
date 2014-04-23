@@ -59,7 +59,7 @@ public class NormalizationTest {
         add("negativecontrol");
         add("Copb1_indi");
       }
-    }, new FileInputStream(new File("src/test/resources/test_data.xlsx")));
+    }, new FileInputStream(new File("src/test/resources/test_raw.xlsx")));
     time = System.currentTimeMillis() - time;
     log.info("data loaded in " + time + "ms");
 
