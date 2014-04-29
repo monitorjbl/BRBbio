@@ -54,7 +54,7 @@ public class NcbiImportManager {
       String line;
       while ((line = bf.readLine()) != null) {
         String[] s = line.split("\t");
-        dao.addHomologueData(s[1], s[2], s[3]);
+        dao.addHomologueData(s[0], s[1], s[2], s[3]);
       }
     }
   }

@@ -1,78 +1,81 @@
 //adding helper methods
 if (typeof String.prototype.endsWith != 'function') {
-  String.prototype.endsWith = function(suffix) {
+  String.prototype.endsWith = function (suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
 if (typeof String.prototype.startsWith != 'function') {
-  String.prototype.startsWith = function(str) {
+  String.prototype.startsWith = function (str) {
     return this.slice(0, str.length) == str;
   };
 }
 
-var app = angular.module('bio', []).config(function($routeProvider) {
+var app = angular.module('bio', []).config(function ($routeProvider) {
   $routeProvider.when('/', {
-    templateUrl : 'home.html'
+    templateUrl: 'home.html'
   }).when('/help', {
-    templateUrl : 'help.html'
+    templateUrl: 'help.html'
   }).when('/rawUpload', {
-    templateUrl : 'b/rawUpload'
+    templateUrl: 'b/rawUpload'
   }).when('/admin', {
-    templateUrl : 'b/auth/adminUi'
+    templateUrl: 'b/auth/adminUi'
   }).when('/profile', {
-    templateUrl : 'b/auth/profileUi'
+    templateUrl: 'b/auth/profileUi'
   }).when('/createAccount', {
-    templateUrl : 'b/auth/createUi'
+    templateUrl: 'b/auth/createUi'
   }).when('/linkedUpload', {
-    templateUrl : 'b/linkedUpload'
+    templateUrl: 'b/linkedUpload'
   }).when('/independentUpload', {
-    templateUrl : 'b/independentUpload'
+    templateUrl: 'b/independentUpload'
   }).when('/deleteRun', {
-    templateUrl : 'b/deleteRun'
+    templateUrl: 'b/deleteRun'
   }).when('/viewNormalizedData', {
-    templateUrl : 'b/viewNormalizedData'
+    templateUrl: 'b/viewNormalizedData'
   }).when('/viewZFactor', {
-    templateUrl : 'b/viewZFactor'
+    templateUrl: 'b/viewZFactor'
   }).when('/viewViability', {
-    templateUrl : 'b/viewViability'
+    templateUrl: 'b/viewViability'
   }).when('/homologues', {
-    templateUrl : 'homologues.html'
+    templateUrl: 'homologues.html'
   }).otherwise({
-    redirectTo : '/'
+    redirectTo: '/'
   });
-}).run(function($rootScope, $templateCache, $location) {
-  $rootScope.$on('$viewContentLoaded', function() {
+}).run(function ($rootScope, $templateCache, $location) {
+  $rootScope.$on('$viewContentLoaded', function () {
     $templateCache.removeAll();
   });
 
-  $rootScope.$on('$routeChangeStart', function(next, current) {
+  $rootScope.$on('$routeChangeStart', function (next, current) {
     $rootScope.location = $location.$$path;
   });
 });
 
 app.directive('uploadForm', function factory($location) {
   return function preLink($scope, iElement, iAttrs) {
-    $scope.uploadForm = function() {
+    $scope.uploadForm = function () {
       var formData = new FormData($(iElement).closest('form')[0]);
+
       $scope.loading = true;
       $scope.loadError = '';
       $.ajax({
-        url : $(iElement).attr('destination'),
-        type : 'POST',
-        data : formData,
-        cache : false,
-        contentType : false,
-        processData : false,
-        success : function(data) {
+        url: $(iElement).attr('destination'),
+        type: 'POST',
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function (data) {
           $scope.loading = false;
-          $location.path($(iElement).attr('returnPath'));
+          if ($(iElement).attr('returnPath') != undefined) {
+            $location.path($(iElement).attr('returnPath'));
+          }
           $scope.$apply();
         },
-        error : function(data) {
+        error: function (data) {
           console.log(data);
           var err = JSON.parse(data.responseText);
           $scope.loading = false;
-          $scope.loadError = 'Failed to upload. '+err.message;
+          $scope.loadError = 'Failed to upload. ' + err.message;
           $scope.$apply();
         }
       });
@@ -80,9 +83,9 @@ app.directive('uploadForm', function factory($location) {
   };
 });
 
-app.factory('authRequestInterceptor', function($q, $location, $rootScope) {
+app.factory('authRequestInterceptor', function ($q, $location, $rootScope) {
   return {
-    response : function(response) {
+    response: function (response) {
       if (response.config.url.startsWith('b/') && !response.headers().logged_in) {
         $rootScope.$broadcast('loggedOut');
         $location.path('/');
@@ -92,6 +95,6 @@ app.factory('authRequestInterceptor', function($q, $location, $rootScope) {
   };
 });
 
-app.config(function($httpProvider) {
+app.config(function ($httpProvider) {
   $httpProvider.interceptors.push('authRequestInterceptor');
 });

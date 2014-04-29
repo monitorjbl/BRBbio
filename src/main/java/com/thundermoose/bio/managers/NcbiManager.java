@@ -32,6 +32,8 @@ public class NcbiManager {
   @Autowired
   NcbiImportManager importManage;
   @Autowired
+  HomologueManager homologueManager;
+  @Autowired
   private NcbiDao dao;
   @Autowired
   private SystemDao systemDao;
@@ -44,11 +46,11 @@ public class NcbiManager {
     return dao.getTaxonomy(taxonomyId);
   }
 
-  public List<Homologue> getHomologues(long runId, String taxonomyId) throws IOException {
+  /*public List<Homologue> getHomologues(long runId, String taxonomyId) throws IOException {
     return dao.getHomologues(runId, taxonomyId);
-  }
+  }*/
 
-  public void getHomologuesExcel(long runId, String taxonomyId, OutputStream out) throws IOException {
+  /*public void getHomologuesExcel(long runId, String taxonomyId, OutputStream out) throws IOException {
     List<Homologue> ex = dao.getHomologues(runId, taxonomyId);
     @SuppressWarnings("serial")
     List<String> headers = new ArrayList<String>() {
@@ -92,7 +94,7 @@ public class NcbiManager {
     }
 
     out.write(tsv.toString().getBytes());
-  }
+  }*/
 
   public Date getLastLoadTime() {
     String val = systemDao.getSystemProperty(LOAD_PROPERTY);
@@ -106,6 +108,7 @@ public class NcbiManager {
     systemDao.setSystemProperty(LOAD_PROPERTY, null);
     importManage.importTaxonomyData();
     importManage.importHomologueData();
+    homologueManager.load();
     systemDao.setSystemProperty(LOAD_PROPERTY, Long.toString(System.currentTimeMillis()));
   }
 }

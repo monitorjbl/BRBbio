@@ -117,7 +117,8 @@ CREATE TABLE ncbi_taxonomy (
 
 CREATE TABLE ncbi_homologue (
   taxonomy_id varchar(128),
+  homologue_id varchar(128),
   gene_id varchar(128),
   gene_symbol varchar(128),
-  PRIMARY KEY (taxonomy_id,gene_id)
+  PRIMARY KEY (homologue_id,gene_id)
 );

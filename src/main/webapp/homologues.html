@@ -7,34 +7,26 @@
   <div id="selectBox">
     <h3>Show Homologues</h3>
 
-    <table>
-      <tr>
-        <td>Run</td>
-        <td>
-          <select ng-model="runId" ng-options="opt.id as opt.runName for opt in runs">
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td>Species</td>
-        <td>
-          <select ng-model="taxonomyId" ng-options="opt.id as opt.name for opt in species">
-          </select>
-        </td>
-      </tr>
+    <form destination="b/ncbi/getHomologue" name="form" upload-form novalidate>
+      <table>
+        <tr>
+          <td>Run</td>
+          <td>
+            <input id="files" name="files" type="file" multiple/>
+          </td>
+        </tr>
 
-      <tr>
-        <td>
-          <button class="btn" ng-click="getHomologues(runId, taxonomyId)">Process</button>
-        </td>
-        <td><a id="excel" href="b/ncbi/getHomologueExcel?runId={{runId}}&taxonomyId={{taxonomyId}}"><img
-                src="assets/img/excel.png"></a>
-          <a id="tsv" href="b/ncbi/getHomologueTsv?runId={{runId}}&taxonomyId={{taxonomyId}}"><img
-                  src="assets/img/tsv.png"></a>
-          <img class="loading" src="assets/img/loader.gif" ng-show="loading"/><span class="failure">{{loadError}}</span>
-        </td>
-      </tr>
-    </table>
+        <tr>
+          <td>
+            <button class="btn" ng-click="uploadForm()">Process</button>
+          </td>
+          <td>
+            <img class="loading" src="assets/img/loader.gif" ng-show="loading"/><span
+                  class="failure">{{loadError}}</span>
+          </td>
+        </tr>
+      </table>
+    </form>
   </div>
   <br/>
 

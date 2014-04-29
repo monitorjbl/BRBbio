@@ -3,12 +3,14 @@ package com.thundermoose.bio.excel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 import com.thundermoose.xlsx.StreamingReader;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
+import org.mapdb.DBMaker;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +25,11 @@ import com.thundermoose.bio.model.ViabilityData;
 public class ExcelDataReader {
   private static final Logger logger = Logger.getLogger(ExcelDataReader.class);
 
-  private static final String PLATE_ID = "AssayPlate";
-  private static final String GENE_SYMBOL = "GeneSymbol";
-  private static final String GENE_ID = "EntrezGeneID";
-  private static final String TIME_MARKER = "TimeMarker";
-  private static final String DATA = "Data";
+  public static final String PLATE_ID = "AssayPlate";
+  public static final String GENE_SYMBOL = "GeneSymbol";
+  public static final String GENE_ID = "EntrezGeneID";
+  public static final String TIME_MARKER = "TimeMarker";
+  public static final String DATA = "Data";
 
   private static final int BUFFER_SIZE = 4096;
   private static final int ROW_CACHE_SIZE = 100;

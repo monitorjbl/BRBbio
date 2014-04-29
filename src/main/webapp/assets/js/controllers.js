@@ -169,23 +169,8 @@ app.controller('HomologueController', function ($scope, $location, $http, $filte
 
     });
   }
-  $scope.getHomologues = function (runId, taxonomyId) {
-    $scope.loading = true;
-    $http.get('b/ncbi/getHomologue', {
-      params: {
-        runId: runId,
-        taxonomyId: taxonomyId
-      }
-    }).success(function (data) {
-      $scope.rows = data;
-
-      $scope.showingData = true;
-      $scope.loading = false;
-      $scope.loaded = true;
-    }).error(function (data) {
-      $scope.loading = false;
-      $scope.loadError = 'Failed to retrieve data :(';
-    });
+  $scope.getHomologues = function () {
+    $('#files')
   };
 
 
