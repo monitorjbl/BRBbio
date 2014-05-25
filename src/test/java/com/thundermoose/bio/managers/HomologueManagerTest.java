@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.thundermoose.bio.model.Homologue;
 import com.thundermoose.bio.model.HomologueData;
+import com.thundermoose.bio.model.HomologueJoin;
+import com.thundermoose.bio.model.HomologueSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -45,25 +47,28 @@ public class HomologueManagerTest {
 
   @Test
   public void testIntersect() {
-    Map<HomologueData, HomologueData> setA = ImmutableMap.of(
-            new HomologueData("1", "101", 10), new HomologueData("1", "101", 10),
-            new HomologueData("2", "102", 20), new HomologueData("2", "102", 20),
-            new HomologueData("3", "103", 30), new HomologueData("3", "103", 30)
+    Map<String, HomologueData> setA = ImmutableMap.of(
+            "101", new HomologueData("1", "101", 10),
+            "102", new HomologueData("2", "102", 20),
+            "103", new HomologueData("3", "103", 30)
     );
-    Map<HomologueData, HomologueData> setB = ImmutableMap.of(
-            new HomologueData("12", "102", 11), new HomologueData("12", "102", 11),
-            new HomologueData("13", "103", 21), new HomologueData("13", "103", 21)
+    Map<String, HomologueData> setB = ImmutableMap.of(
+            "102", new HomologueData("12", "102", 11),
+            "103", new HomologueData("13", "103", 21)
     );
-    Map<HomologueData, HomologueData> setC = ImmutableMap.of(
-            new HomologueData("22", "102", 22), new HomologueData("22", "102", 22),
-            new HomologueData("23", "103", 23), new HomologueData("23", "103", 23),
-            new HomologueData("27", "107", 13), new HomologueData("27", "107", 13)
+    Map<String, HomologueData> setC = ImmutableMap.of(
+            "102", new HomologueData("22", "102", 22),
+            "103", new HomologueData("23", "103", 23),
+            "107", new HomologueData("27", "107", 13)
     );
 
-    Set<List<HomologueData>> data = sut.intersection(ImmutableList.of(setA, setB, setC));
+    HomologueJoin data = sut.intersection(ImmutableList.of(
+            new HomologueSet("file1",setA),
+            new HomologueSet("file2",setB),
+            new HomologueSet("file3",setC)));
 
-    assertEquals(2, data.size());
-    List<HomologueData> row1 = Iterables.find(data, new Predicate<List<HomologueData>>() {
+    assertEquals(2, data.getData().size());
+    List<HomologueData> row1 = Iterables.find(data.getData(), new Predicate<List<HomologueData>>() {
       @Override
       public boolean apply(List<HomologueData> homologueDatas) {
         return homologueDatas.get(0).getHomologueId().equals("102");
@@ -71,7 +76,7 @@ public class HomologueManagerTest {
     });
     assertEquals(3,row1.size());
 
-    List<HomologueData> row2 = Iterables.find(data, new Predicate<List<HomologueData>>() {
+    List<HomologueData> row2 = Iterables.find(data.getData(), new Predicate<List<HomologueData>>() {
       @Override
       public boolean apply(List<HomologueData> homologueDatas) {
         return homologueDatas.get(0).getHomologueId().equals("103");

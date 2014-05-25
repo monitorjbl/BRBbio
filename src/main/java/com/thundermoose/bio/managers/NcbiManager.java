@@ -38,6 +38,8 @@ public class NcbiManager {
   @Autowired
   private SystemDao systemDao;
 
+  private boolean refreshing;
+
   public List<Taxonomy> getTaxonomies() {
     return dao.getAllTaxonomies();
   }
@@ -45,56 +47,6 @@ public class NcbiManager {
   public Taxonomy getTaxonomy(String taxonomyId) {
     return dao.getTaxonomy(taxonomyId);
   }
-
-  /*public List<Homologue> getHomologues(long runId, String taxonomyId) throws IOException {
-    return dao.getHomologues(runId, taxonomyId);
-  }*/
-
-  /*public void getHomologuesExcel(long runId, String taxonomyId, OutputStream out) throws IOException {
-    List<Homologue> ex = dao.getHomologues(runId, taxonomyId);
-    @SuppressWarnings("serial")
-    List<String> headers = new ArrayList<String>() {
-      {
-        add("Gene ID");
-        add("Gene Symbol");
-        add("Homologue Gene ID");
-        add("Homologue Symbol");
-      }
-    };
-
-    Workbook wb = new XSSFWorkbook();
-    Sheet sheet = wb.createSheet();
-    Row headerRow = sheet.createRow(0);
-
-    //write headers
-    for (String h : headers) {
-      int in = headerRow.getLastCellNum();
-      headerRow.createCell(in >= 0 ? in : 0).setCellValue(h);
-    }
-
-    for (Homologue dt : ex) {
-      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-      row.createCell(0).setCellValue(dt.getGeneId());
-      row.createCell(1).setCellValue(dt.getGeneSymbol());
-      row.createCell(2).setCellValue(dt.getHomologueId());
-      row.createCell(3).setCellValue(dt.getHomologueSymbol());
-    }
-
-    wb.write(out);
-  }
-
-  public void getHomologuesTsv(long runId, String taxonomyId, OutputStream out) throws IOException {
-    List<Homologue> ex = dao.getHomologues(runId, taxonomyId);
-
-    StringBuilder tsv = new StringBuilder();
-    tsv.append("Gene ID\tGene Symbol\tHomologue ID\tHomologue Symbol\n");
-
-    for (Homologue dt : ex) {
-      tsv.append(dt.getGeneId() + "\t" + dt.getGeneSymbol() + "\t" + dt.getHomologueId() + "\t" + dt.getHomologueSymbol() + "\n");
-    }
-
-    out.write(tsv.toString().getBytes());
-  }*/
 
   public Date getLastLoadTime() {
     String val = systemDao.getSystemProperty(LOAD_PROPERTY);
@@ -104,11 +56,16 @@ public class NcbiManager {
     return null;
   }
 
-  public void refresh() throws IOException {
+  public boolean isRefreshing() {
+    return refreshing;
+  }
+
+  public synchronized void refresh() throws IOException {
+    refreshing = true;
     systemDao.setSystemProperty(LOAD_PROPERTY, null);
     importManage.importTaxonomyData();
     importManage.importHomologueData();
-    homologueManager.load();
     systemDao.setSystemProperty(LOAD_PROPERTY, Long.toString(System.currentTimeMillis()));
+    refreshing = false;
   }
 }

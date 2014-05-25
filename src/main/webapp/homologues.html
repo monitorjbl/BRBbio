@@ -7,7 +7,8 @@
   <div id="selectBox">
     <h3>Show Homologues</h3>
 
-    <form destination="b/ncbi/getHomologue" name="form" upload-form novalidate>
+    <!--<form destination="b/ncbi/homologuesExcel" name="form" upload-form novalidate>-->
+    <form action="b/ncbi/homologuesExcel" method="POST" enctype="multipart/form-data">
       <table>
         <tr>
           <td>Run</td>
@@ -18,7 +19,8 @@
 
         <tr>
           <td>
-            <button class="btn" ng-click="uploadForm()">Process</button>
+            <!--<button class="btn" ng-click="uploadForm()">Process</button>-->
+            <input type="submit"/>
           </td>
           <td>
             <img class="loading" src="assets/img/loader.gif" ng-show="loading"/><span
