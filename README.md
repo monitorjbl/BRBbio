@@ -4,7 +4,7 @@ Makes analysis of high-throughput sampling data super easy. With this applicatio
 
 # Installing
 
-As of now, there is no real installer for this application. It's packaged as a standalone executable JAR, so you will need the [Java 7+ runtime](http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html) to start it. Once you've downloaded the JAR [from here](https://github.com/monitorjbl/BRBbio/releases/tag/0.1-RC), you can run it with this command:
+As of now, there is no real installer for this application. It's packaged as a standalone executable JAR, so you will need the [Java 7+ runtime](http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html) to start it. Once you've downloaded the JAR [from here](https://github.com/monitorjbl/BRBbio/releases/tag/0.2-RC), you can run it with this command:
 
 ```
 java -jar brbbio-0.1-RC.jar
