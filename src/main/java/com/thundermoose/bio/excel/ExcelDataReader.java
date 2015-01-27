@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentNavigableMap;
 
-import com.thundermoose.xlsx.StreamingReader;
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;

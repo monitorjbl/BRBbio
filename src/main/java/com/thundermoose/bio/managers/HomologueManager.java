@@ -5,7 +5,7 @@ import com.thundermoose.bio.excel.ExcelDataReader;
 import com.thundermoose.bio.model.HomologueData;
 import com.thundermoose.bio.model.HomologueJoin;
 import com.thundermoose.bio.model.HomologueSet;
-import com.thundermoose.xlsx.StreamingReader;
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
